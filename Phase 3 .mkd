@@ -1,0 +1,437 @@
+# AI Roadmap - Phase 3: Data Handling & EDA (Beginner to Advanced)
+
+This guide teaches every Phase 3 topic from your master plan with AI-focused intuition, formulas, examples, and interview-style questions.
+
+## How to Use This Document
+
+- Study in order: Data Cleaning -> Missing Values -> Outlier Detection -> Feature Engineering -> Feature Scaling -> Encoding -> Exploratory Data Analysis -> Data Pipelines.
+- For each topic, first read Intuition, then Core Theory, then AI Use Cases.
+- Solve mini checks before moving ahead.
+- Revisit advanced notes while building ML models.
+
+---
+
+## Phase 3 Learning Outcomes
+
+By the end of this phase, you should be able to:
+
+1. Clean and preprocess raw data for reliable modeling.
+2. Handle missing values and outliers appropriately.
+3. Create and evaluate features that improve model performance.
+4. Build reproducible data pipelines and perform EDA that drives decisions.
+
+---
+
+# PART A - DATA HANDLING & EDA
+
+Data quality and features are the foundation of every ML system.
+
+- Raw sources -> noisy inputs
+- Cleaning -> consistent records
+- Features -> signal for models
+- Pipelines -> repeatable production workflows
+
+## 1) Data Cleaning
+
+### Intuition
+
+- Think of cleaning like tidying a messy spreadsheet: fix typos, unify formats, remove duplicates.
+- Small cleaning steps prevent large downstream errors in models.
+
+Cleaning removes errors, inconsistencies, and duplicates so models learn from true signal, not garbage.
+
+Example:
+- Fix inconsistent categorical labels: "ny", "NY", "New York" -> "New York".
+- Trim whitespace, correct typos, standardize date formats.
+
+### Core Theory
+
+Key steps:
+- Deduplication: identify and remove repeated records.
+- Normalization: standard format for dates, strings, units.
+- Validation: assert ranges, types, and integrity constraints.
+- Logging and provenance: track transformations for reproducibility.
+
+### AI Relevance
+
+- Clean training data reduces label noise and improves generalization.
+- Systematic cleaning prevents leakage and bias.
+
+### Industry Example
+
+E-commerce product catalog:
+- Duplicate SKUs and inconsistent categories cause wrong recommendations and inventory errors.
+- Cleaning upstream fixes downstream model quality and business metrics.
+
+### Common Interview Questions
+
+1. How would you detect duplicate records in a dataset?
+
+ - Use deduplication techniques like hashing or exact matching on key columns.
+
+2. What validation checks are important before training?
+
+ - Check data types, value ranges, null rates, and foreign key integrity.
+
+3. How do you prevent data leakage during cleaning?
+
+ - Separate train/test before any cleaning that uses label information; apply transformations learned on training to test only.
+---
+
+## 2) Missing Values
+
+### Intuition
+
+- Missing data is like blank cells: sometimes safe to drop, sometimes they hide a pattern.
+- Always inspect why values are missing before choosing a fix.
+
+
+Missing values are gaps — they carry information and must be handled, not ignored.
+
+Types:
+- MCAR (Missing Completely At Random)
+- MAR (Missing At Random)
+- MNAR (Missing Not At Random)
+
+### Core Theory
+
+Handling strategies:
+- Remove rows/columns (when missingness is small or column irrelevant).
+- Impute with mean/median/mode, KNN, or model-based imputation (e.g., MICE).
+- Use indicator flags (missingness as a feature).
+- Advanced: multiple imputation to reflect uncertainty.
+
+### AI Relevance
+
+- Poor imputation biases models. Choice depends on missingness mechanism and downstream model.
+
+### Industry Example
+
+Healthcare records:
+- Missing lab values may indicate not-ordered tests (informative missingness). Imputing with mean can be misleading; include missing flags or model missingness explicitly.
+
+### Common Interview Questions
+
+1. When is it safe to drop missing rows?
+
+- When missingness is tiny and random (MCAR) and dropping won't bias the dataset.
+
+2. Why might mean imputation be harmful?
+
+- It shrinks variance and can bias estimates, especially if missingness is not random.
+
+3. When to use missingness indicators?
+
+- When missingness is informative (e.g., not ordered tests) and can help the model learn patterns in missingness.
+
+---
+
+## 3) Outlier Detection
+
+### Intuition
+
+- Outliers are extreme numbers; decide if they are errors, rare signal, or expected extremes.
+- Treat depending on business meaning: correct, keep, or model separately.
+
+Outliers are extreme values that can skew models or indicate errors/rare events.
+
+### Core Theory
+
+Detection methods:
+- Z-score / IQR rule
+- Robust statistics (median, MAD)
+- Model-based: isolation forest, one-class SVM
+- Local methods: LOF (Local Outlier Factor)
+
+Handling:
+- Correct if entry error, remove if noise, or keep and model separately if meaningful.
+
+### AI Relevance
+
+- Outliers can dominate loss functions (e.g., MSE). Robust losses or clipping help.
+- Some outliers are signals (fraud) — treat as separate prediction targets.
+
+### Industry Example
+
+Finance fraud:
+- Very large transaction amounts could be fraud; flagging rather than removing helps detection models.
+
+### Common Interview Questions
+
+1. How to choose a threshold for IQR-based outlier removal?
+
+- Commonly Q1 - 1.5*IQR and Q3 + 1.5*IQR; adjust based on domain knowledge and tolerance for false positives/negatives.
+
+2. Difference between anomaly detection and outlier removal?
+
+- Anomaly detection identifies unusual patterns (useful for fraud), while outlier removal is for cleaning noise; decide based on whether extreme points are meaningful.
+
+3. How to handle time-series outliers differently?
+
+- Time-series outliers may be seasonal or sudden shocks; use rolling windows, seasonal decomposition, or specialized models to detect them.
+
+---
+
+## 4) Feature Engineering
+
+### Intuition
+
+- Feature engineering is making useful columns from raw data.
+- Think: what simple math on columns would help the model separate classes or predict better?
+
+Transform raw data into features that make patterns easier for models to learn.
+
+Examples:
+- From timestamp -> hour-of-day, day-of-week, is-holiday.
+- From text -> token counts, TF-IDF, embeddings.
+
+### Core Theory
+
+Feature types:
+- Numerical, categorical, ordinal, text, datetime, image.
+
+Transformations:
+- Aggregations (groupby stats), interactions (product of features), binning, encoding, embedding features.
+
+Evaluation:
+- Use cross-validation and feature importance to validate utility.
+
+### AI Relevance
+
+- Better features often trump model complexity.
+- Automated feature stores and pipelines speed iteration.
+
+### Industry Example
+
+Churn prediction:
+- Create features like "days since last login", "rolling average activity", and interaction terms with contract type to improve recall.
+
+### Common Interview Questions
+
+1. What is feature interaction and when to create it?
+
+- Interaction combines features (e.g., A * B) to capture joint effects when model linearity cannot.
+
+2. How do you evaluate whether a new feature helps?
+
+- Use cross-validation improvement, feature importances, and ablation studies to assess impact.
+
+3. When are embeddings better than one-hot encoding?
+
+- Embeddings capture similarity and compact representations for high-cardinality categorical/text fields, while one-hot can lead to sparse, high-dimensional data.
+
+---
+
+## 5) Feature Scaling
+
+### Intuition
+
+- Scaling makes numbers comparable so models don't favor large-scale features.
+- Always fit scalers on training data and apply same transform to test/production.
+
+
+Scaling puts features on comparable scales so models converge reliably and weights are interpretable.
+
+### Core Theory
+
+Common scalers:
+- StandardScaler (z = (x - mean) / std)
+- MinMaxScaler ((x - min) / (max - min))
+- RobustScaler (uses median and IQR)
+
+When to scale:
+- Required for distance-based models (k-NN, KMeans), gradient-based optimizers, and regularized linear models.
+
+### AI Relevance
+
+- Unscaled features can bias regularization and slow convergence.
+- For tree-based models scaling is less critical.
+
+### Industry Example
+
+Credit scoring:
+- Income and debt ratio should be scaled so the model treats both fairly.
+
+### Common Interview Questions
+
+1. When to use StandardScaler vs MinMaxScaler?
+
+- Use StandardScaler when you want zero mean unit variance; MinMax when you need bounded ranges (e.g., neural nets with sigmoid inputs); RobustScaler for heavy outliers.
+
+2. Should you scale categorical variables?
+
+- No, categorical variables should be encoded first; scaling generally applies to numerical features only.
+
+3. How to apply scaling in production pipelines?
+
+- Fit scaler on training data and persist parameters (mean/std) to apply exactly in production, ensuring consistency.
+
+---
+
+## 6) Encoding
+
+### Intuition
+
+
+- Turning words or categories into numbers the model can use.
+- Pick method based on model type, cardinality, and leakage risk.
+
+Encoding converts categorical data to numeric representations models can use.
+
+### Core Theory
+
+Methods:
+- One-hot encoding
+- Ordinal encoding
+- Target encoding / mean encoding (with regularization)
+- Hashing trick for high-cardinality features
+- Embeddings learned by models for categorical variables
+
+Pitfalls:
+- High cardinality blowup with one-hot.
+- Target leakage with naive target encoding.
+
+### AI Relevance
+
+- Proper encoding preserves information and avoids overfitting/leakage.
+
+### Industry Example
+
+Ad targeting:
+- Categorical fields like publisher ID can be millions; hashing or learned embeddings are necessary.
+
+### Common Interview Questions
+
+1. How to handle high-cardinality categorical variables?
+
+- Use hashing, target encoding with regularization, or learned embeddings to avoid dimensionality explosion.
+
+2. What is target leakage in encoding and how to prevent it?
+
+- Target leakage occurs when encoding uses target information from the whole dataset; prevent it by computing encodings only on training folds and using smoothing/regularization.
+
+3. When to prefer learned embeddings?
+
+- Learned embeddings are preferred when categories have semantic similarity or when cardinality is high and you have enough data, as they can capture relationships between categories more effectively than one-hot encoding.
+
+
+---
+
+## 7) Exploratory Data Analysis (EDA)
+
+### Intuition
+
+- EDA is exploring the data with plots and summaries to learn what to do next.
+- Spend time here — it saves modeling time.
+
+
+EDA uncovers patterns, distributions, relationships, and data quality issues before modeling.
+
+### Core Theory
+
+EDA steps:
+- Univariate analysis (histograms, summary stats)
+- Bivariate analysis (scatterplots, correlation)
+- Group analysis (aggregations, pivot tables)
+- Visualization for skew, missingness, and seasonality
+
+### AI Relevance
+
+- EDA guides feature selection, transformation choices, and error expectations.
+
+### Industry Example
+
+Marketing funnel analysis:
+- EDA reveals bottlenecks in conversion and segments with high dropoff, informing targeted features and experiments.
+
+### Common Interview Questions
+
+1. What plots would you use to inspect skewness or multimodality?
+
+- Use histograms, boxplots, and density plots to inspect skewness and multimodality.
+
+2. How would you detect class imbalance with EDA?
+
+- Inspect class counts, distribution by segment, and precision/recall per class to detect imbalance.
+
+3. What is a good EDA pipeline for time-series data?
+
+- Decompose into trend/seasonality, use rolling stats, and visualize autocorrelation (ACF/PACF) to understand temporal patterns.
+
+---
+
+## 8) Data Pipelines
+
+### Intuition
+
+- Pipelines are the assembly lines that take raw data to model-ready features reliably.
+- Automate, test, and monitor them to keep models healthy.
+
+
+Pipelines make data processing repeatable, testable, and deployable from raw source to model-ready tables.
+
+### Core Theory
+
+Pipeline components:
+- Extraction (ingest from sources)
+- Transformation (cleaning, features, encoding)
+- Load (store in feature stores / model inputs)
+- Orchestration (scheduling, retries)
+- Monitoring (data drift, quality checks)
+
+Tools:
+- Airflow, Prefect, Dagster, Kubeflow Pipelines, Spark for scale
+
+### AI Relevance
+
+- Reliable pipelines maintain model quality in production and enable retraining.
+
+### Industry Example
+
+Real-time personalization:
+- Streaming ETL updates user features within minutes and triggers model scoring for fresh recommendations.
+
+### Common Interview Questions
+
+1. How to design a pipeline that supports both batch and streaming?
+
+- Design common abstractions: batch jobs for historical computations and streaming jobs for near-real-time; separate ingestion, transformation, and serving layers.
+
+2. What checks would you add to detect data drift?
+
+- Add checks: schema validation, null-rate thresholds, value-range alerts, and distribution drift detectors to catch issues early.
+
+3. How to version features and ensure reproducibility?
+
+- Version feature definitions, store transformation code in VCS, and tag datasets and feature store versions to ensure reproducibility.
+
+---
+
+## Data Handling Quick Practice
+
+1. When is it better to impute vs drop missing values?
+2. Give one simple feature engineering idea for timestamp data.
+3. Which scaler would you choose for KNN and why?
+
+Answers:
+1. Impute when missingness is non-trivial or informative; drop only when missingness is tiny and random.
+2. Extract hour-of-day, day-of-week, and is-weekend from timestamp.
+3. StandardScaler (z-score) so distances are not dominated by scale differences.
+
+--
+
+# Mini Project Ideas (Industry-Aligned)
+
+1. Customer Churn EDA + Feature Store
+   - Ingest raw logs, clean data, create churn features, evaluate models, and publish top features to a feature store.
+
+2. Fraud Signal Engineering
+   - Detect outliers and rare patterns, build aggregation features (rolling window stats), and evaluate precision-recall tradeoffs.
+
+3. Time-Series Demand Forecasting Prep
+   - Clean timestamps, impute missing intervals, create calendar and lag features, and evaluate baseline models.
+
+4. End-to-End Pipeline
+   - Build a reproducible pipeline: ingest -> clean -> feature -> store -> train (small scale with cron or Prefect).
+
+---

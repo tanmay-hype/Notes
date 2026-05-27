@@ -1,0 +1,377 @@
+# AI Roadmap - Phase 4: Machine Learning (Beginner to Advanced)
+
+This guide mirrors Phase 2 style and covers supervised and unsupervised learning, model evaluation, and the `scikit-learn` library. Beginner-first explanations are integrated under each topic and all interview questions include concise answers directly beneath them.
+
+## How to Use This Document
+
+- Read each topic: Intuition (beginner), Core Theory, AI relevance, Industry example.
+- Practice small experiments (notebooks) after each algorithm section.
+- Use the diagrams and differentiation tables to compare algorithms quickly.
+
+---
+
+## Phase 4 Learning Outcomes
+
+By the end of this phase you should be able to:
+1. Choose and train appropriate ML algorithms for common tasks.
+2. Evaluate models with correct metrics and validation strategies.
+3. Build repeatable training pipelines and avoid common pitfalls like leakage and overfitting.
+
+---
+
+# PART A - SUPERVISED LEARNING
+
+Supervised learning maps inputs to known outputs using labeled data.
+
+- Input X, label y
+- Goal: learn function f: X -> y
+
+## Linear Regression
+
+### Beginner Intuition
+- Predict a continuous value using a weighted sum of features.
+- Example: predict house price from size and rooms.
+
+### Core Theory
+- Model: y = Xw + b
+- Loss: Mean Squared Error (MSE) = (1/n) sum (y - y_hat)^2
+- Closed-form solution: w = (X^T X)^-1 X^T y (when invertible)
+
+### AI Relevance
+- Baseline for regression; helps understand bias/variance.
+
+### Industry Example
+- Pricing engines for real estate or used cars.
+
+### Common Interview Questions & Answers
+1. When should you use linear regression? — When the relationship is approx. linear and interpretability is important.
+2. Why prefer solving linear systems over inverse? — Numerical stability and efficiency (use QR or solver routines).
+
+---
+
+## Logistic Regression
+
+### Beginner Intuition
+- Predict probability of a binary outcome using a linear score passed through sigmoid.
+- Example: predict whether a customer will churn (yes/no).
+
+### Core Theory
+- Model: p(y=1|x) = sigmoid(w^T x + b)
+- Loss: Binary cross-entropy / log-loss
+- Decision boundary is linear in input space.
+
+### AI Relevance
+- Interpretable classifier, baseline for many tasks.
+
+### Industry Example
+- Fraud detection (binary: fraud / not fraud) as a simple first model.
+
+### Common Interview Questions & Answers
+1. What does the sigmoid output mean? — Probability of positive class.
+2. How to handle multiclass? — Use softmax (multinomial logistic) or one-vs-rest.
+
+---
+
+## Decision Trees
+
+### Beginner Intuition
+- Split data by feature thresholds to create human-readable rules.
+- Think of a flowchart of yes/no questions.
+
+### Core Theory
+- Build tree by greedy splitting (maximizing information gain or reducing Gini impurity).
+- Prone to overfitting; control by max depth, min samples leaf.
+
+### Diagram
+```mermaid
+flowchart TD
+  A[Start] --> B{Feature <= t}
+  B -- yes --> C[Leaf: predict 1]
+  B -- no --> D[Leaf: predict 0]
+```
+
+### AI Relevance
+- Explainable models, fast inference, handles mixed types natively.
+
+### Industry Example
+- Credit decision rules and feature importance explanation.
+
+### Common Interview Questions & Answers
+1. Why do trees overfit? — They can create very specific rules that fit noise; regularize with pruning.
+2. How to interpret feature importance? — Measures like mean decrease in impurity approximate feature relevance.
+
+---
+
+## Random Forest
+
+### Beginner Intuition
+- Ensemble of many decision trees trained on bootstrapped samples and random feature subsets; averages predictions.
+
+### Core Theory
+- Bagging + feature randomness reduces variance and overfitting compared to single tree.
+
+### Differentiation Table: Tree vs Random Forest
+
+| Property | Decision Tree | Random Forest |
+|---|---:|---:|
+| Variance | High | Lower |
+| Interpretability | High | Lower |
+| Training Time | Fast | Slower |
+
+### AI Relevance
+- Strong off-the-shelf performer for tabular data.
+
+### Industry Example
+- Churn prediction ensembles used in production with feature importances for stakeholders.
+
+### Common Interview Questions & Answers
+1. Why does random forest reduce variance? — Averaging many uncorrelated trees cancels out individual errors.
+2. When to use RF vs GBM? — RF for robust baseline, GBM for fine-tuned predictive performance.
+
+---
+
+## XGBoost / Gradient Boosting Machines (GBM)
+
+### Beginner Intuition
+- Build trees sequentially where each new tree corrects previous residuals (boosting).
+
+### Core Theory
+- Optimize additive model via gradient descent on loss in function space.
+- Regularization, tree constraints, and learning rate control overfitting.
+
+### Diagram
+```mermaid
+flowchart LR
+  Input --> T1[Tree1]
+  Input --> T2[Tree2]
+  T1 --> Sum[Sum predictions]
+  T2 --> Sum
+  Sum --> Output
+```
+
+### Differentiation Table: RF vs GBM vs Linear
+
+| Property | Random Forest | Gradient Boosting (XGB) | Linear Regression |
+|---|---:|---:|---:|
+| Handles nonlinearity | Yes | Yes | No |
+| Tuning complexity | Low | High | Low |
+| Best for tabular | Yes | Often best | Baseline |
+
+### AI Relevance
+- State-of-the-art on many tabular benchmarks; used in competitions and production.
+
+### Industry Example
+- Credit scoring, recommendation ranking features, high-stakes leaderboards.
+
+### Common Interview Questions & Answers
+1. What is learning rate in boosting? — Step size for each tree's contribution; small rates require more trees but can generalize better.
+2. How to avoid overfitting in GBM? — Lower learning rate, limit tree depth, use early stopping and regularization.
+
+---
+
+## Support Vector Machines (SVM)
+
+### Beginner Intuition
+- Find a hyperplane that maximizes margin between classes; kernel trick allows nonlinear boundaries.
+
+### Core Theory
+- Solve convex optimization (hinge loss + regularization).
+- Kernels: linear, polynomial, RBF map inputs to higher-dimensional spaces.
+
+### AI Relevance
+- Good for smaller datasets and high-dimensional spaces (text).
+
+### Industry Example
+- Text classification with TF-IDF features.
+
+### Common Interview Questions & Answers
+1. Why use kernels? — To model nonlinear separations without explicit feature engineering.
+2. What's the role of C parameter? — Balances margin maximization and training error (regularization strength).
+
+---
+
+## k-Nearest Neighbors (k-NN)
+
+### Beginner Intuition
+- Predict label by majority vote (classification) or average (regression) of k closest training examples.
+
+### Core Theory
+- Distance-based, lazy learner (no training beyond storing data), sensitive to feature scales.
+
+### AI Relevance
+- Simple baseline; good for small datasets and intuitive recommendations.
+
+### Industry Example
+- Collaborative filtering for small-scale recommendation prototypes.
+
+### Common Interview Questions & Answers
+1. How to choose k? — Cross-validation; small k -> noisy, large k -> smoother/potentially biased.
+2. Why scale features for k-NN? — Distance dominated by large-scale features otherwise.
+
+---
+
+# PART B - UNSUPERVISED LEARNING
+
+No labels — discover structure in data.
+
+## K-Means Clustering
+
+### Beginner Intuition
+- Partition data into k clusters by assigning points to nearest centroid and updating centroids.
+
+### Core Theory
+- Minimize within-cluster sum of squares via iterative Lloyd's algorithm.
+
+### Diagram
+```mermaid
+flowchart LR
+  Data --> Assign[Assign to nearest centroid]
+  Assign --> Update[Update centroids]
+  Update --> Repeat[Repeat until converge]
+```
+
+### AI Relevance
+- Segment users, compress data, initialize other algorithms.
+
+### Industry Example
+- Customer segmentation for targeted marketing.
+
+### Common Interview Questions & Answers
+1. How to choose k? — Elbow method, silhouette score, business constraints.
+2. Limitations? — Assumes spherical clusters, sensitive to initialization.
+
+---
+
+## PCA (Principal Component Analysis)
+
+### Beginner Intuition
+- Rotate and project data to directions of maximum variance and keep top components.
+
+### Core Theory
+- Eigen decomposition of covariance or SVD; choose top-k components by explained variance.
+
+### Diagram
+```mermaid
+graph LR
+  Data[Raw data] --> SVD[SVD / Eigendecomp]
+  SVD --> Components[Top components]
+  Components --> Project[Project data]
+```
+
+### AI Relevance
+- Dimensionality reduction, noise reduction, visualization.
+
+### Common Interview Questions & Answers
+1. How many components to keep? — Keep enough to explain desired variance (e.g., 90-95%) or use scree plot.
+2. PCA vs t-SNE for visualization? — PCA is linear and preserves variance; t-SNE preserves local neighborhood structure for visualization.
+
+---
+
+## Other Unsupervised Methods (Brief)
+- Hierarchical clustering, DBSCAN, Autoencoders for nonlinear compression.
+
+---
+
+# PART C - MODEL EVALUATION
+
+Choose metrics and validation strategies aligned with business goals.
+
+## Confusion Matrix & Derived Metrics
+
+- Confusion matrix: TP, FP, FN, TN
+
+Precision = TP / (TP + FP)
+
+Recall = TP / (TP + FN)
+
+F1 = 2 * (precision * recall) / (precision + recall)
+
+### Diagram (confusion)
+```mermaid
+flowchart LR
+  PredPos[Predicted Positive] -->|TP| TruePos[True Positive]
+  PredPos -->|FP| FalsePos[False Positive]
+  PredNeg[Predicted Negative] -->|FN| FalseNeg[False Negative]
+  PredNeg -->|TN| TrueNeg[True Negative]
+```
+
+### Common Interview Questions & Answers
+1. When prefer precision over recall? — Precision when false positives are costly (spam flagging business loss).
+2. When prefer recall? — Recall when missing positives is costly (disease screening).
+
+---
+
+## ROC-AUC and PR Curves
+
+- ROC-AUC: tradeoff across thresholds (TPR vs FPR). Good for balanced classes.
+- PR curve: precision vs recall, better for imbalanced positives.
+
+### Common Interview Questions & Answers
+1. Why PR curve for imbalanced data? — PR emphasizes positive class performance and shows precision at relevant recall values.
+2. Is higher AUC always better? — Higher AUC indicates better ranking, but practical thresholds and calibration matter.
+
+---
+
+## Cross-Validation and Data Leakage
+
+- K-fold CV, stratified CV, time-series CV (rolling windows)
+- Data leakage: any use of test info in training (targets, aggregated stats) invalidates evaluation.
+
+### Common Interview Questions & Answers
+1. How to prevent leakage? — Split data early, compute transforms on train only, avoid target-derived features across splits.
+2. Why use stratified CV? — Preserve class balance in folds for classification.
+
+---
+
+# PART D - LIBRARIES & TOOLS
+
+## scikit-learn
+- Standard API for estimators: `fit`, `predict`, `transform`.
+- Pipelines, preprocessing, model selection helpers.
+
+### Quick Example (scikit-learn pipeline)
+```python
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+
+pipe = Pipeline([
+  ('imputer', SimpleImputer(strategy='median')),
+  ('scaler', StandardScaler()),
+  ('clf', LogisticRegression())
+])
+pipe.fit(X_train, y_train)
+```
+
+---
+
+# Comparison Table: Common Algorithms
+
+| Algorithm | Supervised? | Interpretable? | Scales to large data? | Best use case |
+|---|---:|---:|---:|---|
+| Linear Regression | Yes (regression) | High | Yes | Baseline regression |
+| Logistic Regression | Yes (classification) | High | Yes | Baseline classification |
+| Decision Tree | Yes | High | Moderate | Explainable rules |
+| Random Forest | Yes | Medium | Moderate | Tabular, robust baseline |
+| XGBoost | Yes | Low | Yes | High-performance tabular |
+| SVM | Yes | Medium | No (kernel) | Small/medium high-dim datasets |
+| k-NN | Yes | Low | No | Small datasets, prototype systems |
+
+---
+
+# Practical Tips
+- Always start with simple baselines (logistic/linear + feature engineering).
+- Use cross-validation and keep a holdout test set.
+- Monitor model drift and retrain when necessary.
+
+---
+
+# Mini Projects
+1. House Price Regression (Linear vs RF vs XGB). Evaluate with CV and residual analysis.
+2. Customer Churn Classification: feature engineering, class imbalance handling, PR-AUC evaluation.
+3. Unsupervised Customer Segmentation with K-Means + PCA visualization.
+
+---
+
+
