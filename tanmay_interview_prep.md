@@ -630,8 +630,16 @@ def run_exam_prediction_pipeline(exam_type: str, user_id: int):
 
 **Follow-Up Questions:**
 - What is the GIL and how does it affect threading?
+
+GIL (Global Interpreter Lock) is a mutex that protects access to Python objects, preventing multiple threads from executing Python bytecode simultaneously. This means that even if you have multiple threads, only one can execute Python code at a time, which limits the performance of CPU-bound tasks in multi-threaded programs.
+
 - How does `concurrent.futures` simplify thread/process pool usage?
+
+The `concurrent.futures` module provides a high-level interface for asynchronously executing callables using threads or processes. It abstracts away the complexities of managing thread/process lifecycles and provides a simple API for submitting tasks and retrieving results.
+
 - What is Celery's architecture? What is a broker vs backend?
+Celery's architecture consists of workers, a message broker, and a result backend. The **broker** (like Redis or RabbitMQ) is responsible for receiving and distributing tasks to workers. The **backend** (like Redis, database, or RPC) is used to store the results of completed tasks so that they can be retrieved later.
+
 
 ---
 
@@ -643,7 +651,8 @@ def run_exam_prediction_pipeline(exam_type: str, user_id: int):
 
 **Answer:**
 
-**1. Encapsulation** — Bundle data and methods; control access.
+**1. Encapsulation** — Bundle data and methods; control access. 
+
 ```python
 class UserAccount:
     def __init__(self, email: str, password: str):
@@ -903,8 +912,39 @@ class AdvisorRepository(BaseRepository[Advisor]):
 
 **Follow-Up Questions:**
 - How do you handle transactions spanning multiple repositories?
+
+transactions that span multiple repositories can be managed using a **Unit of Work** pattern, which coordinates the work of multiple repositories by maintaining a list of objects affected by a business transaction and coordinating the writing out of changes and the resolution of concurrency problems.
+
 - Unit of Work pattern — how does it relate to Repository?
+
+Unit of Work is a design pattern that maintains a list of objects affected by a business transaction and coordinates the writing out of changes. It works alongside the Repository pattern to ensure that all changes across multiple repositories are committed or rolled back together, maintaining data integrity.
+
+```pythonclass UnitOfWork:
+    def __init__(self, session: AsyncSession):
+        self.session = session
+        self._repositories = {}
+        self._new_objects = []
+        self._dirty_objects = []
+        self._removed_objects = []
+        def get_repository(self, repo_class):
+        if repo_class not in self._repositories:
+            self._repositories[repo_class] = repo_class(self.session)
+        return self._repositories[repo_class]
+        async def commit(self):
+        try:
+            await self.session.commit()
+        except Exception as e:
+            await self.session.rollback()
+            raise e
+```
+
+
+
 - How would you mock repositories for unit testing?
+
+Unit testing repositories can be done by creating mock classes that implement the same interface as the actual repository. You can use libraries like `unittest.mock` to create mock objects and define their behavior for testing purposes.
+
+
 
 ---
 
@@ -1026,6 +1066,7 @@ user = user_cache.get("user_123")  # O(1)
 import bisect
 sorted_scores = [10, 20, 30, 40, 50]
 pos = bisect.bisect_left(sorted_scores, 35)  # O(log n) — find insertion point
+#bisect_left returns the index where 35 should be inserted to maintain order.
 
 # O(n) — Linear scan
 def find_user_by_email(users: list, email: str):
@@ -1112,6 +1153,8 @@ async def create_user(
 
 **Follow-Up Questions:**
 - How does FastAPI handle request validation errors?
+
+
 - What is the difference between `APIRouter` and the main `app`?
 - How does FastAPI compare to Flask and Django REST Framework?
 
