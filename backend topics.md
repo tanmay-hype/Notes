@@ -126,7 +126,7 @@
 
 **✅ Fix: Implement locking/queuing on the client side for token refresh calls.**
 
-**⚠️ Edge Case 3: CSRF on the Redirect URI**
+**⚠️ Edge Case 3: CSRF (cross site request forgery) on the Redirect URI**
 
 **Without a state parameter, an attacker can trick a user into authorizing with the attacker's auth code (login CSRF).**
 
@@ -155,13 +155,10 @@
 |                  | **OAuth 2.0**             | **OIDC**                           | **SAML**                 |
 | ---------------- | ------------------------- | ---------------------------------- | ------------------------ |
 | **Purpose**      | **Authorization**         | **Authentication + Authorization** | **Authentication (SSO)** |
-| ---              | ---                       | ---                                | ---                      |
 | **Token Format** | **Opaque or JWT**         | **JWT (ID Token)**                 | **XML Assertions**       |
-| ---              | ---                       | ---                                | ---                      |
 | **Use Case**     | **API access delegation** | **Login with Google/Apple**        | **Enterprise SSO**       |
-| ---              | ---                       | ---                                | ---                      |
 | **Common In**    | **APIs, mobile apps**     | **Consumer apps**                  | **Corporate/enterprise** |
-| ---              | ---                       | ---                                | ---                      |
+
 
 ### **9\. TRICKY INTERVIEW QUESTIONS**
 
@@ -171,7 +168,7 @@
 
 **Q2. Why was the Implicit Flow deprecated?**
 
-**The access token was returned in the URL fragment, which could be leaked via browser history, server logs, and Referrer headers. PKCE solves the same problem (no client secret in public clients) more securely.**
+**The access token was returned in the URL fragment, which could be leaked via browser history, server logs, and Referrer headers. PKCE (proof key for code exchange ) solves the same problem (no client secret in public clients) more securely.**
 
 **Q3. If a user revokes OAuth access in Google settings, can the app still call the API?**
 
@@ -179,7 +176,7 @@
 
 **Q4. What's the difference between client_id and client_secret?**
 
-**client_id is public - identifies the app. client_secret is confidential - proves the app's identity to the Auth Server. SPAs/mobile apps cannot safely store client_secret, which is why they use PKCE instead.**
+**client_id (username ) is public - identifies the app. client_secret (password ) is confidential - proves the app's identity to the Auth Server. SPAs/mobile apps cannot safely store client_secret, which is why they use PKCE instead.**
 
 **Q5. Can two different users get the same access token?**
 
@@ -230,19 +227,13 @@
 | **Feature**                                  | **OAuth 2.0** | **OIDC** |
 | -------------------------------------------- | ------------- | -------- |
 | **Access Token**                             | **✅**        | **✅**   |
-| ---                                          | ---           | ---      |
 | **Refresh Token**                            | **✅**        | **✅**   |
-| ---                                          | ---           | ---      |
 | **ID Token**                                 | **❌**        | **✅**   |
-| ---                                          | ---           | ---      |
 | **/userinfo endpoint**                       | **❌**        | **✅**   |
-| ---                                          | ---           | ---      |
 | **Standard scopes (openid, profile, email)** | **❌**        | **✅**   |
-| ---                                          | ---           | ---      |
 | **Authentication event info**                | **❌**        | **✅**   |
-| ---                                          | ---           | ---      |
 | **Discovery endpoint**                       | **❌**        | **✅**   |
-| ---                                          | ---           | ---      |
+
 
 ### **4\. THE ID TOKEN - THE HEART OF OIDC**
 
@@ -263,138 +254,33 @@
 | **Claim**     | **Meaning**                           | **Example**                         |
 | ------------- | ------------------------------------- | ----------------------------------- |
 | **sub**       | **Subject - unique user ID**          | **\`"auth0**                        |
-| ---           | ---                                   | ---                                 |
 | **iss**       | **Issuer - who issued the token**     | **"<https://accounts.google.com>"** |
-| ---           | ---                                   | ---                                 |
 | **aud**       | **Audience - who it's intended for**  | **"your-client-id"**                |
-| ---           | ---                                   | ---                                 |
 | **exp**       | **Expiry timestamp**                  | **1718000000**                      |
-| ---           | ---                                   | ---                                 |
 | **iat**       | **Issued at timestamp**               | **1717996400**                      |
-| ---           | ---                                   | ---                                 |
 | **nonce**     | **Replay attack prevention**          | **"random-xyz"**                    |
-| ---           | ---                                   | ---                                 |
 | **email**     | **User's email (if requested)**       | **"<user@gmail.com>"**              |
-| ---           | ---                                   | ---                                 |
 | **name**      | **Full name**                         | **"John Doe"**                      |
-| ---           | ---                                   | ---                                 |
 | **picture**   | **Profile picture URL**               | **"https://..."**                   |
-| ---           | ---                                   | ---                                 |
 | **auth_time** | **When user actually authenticated**  | **1717996000**                      |
-| ---           | ---                                   | ---                                 |
 | **amr**       | **Auth method (password, otp, etc.)** | **\["pwd", "otp"\]**                |
-| ---           | ---                                   | ---                                 |
 
-### **5\. OIDC FLOW - STEP BY STEP**
 
-#### **The Standard OIDC Flow (Auth Code + OIDC)**
-
-**1\. User clicks "Login with Google" on your app**
-
-**2\. App redirects to Google with:**
-
-**\- response_type=code**
-
-**\- scope=openid profile email ← "openid" triggers OIDC**
-
-**\- client_id=your-app-id**
-
-**\- redirect_uri=<https://yourapp.com/callback>**
-
-**\- state=random-csrf-token**
-
-**\- nonce=random-replay-token ← OIDC specific**
-
-**3\. Google shows login + consent screen**
-
-**4\. User logs in → Google redirects back with:**
-
-**?code=AUTH_CODE&state=random-csrf-token**
-
-**5\. Your backend exchanges code:**
-
-**POST /token**
-
-**code=AUTH_CODE + client_id + client_secret**
-
-**6\. Google returns:**
-
-**{**
-
-**"access_token": "...", ← For API calls**
-
-**"id_token": "eyJ...", ← Who the user is (JWT)**
-
-**"refresh_token": "...",**
-
-**"token_type": "Bearer",**
-
-**"expires_in": 3600**
-
-**}**
-
-**7\. Your app validates the ID Token**
-
-**→ Extracts user identity from claims**
-
-**→ Creates a session for the user**
-
-### **6\. OIDC SCOPES**
+### **5\. OIDC SCOPES**
 
 **Scopes in OIDC control what claims come back in the ID Token or /userinfo endpoint.**
 
 | **Scope**          | **Claims Returned**                                |
 | ------------------ | -------------------------------------------------- |
 | **openid**         | **sub, iss, aud, exp, iat - mandatory for OIDC**   |
-| ---                | ---                                                |
 | **profile**        | **name, given_name, family_name, picture, locale** |
-| ---                | ---                                                |
 | **email**          | **email, email_verified**                          |
-| ---                | ---                                                |
 | **address**        | **address (structured postal address)**            |
-| ---                | ---                                                |
 | **phone**          | **phone_number, phone_number_verified**            |
-| ---                | ---                                                |
 | **offline_access** | **Returns a refresh token**                        |
-| ---                | ---                                                |
 
-### **7\. ID TOKEN VALIDATION - CRITICAL STEPS**
 
-**Receiving an ID Token is not enough - you must validate it.**
-
-**Step 1: Verify the signature**
-
-**→ Fetch public keys from issuer's JWKS endpoint**
-
-**→ Verify JWT signature using those keys**
-
-**Step 2: Verify \`iss\` (issuer)**
-
-**→ Must match expected provider**
-
-**→ e.g., "<https://accounts.google.com>"**
-
-**Step 3: Verify \`aud\` (audience)**
-
-**→ Must match YOUR client_id**
-
-**→ Prevents tokens meant for other apps being used on yours**
-
-**Step 4: Check \`exp\` (expiry)**
-
-**→ Token must not be expired**
-
-**Step 5: Verify \`nonce\` (if used)**
-
-**→ Must match what you sent in the request**
-
-**→ Prevents replay attacks**
-
-**Step 6: Check \`iat\` (issued at)**
-
-**→ Should be recent (clock skew tolerance ~5 mins)**
-
-### **8\. OIDC DISCOVERY ENDPOINT**
+### **6\. OIDC DISCOVERY ENDPOINT**
 
 **OIDC providers publish a well-known configuration endpoint:**
 
@@ -428,7 +314,7 @@
 
 **}**
 
-### **9\. /userinfo ENDPOINT**
+### **7\. /userinfo ENDPOINT**
 
 **An alternative to reading claims from the ID Token directly.**
 
@@ -457,85 +343,36 @@
 |               | **ID Token**                   | **/userinfo**                   |
 | ------------- | ------------------------------ | ------------------------------- |
 | **Delivery**  | **Inside JWT, no extra call**  | **Requires API call**           |
-| ---           | ---                            | ---                             |
 | **Freshness** | **Snapshot at login time**     | **Always fresh/current**        |
-| ---           | ---                            | ---                             |
 | **Use when**  | **You need claims at login**   | **You need up-to-date profile** |
-| ---           | ---                            | ---                             |
 | **Risk**      | **Stale data (email changed)** | **Extra network call**          |
-| ---           | ---                            | ---                             |
 
-**10\. OIDC RESPONSE TYPES**
+
+**8\. OIDC RESPONSE TYPES**
 
 | **response_type** | **What you get back**     | **Use case**             |
 | ----------------- | ------------------------- | ------------------------ |
 | **code**          | **Auth code only**        | **Standard secure flow** |
-| ---               | ---                       | ---                      |
 | **id_token**      | **ID token directly**     | **Deprecated implicit**  |
-| ---               | ---                       | ---                      |
 | **token**         | **Access token directly** | **Deprecated implicit**  |
-| ---               | ---                       | ---                      |
 | **code id_token** | **Code + ID token**       | **Hybrid flow**          |
-| ---               | ---                       | ---                      |
 
-### **11\. INDUSTRY EXAMPLES**
 
-#### **🏢 "Login with Google" on any website**
 
-- **Classic OIDC Authorization Code Flow**
-- **You get back an ID Token confirming who the user is**
-- **The site creates a local session - Google password never touched the site**
-
-**🏢 Auth0 / Okta as Identity Provider**
-
-- **Enterprise apps delegate all login to Auth0/Okta**
-- **Auth0 handles MFA, social login, password resets**
-- **Your app only ever sees OIDC ID Tokens**
-- **Auth0 is the OIDC Provider (OP), your app is the Relying Party (RP)**
-
-**🏢 AWS Cognito + React App**
-
-- **Cognito acts as OIDC Provider**
-- **React SPA uses Auth Code + PKCE (no client secret)**
-- **Gets ID Token → extracts user identity**
-- **Gets Access Token → calls AWS API Gateway**
-- **Gets Refresh Token → silent re-login**
-
-**🏢 Kubernetes OIDC Authentication**
-
-- **K8s clusters can use OIDC tokens for kubectl authentication**
-- **Engineers log in via their company's SSO**
-- **The ID Token is sent to the K8s API server**
-- **K8s validates the token and maps sub claim to RBAC roles**
-
-**🏢 Microsoft Azure AD (Entra ID)**
-
-- **All Microsoft 365, Teams, Azure Portal logins use OIDC**
-- **When you log in to VS Code with your Microsoft account - OIDC**
-- **The tid (tenant ID) claim is used for multi-tenant enterprise routing**
-
-### **12\. OIDC vs SAML vs OAuth - CLEAR COMPARISON**
+### **9\. OIDC vs SAML vs OAuth - CLEAR COMPARISON**
 
 |                     | **OAuth 2.0**      | **OIDC**            | **SAML 2.0**                 |
 | ------------------- | ------------------ | ------------------- | ---------------------------- |
 | **Purpose**         | **Authorization**  | **Authentication**  | **Authentication (SSO)**     |
-| ---                 | ---                | ---                 | ---                          |
 | **Built on**        | **-**              | **OAuth 2.0**       | **Standalone**               |
-| ---                 | ---                | ---                 | ---                          |
 | **Token format**    | **JWT or opaque**  | **JWT (ID Token)**  | **XML**                      |
-| ---                 | ---                | ---                 | ---                          |
 | **Transport**       | **HTTPS/REST**     | **HTTPS/REST**      | **HTTP + XML POST**          |
-| ---                 | ---                | ---                 | ---                          |
 | **Mobile friendly** | **✅**             | **✅**              | **❌ (XML is heavy)**        |
-| ---                 | ---                | ---                 | ---                          |
 | **SSO support**     | **❌**             | **✅**              | **✅**                       |
-| ---                 | ---                | ---                 | ---                          |
 | **Discovery**       | **❌**             | **✅ (well-known)** | **❌ (manual metadata XML)** |
-| ---                 | ---                | ---                 | ---                          |
 | **Use case**        | **API delegation** | **Consumer login**  | **Enterprise/corporate SSO** |
-| ---                 | ---                | ---                 | ---                          |
 | **Complexity**      | **Medium**         | **Medium**          | **High**                     |
-| ---                 | ---                | ---                 | ---                          |
+
 
 ### **13\. EDGE CASES & GOTCHAS**
 
