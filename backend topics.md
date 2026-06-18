@@ -99,56 +99,13 @@
 
 **Used in microservices, background jobs, CI/CD pipelines.**
 
-**🔷 D. Device Authorization Flow**
-
-**Best for: Smart TVs, CLI tools, IoT devices**
-
-**Device → Auth Server → Gets a device_code + user_code**
-
-**Device shows: "Go to example.com/activate and enter: ABCD-1234"**
-
-**User does that on phone/laptop**
-
-**Device polls Auth Server... until approved**
-
-**→ Access Token issued**
-
-**❌ Implicit Flow (DEPRECATED)**
-
-- **Was used for SPAs before PKCE existed**
-- **Access token returned directly in URL fragment**
-- **Vulnerable to token leakage**
-- **Do not use - replaced by Auth Code + PKCE**
 
 ### **6\. INDUSTRY EXAMPLES**
 
-#### **🏢 Slack + Google Calendar Integration**
-
-- **You connect Slack to Google Calendar**
-- **Google shows OAuth consent screen: "Slack wants to: View your calendar events"**
-- **Slack's backend gets an Access Token (Authorization Code Flow)**
-- **Slack calls Google Calendar API using that token**
-- **Google Calendar data appears in Slack - your password never left Google**
-
+####**🏢 Slack + Google Calendar Integration**
 **🏢 GitHub Actions (CI/CD)**
-
-- **GitHub Actions uses Client Credentials Flow**
-- **The pipeline gets a short-lived token to push Docker images to AWS ECR, deploy to Kubernetes, etc.**
-- **No human user involved - pure machine-to-machine**
-
 **🏢 Netflix on Smart TV**
-
-- **TV shows a code: "Visit netflix.com/activate, enter: XYZ123"**
-- **You do it on your phone**
-- **TV polls and gets the token**
-- **Classic Device Authorization Flow**
-
 **🏢 Stripe + Shopify (OAuth for Platforms)**
-
-- **Shopify merchants connect their Stripe account**
-- **Stripe uses OAuth so Shopify gets permission to charge on behalf of the merchant**
-- **This is OAuth for platforms / marketplace use cases**
-
 ###
 
 ### **7\. EDGE CASES & GOTCHAS**
