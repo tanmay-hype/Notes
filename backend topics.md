@@ -1,4 +1,4 @@
-### **1- Authentication O auth**
+### **1-  O auth**
 
 ### **1\. WHAT IS OAuth?**
 
@@ -19,13 +19,10 @@
 | **Role**                 | **Who they are**                          | **Real Example**       |
 | ------------------------ | ----------------------------------------- | ---------------------- |
 | **Resource Owner**       | **The user who owns the data**            | **You**                |
-| ---                      | ---                                       | ---                    |
 | **Client**               | **The app requesting access**             | **Notion, Trello**     |
-| ---                      | ---                                       | ---                    |
 | **Authorization Server** | **Issues tokens after verifying consent** | **Google Auth Server** |
-| ---                      | ---                                       | ---                    |
 | **Resource Server**      | **Holds the protected data/API**          | **Google Drive API**   |
-| ---                      | ---                                       | ---                    |
+
 
 ### **4\. KEY TOKENS**
 
