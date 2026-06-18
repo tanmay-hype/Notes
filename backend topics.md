@@ -102,10 +102,14 @@
 
 ### **6\. INDUSTRY EXAMPLES**
 
-####**🏢 Slack + Google Calendar Integration**
+**🏢 Slack + Google Calendar Integration**
+
 **🏢 GitHub Actions (CI/CD)**
+
 **🏢 Netflix on Smart TV**
+
 **🏢 Stripe + Shopify (OAuth for Platforms)**
+
 ###
 
 ### **7\. EDGE CASES & GOTCHAS**
