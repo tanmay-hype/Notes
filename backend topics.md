@@ -506,13 +506,10 @@
 | **Storage**         | **Example**                           | **Pros**           | **Cons**                          |
 | ------------------- | ------------------------------------- | ------------------ | --------------------------------- |
 | **In-memory**       | **Node.js Map**                       | **Fastest**        | **Lost on restart, not scalable** |
-| ---                 | ---                                   | ---                | ---                               |
 | **Redis**           | **Redis session store**               | **Fast, scalable** | **Extra infrastructure**          |
-| ---                 | ---                                   | ---                | ---                               |
 | **Database**        | **PostgreSQL sessions table**         | **Persistent**     | **Slower, DB load**               |
-| ---                 | ---                                   | ---                | ---                               |
 | **Sticky sessions** | **Load balancer pins user to server** | **Simple**         | **Single point of failure**       |
-| ---                 | ---                                   | ---                | ---                               |
+
 
 ### **3\. JWT-BASED AUTHENTICATION**
 
@@ -575,11 +572,9 @@
 | **Algorithm** | **Type**                            | **Use Case**                          |
 | ------------- | ----------------------------------- | ------------------------------------- |
 | **HS256**     | **Symmetric (shared secret)**       | **Single service, simple setup**      |
-| ---           | ---                                 | ---                                   |
 | **RS256**     | **Asymmetric (private/public key)** | **Microservices, multiple verifiers** |
-| ---           | ---                                 | ---                                   |
 | **ES256**     | **Elliptic curve asymmetric**       | **Performance-sensitive systems**     |
-| ---           | ---                                 | ---                                   |
+
 
 **With RS256 - only the auth server signs (private key), but any service can verify (public key). This is ideal for microservices.**
 
@@ -588,25 +583,16 @@
 | **Dimension**           | **Session**                                | **JWT**                                            |
 | ----------------------- | ------------------------------------------ | -------------------------------------------------- |
 | **State**               | **Stateful (server stores state)**         | **Stateless (client carries state)**               |
-| ---                     | ---                                        | ---                                                |
 | **Storage**             | **Server (Redis, DB)**                     | **Client (localStorage, cookie, memory)**          |
-| ---                     | ---                                        | ---                                                |
 | **Scalability**         | **Harder (shared session store needed)**   | **Easier (no shared state)**                       |
-| ---                     | ---                                        | ---                                                |
 | **Revocation**          | **Instant (delete session)**               | **Hard (token valid until expiry)**                |
-| ---                     | ---                                        | ---                                                |
 | **Performance**         | **DB/Redis lookup per request**            | **Cryptographic verify (no DB)**                   |
-| ---                     | ---                                        | ---                                                |
 | **Payload size**        | **Cookie: tiny (just an ID ~20 bytes)**    | **JWT can be 500-2000+ bytes**                     |
-| ---                     | ---                                        | ---                                                |
 | **Mobile friendly**     | **Less (cookie management)**               | **More (Authorization header)**                    |
-| ---                     | ---                                        | ---                                                |
 | **Microservices**       | **Hard (all services need session store)** | **Easy (each service validates independently)**    |
-| ---                     | ---                                        | ---                                                |
 | **User data freshness** | **Always fresh (DB is source of truth)**   | **Stale until token expiry**                       |
-| ---                     | ---                                        | ---                                                |
 | **Security control**    | **Full (can kill session anytime)**        | **Limited (can't invalidate issued token easily)** |
-| ---                     | ---                                        | ---                                                |
+
 
 ### **WHERE EACH IS STORED ON THE CLIENT**
 
@@ -625,13 +611,10 @@
 | **Location**        | **XSS Risk** | **CSRF Risk** | **Notes**                                             |
 | ------------------- | ------------ | ------------- | ----------------------------------------------------- |
 | **localStorage**    | **❌ HIGH**  | **✅ Safe**   | **JS can read it - XSS steals token**                 |
-| ---                 | ---          | ---           | ---                                                   |
 | **sessionStorage**  | **❌ HIGH**  | **✅ Safe**   | **Same as localStorage, cleared on tab close**        |
-| ---                 | ---          | ---           | ---                                                   |
 | **HttpOnly Cookie** | **✅ Safe**  | **❌ Risk**   | **Best security, needs CSRF token**                   |
-| ---                 | ---          | ---           | ---                                                   |
 | **Memory (JS var)** | **✅ Safe**  | **✅ Safe**   | **Lost on refresh, use with refresh token in cookie** |
-| ---                 | ---          | ---           | ---                                                   |
+
 
 **✅ Best practice: Store JWT in HttpOnly cookie (XSS safe) + use CSRF tokens, or store in memory with a refresh token in HttpOnly cookie.**
 
@@ -755,19 +738,7 @@
 - **Tokens are revocable from the dashboard**
 - **Used in CI/CD pipelines (Authorization: Bearer ghp_xxx)**
 
-**🏢 Microservices at Uber/Airbnb**
 
-- **API Gateway validates JWT once**
-- **Passes decoded claims (userId, role) downstream via headers**
-- **Internal services trust the gateway - no re-validation**
-- **RS256: Auth service signs, all microservices verify with public key**
-
-**🏢 Traditional Web Apps (Reddit, StackOverflow)**
-
-- **Classic session + cookie**
-- **Simpler to implement and reason about**
-- **Instant logout, instant ban enforcement**
-- **CSRF protection with SameSite cookies**
 
 ### **HYBRID ARCHITECTURE (Industry Best Practice)**
 
