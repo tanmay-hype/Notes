@@ -969,15 +969,10 @@
 |                 | **Hashing**                  | **Encryption**        | **Encoding**                   |
 | --------------- | ---------------------------- | --------------------- | ------------------------------ |
 | **Reversible?** | **❌ No (one-way)**          | **✅ Yes (with key)** | **✅ Yes (always)**            |
-| ---             | ---                          | ---                   | ---                            |
 | **Key needed?** | **No**                       | **Yes**               | **No**                         |
-| ---             | ---                          | ---                   | ---                            |
 | **Purpose**     | **Integrity / verification** | **Confidentiality**   | **Data format transformation** |
-| ---             | ---                          | ---                   | ---                            |
 | **Examples**    | **SHA-256, bcrypt**          | **AES, RSA**          | **Base64, URL encoding**       |
-| ---             | ---                          | ---                   | ---                            |
 | **Use case**    | **Passwords, checksums**     | **Storing secrets**   | **Transmitting binary data**   |
-| ---             | ---                          | ---                   | ---                            |
 
 **⚠️ Base64 is NOT encryption or hashing - it's encoding. Anyone can decode it instantly. ⚠️ MD5 is NOT safe for passwords - it's a checksum algorithm, not a password hashing algorithm.**
 
@@ -992,21 +987,14 @@
 | **Algorithm** | **Output Size** | **Status**    | **Use Case**                            |
 | ------------- | --------------- | ------------- | --------------------------------------- |
 | **MD5**       | **128 bit**     | **❌ Broken** | **Legacy checksums only**               |
-| ---           | ---             | ---           | ---                                     |
 | **SHA-1**     | **160 bit**     | **❌ Broken** | **Deprecated**                          |
-| ---           | ---             | ---           | ---                                     |
 | **SHA-256**   | **256 bit**     | **✅ Secure** | **TLS, digital signatures, blockchain** |
-| ---           | ---             | ---           | ---                                     |
 | **SHA-512**   | **512 bit**     | **✅ Secure** | **High-security signatures**            |
-| ---           | ---             | ---           | ---                                     |
 | **SHA-3**     | **Variable**    | **✅ Secure** | **Next-gen standard**                   |
-| ---           | ---             | ---           | ---                                     |
 | **bcrypt**    | **184 bit**     | **✅ Secure** | **Password hashing**                    |
-| ---           | ---             | ---           | ---                                     |
 | **Argon2**    | **Variable**    | **✅ Best**   | **Password hashing (modern standard)**  |
-| ---           | ---             | ---           | ---                                     |
 | **scrypt**    | **Variable**    | **✅ Secure** | **Password hashing, key derivation**    |
-| ---           | ---             | ---           | ---                                     |
+
 
 **🔷 B. Non-Cryptographic Hash Functions**
 
@@ -1015,13 +1003,9 @@
 | **Algorithm**  | **Use Case**                           |
 | -------------- | -------------------------------------- |
 | **MurmurHash** | **Hash maps, databases**               |
-| ---            | ---                                    |
 | **xxHash**     | **Fast checksums, data deduplication** |
-| ---            | ---                                    |
 | **FNV**        | **Simple hash tables**                 |
-| ---            | ---                                    |
 | **CRC32**      | **Error detection in networks/files**  |
-| ---            | ---                                    |
 
 **These are fast but NOT secure - never use for passwords or security purposes.**
 
@@ -1032,13 +1016,10 @@
 | **Algorithm** | **Key Feature**               | **Industry Use**                   |
 | ------------- | ----------------------------- | ---------------------------------- |
 | **bcrypt**    | **Cost factor (work factor)** | **Most widely used today**         |
-| ---           | ---                           | ---                                |
 | **Argon2**    | **Memory-hard, time-hard**    | **Modern gold standard**           |
-| ---           | ---                           | ---                                |
 | **scrypt**    | **Memory-hard**               | **Cryptocurrencies, some apps**    |
-| ---           | ---                           | ---                                |
 | **PBKDF2**    | **Iteration count**           | **FIPS compliant, legacy systems** |
-| ---           | ---                           | ---                                |
+
 
 ### **5\. WHY PASSWORDS NEED SPECIAL HASHING**
 
@@ -1099,13 +1080,10 @@
 | **Cost Factor** | **Hashes/second (modern CPU)** | **Time to hash 1 password** |
 | --------------- | ------------------------------ | --------------------------- |
 | **10**          | **~100/sec**                   | **~100ms**                  |
-| ---             | ---                            | ---                         |
 | **12**          | **~25/sec**                    | **~400ms**                  |
-| ---             | ---                            | ---                         |
 | **14**          | **~6/sec**                     | **~1.5 sec**                |
-| ---             | ---                            | ---                         |
 | **16**          | **~1.5/sec**                   | **~6 sec**                  |
-| ---             | ---                            | ---                         |
+
 
 **✅ Recommended: cost factor 12 for most apps As hardware gets faster, increase the cost factor - this is bcrypt's key advantage**
 
@@ -1133,55 +1111,11 @@
 
 **🔷 Use Case 2: Data Integrity Verification**
 
-**File download (e.g., Ubuntu ISO):**
-
-**Website publishes: SHA-256: a1b2c3d4...**
-
-**You download the file**
-
-**You compute SHA-256 of downloaded file**
-
-**Compare → match means file is not corrupted or tampered**
-
-**Used in: package managers (npm, pip, apt), Docker images, Git commits**
-
 **🔷 Use Case 3: Git Commit Hashing**
 
 **Every Git commit is identified by a SHA-1 hash:**
 
-**commit abc123def456...**
-
-**The hash is computed from:**
-
-**\- File contents**
-
-**\- Author**
-
-**\- Timestamp**
-
-**\- Parent commit hash**
-
-**Change anything → completely different hash**
-
-**This makes Git history tamper-evident**
-
 **🔷 Use Case 4: Digital Signatures**
-
-**Instead of signing the whole document (slow):**
-
-**1\. Hash the document → SHA-256 → fixed 256-bit digest**
-
-**2\. Encrypt the digest with private key → signature**
-
-**3\. Send document + signature**
-
-**Verification:**
-
-**1\. Decrypt signature with public key → digest**
-
-**2\. Hash received document → digest**
-
-**3\. Compare → match means document is authentic and unmodified**
 
 **🔷 Use Case 5: Hash Tables / Databases**
 
@@ -1489,27 +1423,12 @@
 
 **✅ RANDOM**
 
-**Generated using a cryptographically secure random number generator (CSPRNG)**
-
-**Not predictable, not sequential**
-
 **✅ UNIQUE PER PASSWORD**
-
-**Every user gets a different salt**
-
-**Even if same user changes password → new salt generated**
 
 **✅ LONG ENOUGH**
 
-**16 bytes (128 bits) minimum**
-
-**bcrypt uses 16 bytes by default**
-
 **✅ STORED ALONGSIDE THE HASH**
 
-**Salt is not secret - it just needs to be unique**
-
-**Storing it with the hash is fine and standard practice**
 
 ### **5\. SALT vs PEPPER - THE DIFFERENCE**
 
@@ -1517,16 +1436,11 @@
 
 |                      | **Salt**                                             | **Pepper**                                            |
 | -------------------- | ---------------------------------------------------- | ----------------------------------------------------- |
-| **Unique per user?** | **✅ Yes**                                           | **❌ No (global)**                                    |
-| ---                  | ---                                                  | ---                                                   |
-| **Stored where?**    | **In DB (with hash)**                                | **App config / secret manager**                       |
-| ---                  | ---                                                  | ---                                                   |
-| **Secret?**          | **❌ No**                                            | **✅ Yes**                                            |
-| ---                  | ---                                                  | ---                                                   |
+| **Unique per user?** | **✅ Yes**                                           | **❌ No (global)**                                   |
+| **Stored where?**    | **In DB (with hash)**                                |  **App config / secret manager**                      |
+| **Secret?**          | **❌ No**                                            | **✅ Yes**                                           |
 | **Purpose**          | **Defeats rainbow tables, deduplication**            | **Adds secret layer - DB breach alone is not enough** |
-| ---                  | ---                                                  | ---                                                   |
 | **If compromised**   | **Attacker must brute-force each hash individually** | **Entire system needs re-hashing**                    |
-| ---                  | ---                                                  | ---                                                   |
 
 #### **How Pepper Works**
 
@@ -1797,11 +1711,8 @@
 | **Variant** | **Key Size** | **Rounds** | **Security**                         |
 | ----------- | ------------ | ---------- | ------------------------------------ |
 | **AES-128** | **128 bits** | **10**     | **✅ Secure - 2¹²⁸ combinations**    |
-| ---         | ---          | ---        | ---                                  |
 | **AES-192** | **192 bits** | **12**     | **✅ More secure**                   |
-| ---         | ---          | ---        | ---                                  |
 | **AES-256** | **256 bits** | **14**     | **✅✅ Highest - quantum resistant** |
-| ---         | ---          | ---        | ---                                  |
 
 **AES-256 brute force: more combinations than atoms in the observable universe. Even quantum computers (Grover's algorithm) reduce it to effectively AES-128 security - still secure.**
 
@@ -1900,15 +1811,11 @@
 | **Mode** | **Parallelizable** | **Authentication** | **Padding** | **Use**             |
 | -------- | ------------------ | ------------------ | ----------- | ------------------- |
 | **ECB**  | **✅**             | **❌**             | **✅**      | **❌ Never**        |
-| ---      | ---                | ---                | ---         | ---                 |
 | **CBC**  | **❌ (encrypt)**   | **❌**             | **✅**      | **Legacy**          |
-| ---      | ---                | ---                | ---         | ---                 |
 | **CTR**  | **✅**             | **❌**             | **❌**      | **Rarely alone**    |
-| ---      | ---                | ---                | ---         | ---                 |
 | **GCM**  | **✅**             | **✅**             | **❌**      | **✅ Recommended**  |
-| ---      | ---                | ---                | ---         | ---                 |
 | **CCM**  | **❌**             | **✅**             | **❌**      | **IoT/constrained** |
-| ---      | ---                | ---                | ---         | ---                 |
+
 
 ### **4\. RSA - RIVEST-SHAMIR-ADLEMAN**
 
@@ -1941,13 +1848,9 @@
 | **Key Size** | **Security**         | **Status**                         |
 | ------------ | -------------------- | ---------------------------------- |
 | **512-bit**  | **❌ Broken**        | **Factored in hours**              |
-| ---          | ---                  | ---                                |
 | **1024-bit** | **❌ Broken**        | **Factored with enough resources** |
-| ---          | ---                  | ---                                |
 | **2048-bit** | **✅ Secure**        | **Minimum recommended**            |
-| ---          | ---                  | ---                                |
 | **4096-bit** | **✅✅ Very Secure** | **High-value use cases**           |
-| ---          | ---                  | ---                                |
 
 **RSA security relies on the integer factorization problem - hard to factor n back into p × q for large primes. Quantum computers (Shor's algorithm) can break RSA - post-quantum alternatives are being developed.**
 
@@ -1970,11 +1873,9 @@
 | **Security Level** | **RSA Key Size** | **ECC Key Size** |
 | ------------------ | ---------------- | ---------------- |
 | **80-bit**         | **1024-bit**     | **160-bit**      |
-| ---                | ---              | ---              |
 | **128-bit**        | **3072-bit**     | **256-bit**      |
-| ---                | ---              | ---              |
 | **256-bit**        | **15360-bit**    | **512-bit**      |
-| ---                | ---              | ---              |
+
 
 **256-bit ECC ≈ 3072-bit RSA in security - but ECC is much smaller and faster.**
 
@@ -1983,13 +1884,9 @@
 | **Curve**             | **Key Size** | **Use**                          |
 | --------------------- | ------------ | -------------------------------- |
 | **P-256 (secp256r1)** | **256-bit**  | **TLS, HTTPS, most common**      |
-| ---                   | ---          | ---                              |
 | **P-384**             | **384-bit**  | **NSA Suite B, high security**   |
-| ---                   | ---          | ---                              |
 | **Curve25519**        | **255-bit**  | **Signal, WhatsApp, modern TLS** |
-| ---                   | ---          | ---                              |
 | **secp256k1**         | **256-bit**  | **Bitcoin, Ethereum**            |
-| ---                   | ---          | ---                              |
 
 **Curve25519 designed by Daniel Bernstein - no alleged NSA backdoors, very fast, widely trusted.**
 
@@ -2018,13 +1915,10 @@
 |                    | **AES-256-GCM** | **ChaCha20-Poly1305**          |
 | ------------------ | --------------- | ------------------------------ |
 | **With AES-NI**    | **Faster**      | **Slightly slower**            |
-| ---                | ---             | ---                            |
 | **Without AES-NI** | **Slow**        | **Much faster**                |
-| ---                | ---             | ---                            |
 | **Security**       | **✅**          | **✅**                         |
-| ---                | ---             | ---                            |
 | **Used in**        | **Most HTTPS**  | **Android, WireGuard, Signal** |
-| ---                | ---             | ---                            |
+
 
 **TLS 1.3 supports both - negotiated based on device capabilities.**
 
@@ -2079,17 +1973,11 @@
 | **Feature**          | **TLS 1.2**  | **TLS 1.3**           |
 | -------------------- | ------------ | --------------------- |
 | **Handshake RTTs**   | **2 RTT**    | **1 RTT**             |
-| ---                  | ---          | ---                   |
 | **0-RTT resumption** | **❌**       | **✅ (with caveats)** |
-| ---                  | ---          | ---                   |
 | **Weak ciphers**     | **Allowed**  | **❌ Removed**        |
-| ---                  | ---          | ---                   |
 | **Forward secrecy**  | **Optional** | **✅ Mandatory**      |
-| ---                  | ---          | ---                   |
 | **SHA-1 support**    | **✅**       | **❌ Removed**        |
-| ---                  | ---          | ---                   |
 | **RSA key exchange** | **✅**       | **❌ Removed**        |
-| ---                  | ---          | ---                   |
 
 ### **8\. KEY EXCHANGE - DIFFIE-HELLMAN**
 
@@ -2232,24 +2120,6 @@
 **Browser: verifies chain up to trusted Root CA**
 
 **uses server's public key for TLS key exchange**
-
-#### **🏢 PGP Email Encryption**
-
-**Alice wants to send encrypted email to Bob:**
-
-**1\. Generate random AES session key**
-
-**2\. Encrypt email with AES session key**
-
-**3\. Encrypt session key with Bob's PGP public key**
-
-**4\. Send both together**
-
-**Bob:**
-
-**1\. Decrypt session key with his PGP private key**
-
-**2\. Decrypt email with session key**
 
 ### **11\. EDGE CASES & GOTCHAS**
 
@@ -2583,19 +2453,6 @@
 
 **else: allow**
 
-#### **Visual**
-
-**Time: 0 10 20 30 40 50 60 70 80 90 100 110 120**
-
-**|────────────────────────|────────────────────────|**
-
-**Window: \[ Window 1 \]\[ Window 2 \]**
-
-**Window 1: 95 requests by t=55**
-
-**5 more requests at t=58,59 → hits limit (100)**
-
-**Window 2: RESETS at t=60 → 100 more allowed immediately**
 
 #### **✅ Pros**
 
