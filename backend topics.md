@@ -1,4 +1,4 @@
-### **1- Authentication O auth**
+### **1-  O auth**
 
 ### **1\. WHAT IS OAuth?**
 
@@ -19,13 +19,10 @@
 | **Role**                 | **Who they are**                          | **Real Example**       |
 | ------------------------ | ----------------------------------------- | ---------------------- |
 | **Resource Owner**       | **The user who owns the data**            | **You**                |
-| ---                      | ---                                       | ---                    |
 | **Client**               | **The app requesting access**             | **Notion, Trello**     |
-| ---                      | ---                                       | ---                    |
 | **Authorization Server** | **Issues tokens after verifying consent** | **Google Auth Server** |
-| ---                      | ---                                       | ---                    |
 | **Resource Server**      | **Holds the protected data/API**          | **Google Drive API**   |
-| ---                      | ---                                       | ---                    |
+
 
 ### **4\. KEY TOKENS**
 
@@ -102,55 +99,16 @@
 
 **Used in microservices, background jobs, CI/CD pipelines.**
 
-**🔷 D. Device Authorization Flow**
-
-**Best for: Smart TVs, CLI tools, IoT devices**
-
-**Device → Auth Server → Gets a device_code + user_code**
-
-**Device shows: "Go to example.com/activate and enter: ABCD-1234"**
-
-**User does that on phone/laptop**
-
-**Device polls Auth Server... until approved**
-
-**→ Access Token issued**
-
-**❌ Implicit Flow (DEPRECATED)**
-
-- **Was used for SPAs before PKCE existed**
-- **Access token returned directly in URL fragment**
-- **Vulnerable to token leakage**
-- **Do not use - replaced by Auth Code + PKCE**
 
 ### **6\. INDUSTRY EXAMPLES**
 
-#### **🏢 Slack + Google Calendar Integration**
-
-- **You connect Slack to Google Calendar**
-- **Google shows OAuth consent screen: "Slack wants to: View your calendar events"**
-- **Slack's backend gets an Access Token (Authorization Code Flow)**
-- **Slack calls Google Calendar API using that token**
-- **Google Calendar data appears in Slack - your password never left Google**
+**🏢 Slack + Google Calendar Integration**
 
 **🏢 GitHub Actions (CI/CD)**
 
-- **GitHub Actions uses Client Credentials Flow**
-- **The pipeline gets a short-lived token to push Docker images to AWS ECR, deploy to Kubernetes, etc.**
-- **No human user involved - pure machine-to-machine**
-
 **🏢 Netflix on Smart TV**
 
-- **TV shows a code: "Visit netflix.com/activate, enter: XYZ123"**
-- **You do it on your phone**
-- **TV polls and gets the token**
-- **Classic Device Authorization Flow**
-
 **🏢 Stripe + Shopify (OAuth for Platforms)**
-
-- **Shopify merchants connect their Stripe account**
-- **Stripe uses OAuth so Shopify gets permission to charge on behalf of the merchant**
-- **This is OAuth for platforms / marketplace use cases**
 
 ###
 
@@ -168,7 +126,7 @@
 
 **✅ Fix: Implement locking/queuing on the client side for token refresh calls.**
 
-**⚠️ Edge Case 3: CSRF on the Redirect URI**
+**⚠️ Edge Case 3: CSRF (cross site request forgery) on the Redirect URI**
 
 **Without a state parameter, an attacker can trick a user into authorizing with the attacker's auth code (login CSRF).**
 
@@ -197,13 +155,10 @@
 |                  | **OAuth 2.0**             | **OIDC**                           | **SAML**                 |
 | ---------------- | ------------------------- | ---------------------------------- | ------------------------ |
 | **Purpose**      | **Authorization**         | **Authentication + Authorization** | **Authentication (SSO)** |
-| ---              | ---                       | ---                                | ---                      |
 | **Token Format** | **Opaque or JWT**         | **JWT (ID Token)**                 | **XML Assertions**       |
-| ---              | ---                       | ---                                | ---                      |
 | **Use Case**     | **API access delegation** | **Login with Google/Apple**        | **Enterprise SSO**       |
-| ---              | ---                       | ---                                | ---                      |
 | **Common In**    | **APIs, mobile apps**     | **Consumer apps**                  | **Corporate/enterprise** |
-| ---              | ---                       | ---                                | ---                      |
+
 
 ### **9\. TRICKY INTERVIEW QUESTIONS**
 
@@ -213,7 +168,7 @@
 
 **Q2. Why was the Implicit Flow deprecated?**
 
-**The access token was returned in the URL fragment, which could be leaked via browser history, server logs, and Referrer headers. PKCE solves the same problem (no client secret in public clients) more securely.**
+**The access token was returned in the URL fragment, which could be leaked via browser history, server logs, and Referrer headers. PKCE (proof key for code exchange ) solves the same problem (no client secret in public clients) more securely.**
 
 **Q3. If a user revokes OAuth access in Google settings, can the app still call the API?**
 
@@ -221,7 +176,7 @@
 
 **Q4. What's the difference between client_id and client_secret?**
 
-**client_id is public - identifies the app. client_secret is confidential - proves the app's identity to the Auth Server. SPAs/mobile apps cannot safely store client_secret, which is why they use PKCE instead.**
+**client_id (username ) is public - identifies the app. client_secret (password ) is confidential - proves the app's identity to the Auth Server. SPAs/mobile apps cannot safely store client_secret, which is why they use PKCE instead.**
 
 **Q5. Can two different users get the same access token?**
 
@@ -272,19 +227,13 @@
 | **Feature**                                  | **OAuth 2.0** | **OIDC** |
 | -------------------------------------------- | ------------- | -------- |
 | **Access Token**                             | **✅**        | **✅**   |
-| ---                                          | ---           | ---      |
 | **Refresh Token**                            | **✅**        | **✅**   |
-| ---                                          | ---           | ---      |
 | **ID Token**                                 | **❌**        | **✅**   |
-| ---                                          | ---           | ---      |
 | **/userinfo endpoint**                       | **❌**        | **✅**   |
-| ---                                          | ---           | ---      |
 | **Standard scopes (openid, profile, email)** | **❌**        | **✅**   |
-| ---                                          | ---           | ---      |
 | **Authentication event info**                | **❌**        | **✅**   |
-| ---                                          | ---           | ---      |
 | **Discovery endpoint**                       | **❌**        | **✅**   |
-| ---                                          | ---           | ---      |
+
 
 ### **4\. THE ID TOKEN - THE HEART OF OIDC**
 
@@ -305,138 +254,33 @@
 | **Claim**     | **Meaning**                           | **Example**                         |
 | ------------- | ------------------------------------- | ----------------------------------- |
 | **sub**       | **Subject - unique user ID**          | **\`"auth0**                        |
-| ---           | ---                                   | ---                                 |
 | **iss**       | **Issuer - who issued the token**     | **"<https://accounts.google.com>"** |
-| ---           | ---                                   | ---                                 |
 | **aud**       | **Audience - who it's intended for**  | **"your-client-id"**                |
-| ---           | ---                                   | ---                                 |
 | **exp**       | **Expiry timestamp**                  | **1718000000**                      |
-| ---           | ---                                   | ---                                 |
 | **iat**       | **Issued at timestamp**               | **1717996400**                      |
-| ---           | ---                                   | ---                                 |
 | **nonce**     | **Replay attack prevention**          | **"random-xyz"**                    |
-| ---           | ---                                   | ---                                 |
 | **email**     | **User's email (if requested)**       | **"<user@gmail.com>"**              |
-| ---           | ---                                   | ---                                 |
 | **name**      | **Full name**                         | **"John Doe"**                      |
-| ---           | ---                                   | ---                                 |
 | **picture**   | **Profile picture URL**               | **"https://..."**                   |
-| ---           | ---                                   | ---                                 |
 | **auth_time** | **When user actually authenticated**  | **1717996000**                      |
-| ---           | ---                                   | ---                                 |
 | **amr**       | **Auth method (password, otp, etc.)** | **\["pwd", "otp"\]**                |
-| ---           | ---                                   | ---                                 |
 
-### **5\. OIDC FLOW - STEP BY STEP**
 
-#### **The Standard OIDC Flow (Auth Code + OIDC)**
-
-**1\. User clicks "Login with Google" on your app**
-
-**2\. App redirects to Google with:**
-
-**\- response_type=code**
-
-**\- scope=openid profile email ← "openid" triggers OIDC**
-
-**\- client_id=your-app-id**
-
-**\- redirect_uri=<https://yourapp.com/callback>**
-
-**\- state=random-csrf-token**
-
-**\- nonce=random-replay-token ← OIDC specific**
-
-**3\. Google shows login + consent screen**
-
-**4\. User logs in → Google redirects back with:**
-
-**?code=AUTH_CODE&state=random-csrf-token**
-
-**5\. Your backend exchanges code:**
-
-**POST /token**
-
-**code=AUTH_CODE + client_id + client_secret**
-
-**6\. Google returns:**
-
-**{**
-
-**"access_token": "...", ← For API calls**
-
-**"id_token": "eyJ...", ← Who the user is (JWT)**
-
-**"refresh_token": "...",**
-
-**"token_type": "Bearer",**
-
-**"expires_in": 3600**
-
-**}**
-
-**7\. Your app validates the ID Token**
-
-**→ Extracts user identity from claims**
-
-**→ Creates a session for the user**
-
-### **6\. OIDC SCOPES**
+### **5\. OIDC SCOPES**
 
 **Scopes in OIDC control what claims come back in the ID Token or /userinfo endpoint.**
 
 | **Scope**          | **Claims Returned**                                |
 | ------------------ | -------------------------------------------------- |
 | **openid**         | **sub, iss, aud, exp, iat - mandatory for OIDC**   |
-| ---                | ---                                                |
 | **profile**        | **name, given_name, family_name, picture, locale** |
-| ---                | ---                                                |
 | **email**          | **email, email_verified**                          |
-| ---                | ---                                                |
 | **address**        | **address (structured postal address)**            |
-| ---                | ---                                                |
 | **phone**          | **phone_number, phone_number_verified**            |
-| ---                | ---                                                |
 | **offline_access** | **Returns a refresh token**                        |
-| ---                | ---                                                |
 
-### **7\. ID TOKEN VALIDATION - CRITICAL STEPS**
 
-**Receiving an ID Token is not enough - you must validate it.**
-
-**Step 1: Verify the signature**
-
-**→ Fetch public keys from issuer's JWKS endpoint**
-
-**→ Verify JWT signature using those keys**
-
-**Step 2: Verify \`iss\` (issuer)**
-
-**→ Must match expected provider**
-
-**→ e.g., "<https://accounts.google.com>"**
-
-**Step 3: Verify \`aud\` (audience)**
-
-**→ Must match YOUR client_id**
-
-**→ Prevents tokens meant for other apps being used on yours**
-
-**Step 4: Check \`exp\` (expiry)**
-
-**→ Token must not be expired**
-
-**Step 5: Verify \`nonce\` (if used)**
-
-**→ Must match what you sent in the request**
-
-**→ Prevents replay attacks**
-
-**Step 6: Check \`iat\` (issued at)**
-
-**→ Should be recent (clock skew tolerance ~5 mins)**
-
-### **8\. OIDC DISCOVERY ENDPOINT**
+### **6\. OIDC DISCOVERY ENDPOINT**
 
 **OIDC providers publish a well-known configuration endpoint:**
 
@@ -470,7 +314,7 @@
 
 **}**
 
-### **9\. /userinfo ENDPOINT**
+### **7\. /userinfo ENDPOINT**
 
 **An alternative to reading claims from the ID Token directly.**
 
@@ -499,85 +343,36 @@
 |               | **ID Token**                   | **/userinfo**                   |
 | ------------- | ------------------------------ | ------------------------------- |
 | **Delivery**  | **Inside JWT, no extra call**  | **Requires API call**           |
-| ---           | ---                            | ---                             |
 | **Freshness** | **Snapshot at login time**     | **Always fresh/current**        |
-| ---           | ---                            | ---                             |
 | **Use when**  | **You need claims at login**   | **You need up-to-date profile** |
-| ---           | ---                            | ---                             |
 | **Risk**      | **Stale data (email changed)** | **Extra network call**          |
-| ---           | ---                            | ---                             |
 
-**10\. OIDC RESPONSE TYPES**
+
+**8\. OIDC RESPONSE TYPES**
 
 | **response_type** | **What you get back**     | **Use case**             |
 | ----------------- | ------------------------- | ------------------------ |
 | **code**          | **Auth code only**        | **Standard secure flow** |
-| ---               | ---                       | ---                      |
 | **id_token**      | **ID token directly**     | **Deprecated implicit**  |
-| ---               | ---                       | ---                      |
 | **token**         | **Access token directly** | **Deprecated implicit**  |
-| ---               | ---                       | ---                      |
 | **code id_token** | **Code + ID token**       | **Hybrid flow**          |
-| ---               | ---                       | ---                      |
 
-### **11\. INDUSTRY EXAMPLES**
 
-#### **🏢 "Login with Google" on any website**
 
-- **Classic OIDC Authorization Code Flow**
-- **You get back an ID Token confirming who the user is**
-- **The site creates a local session - Google password never touched the site**
-
-**🏢 Auth0 / Okta as Identity Provider**
-
-- **Enterprise apps delegate all login to Auth0/Okta**
-- **Auth0 handles MFA, social login, password resets**
-- **Your app only ever sees OIDC ID Tokens**
-- **Auth0 is the OIDC Provider (OP), your app is the Relying Party (RP)**
-
-**🏢 AWS Cognito + React App**
-
-- **Cognito acts as OIDC Provider**
-- **React SPA uses Auth Code + PKCE (no client secret)**
-- **Gets ID Token → extracts user identity**
-- **Gets Access Token → calls AWS API Gateway**
-- **Gets Refresh Token → silent re-login**
-
-**🏢 Kubernetes OIDC Authentication**
-
-- **K8s clusters can use OIDC tokens for kubectl authentication**
-- **Engineers log in via their company's SSO**
-- **The ID Token is sent to the K8s API server**
-- **K8s validates the token and maps sub claim to RBAC roles**
-
-**🏢 Microsoft Azure AD (Entra ID)**
-
-- **All Microsoft 365, Teams, Azure Portal logins use OIDC**
-- **When you log in to VS Code with your Microsoft account - OIDC**
-- **The tid (tenant ID) claim is used for multi-tenant enterprise routing**
-
-### **12\. OIDC vs SAML vs OAuth - CLEAR COMPARISON**
+### **9\. OIDC vs SAML vs OAuth - CLEAR COMPARISON**
 
 |                     | **OAuth 2.0**      | **OIDC**            | **SAML 2.0**                 |
 | ------------------- | ------------------ | ------------------- | ---------------------------- |
 | **Purpose**         | **Authorization**  | **Authentication**  | **Authentication (SSO)**     |
-| ---                 | ---                | ---                 | ---                          |
 | **Built on**        | **-**              | **OAuth 2.0**       | **Standalone**               |
-| ---                 | ---                | ---                 | ---                          |
 | **Token format**    | **JWT or opaque**  | **JWT (ID Token)**  | **XML**                      |
-| ---                 | ---                | ---                 | ---                          |
 | **Transport**       | **HTTPS/REST**     | **HTTPS/REST**      | **HTTP + XML POST**          |
-| ---                 | ---                | ---                 | ---                          |
 | **Mobile friendly** | **✅**             | **✅**              | **❌ (XML is heavy)**        |
-| ---                 | ---                | ---                 | ---                          |
 | **SSO support**     | **❌**             | **✅**              | **✅**                       |
-| ---                 | ---                | ---                 | ---                          |
 | **Discovery**       | **❌**             | **✅ (well-known)** | **❌ (manual metadata XML)** |
-| ---                 | ---                | ---                 | ---                          |
 | **Use case**        | **API delegation** | **Consumer login**  | **Enterprise/corporate SSO** |
-| ---                 | ---                | ---                 | ---                          |
 | **Complexity**      | **Medium**         | **Medium**          | **High**                     |
-| ---                 | ---                | ---                 | ---                          |
+
 
 ### **13\. EDGE CASES & GOTCHAS**
 
@@ -711,13 +506,10 @@
 | **Storage**         | **Example**                           | **Pros**           | **Cons**                          |
 | ------------------- | ------------------------------------- | ------------------ | --------------------------------- |
 | **In-memory**       | **Node.js Map**                       | **Fastest**        | **Lost on restart, not scalable** |
-| ---                 | ---                                   | ---                | ---                               |
 | **Redis**           | **Redis session store**               | **Fast, scalable** | **Extra infrastructure**          |
-| ---                 | ---                                   | ---                | ---                               |
 | **Database**        | **PostgreSQL sessions table**         | **Persistent**     | **Slower, DB load**               |
-| ---                 | ---                                   | ---                | ---                               |
 | **Sticky sessions** | **Load balancer pins user to server** | **Simple**         | **Single point of failure**       |
-| ---                 | ---                                   | ---                | ---                               |
+
 
 ### **3\. JWT-BASED AUTHENTICATION**
 
@@ -780,11 +572,9 @@
 | **Algorithm** | **Type**                            | **Use Case**                          |
 | ------------- | ----------------------------------- | ------------------------------------- |
 | **HS256**     | **Symmetric (shared secret)**       | **Single service, simple setup**      |
-| ---           | ---                                 | ---                                   |
 | **RS256**     | **Asymmetric (private/public key)** | **Microservices, multiple verifiers** |
-| ---           | ---                                 | ---                                   |
 | **ES256**     | **Elliptic curve asymmetric**       | **Performance-sensitive systems**     |
-| ---           | ---                                 | ---                                   |
+
 
 **With RS256 - only the auth server signs (private key), but any service can verify (public key). This is ideal for microservices.**
 
@@ -793,25 +583,16 @@
 | **Dimension**           | **Session**                                | **JWT**                                            |
 | ----------------------- | ------------------------------------------ | -------------------------------------------------- |
 | **State**               | **Stateful (server stores state)**         | **Stateless (client carries state)**               |
-| ---                     | ---                                        | ---                                                |
 | **Storage**             | **Server (Redis, DB)**                     | **Client (localStorage, cookie, memory)**          |
-| ---                     | ---                                        | ---                                                |
 | **Scalability**         | **Harder (shared session store needed)**   | **Easier (no shared state)**                       |
-| ---                     | ---                                        | ---                                                |
 | **Revocation**          | **Instant (delete session)**               | **Hard (token valid until expiry)**                |
-| ---                     | ---                                        | ---                                                |
 | **Performance**         | **DB/Redis lookup per request**            | **Cryptographic verify (no DB)**                   |
-| ---                     | ---                                        | ---                                                |
 | **Payload size**        | **Cookie: tiny (just an ID ~20 bytes)**    | **JWT can be 500-2000+ bytes**                     |
-| ---                     | ---                                        | ---                                                |
 | **Mobile friendly**     | **Less (cookie management)**               | **More (Authorization header)**                    |
-| ---                     | ---                                        | ---                                                |
 | **Microservices**       | **Hard (all services need session store)** | **Easy (each service validates independently)**    |
-| ---                     | ---                                        | ---                                                |
 | **User data freshness** | **Always fresh (DB is source of truth)**   | **Stale until token expiry**                       |
-| ---                     | ---                                        | ---                                                |
 | **Security control**    | **Full (can kill session anytime)**        | **Limited (can't invalidate issued token easily)** |
-| ---                     | ---                                        | ---                                                |
+
 
 ### **WHERE EACH IS STORED ON THE CLIENT**
 
@@ -830,13 +611,10 @@
 | **Location**        | **XSS Risk** | **CSRF Risk** | **Notes**                                             |
 | ------------------- | ------------ | ------------- | ----------------------------------------------------- |
 | **localStorage**    | **❌ HIGH**  | **✅ Safe**   | **JS can read it - XSS steals token**                 |
-| ---                 | ---          | ---           | ---                                                   |
 | **sessionStorage**  | **❌ HIGH**  | **✅ Safe**   | **Same as localStorage, cleared on tab close**        |
-| ---                 | ---          | ---           | ---                                                   |
 | **HttpOnly Cookie** | **✅ Safe**  | **❌ Risk**   | **Best security, needs CSRF token**                   |
-| ---                 | ---          | ---           | ---                                                   |
 | **Memory (JS var)** | **✅ Safe**  | **✅ Safe**   | **Lost on refresh, use with refresh token in cookie** |
-| ---                 | ---          | ---           | ---                                                   |
+
 
 **✅ Best practice: Store JWT in HttpOnly cookie (XSS safe) + use CSRF tokens, or store in memory with a refresh token in HttpOnly cookie.**
 
@@ -960,19 +738,7 @@
 - **Tokens are revocable from the dashboard**
 - **Used in CI/CD pipelines (Authorization: Bearer ghp_xxx)**
 
-**🏢 Microservices at Uber/Airbnb**
 
-- **API Gateway validates JWT once**
-- **Passes decoded claims (userId, role) downstream via headers**
-- **Internal services trust the gateway - no re-validation**
-- **RS256: Auth service signs, all microservices verify with public key**
-
-**🏢 Traditional Web Apps (Reddit, StackOverflow)**
-
-- **Classic session + cookie**
-- **Simpler to implement and reason about**
-- **Instant logout, instant ban enforcement**
-- **CSRF protection with SameSite cookies**
 
 ### **HYBRID ARCHITECTURE (Industry Best Practice)**
 
@@ -1203,15 +969,10 @@
 |                 | **Hashing**                  | **Encryption**        | **Encoding**                   |
 | --------------- | ---------------------------- | --------------------- | ------------------------------ |
 | **Reversible?** | **❌ No (one-way)**          | **✅ Yes (with key)** | **✅ Yes (always)**            |
-| ---             | ---                          | ---                   | ---                            |
 | **Key needed?** | **No**                       | **Yes**               | **No**                         |
-| ---             | ---                          | ---                   | ---                            |
 | **Purpose**     | **Integrity / verification** | **Confidentiality**   | **Data format transformation** |
-| ---             | ---                          | ---                   | ---                            |
 | **Examples**    | **SHA-256, bcrypt**          | **AES, RSA**          | **Base64, URL encoding**       |
-| ---             | ---                          | ---                   | ---                            |
 | **Use case**    | **Passwords, checksums**     | **Storing secrets**   | **Transmitting binary data**   |
-| ---             | ---                          | ---                   | ---                            |
 
 **⚠️ Base64 is NOT encryption or hashing - it's encoding. Anyone can decode it instantly. ⚠️ MD5 is NOT safe for passwords - it's a checksum algorithm, not a password hashing algorithm.**
 
@@ -1226,21 +987,14 @@
 | **Algorithm** | **Output Size** | **Status**    | **Use Case**                            |
 | ------------- | --------------- | ------------- | --------------------------------------- |
 | **MD5**       | **128 bit**     | **❌ Broken** | **Legacy checksums only**               |
-| ---           | ---             | ---           | ---                                     |
 | **SHA-1**     | **160 bit**     | **❌ Broken** | **Deprecated**                          |
-| ---           | ---             | ---           | ---                                     |
 | **SHA-256**   | **256 bit**     | **✅ Secure** | **TLS, digital signatures, blockchain** |
-| ---           | ---             | ---           | ---                                     |
 | **SHA-512**   | **512 bit**     | **✅ Secure** | **High-security signatures**            |
-| ---           | ---             | ---           | ---                                     |
 | **SHA-3**     | **Variable**    | **✅ Secure** | **Next-gen standard**                   |
-| ---           | ---             | ---           | ---                                     |
 | **bcrypt**    | **184 bit**     | **✅ Secure** | **Password hashing**                    |
-| ---           | ---             | ---           | ---                                     |
 | **Argon2**    | **Variable**    | **✅ Best**   | **Password hashing (modern standard)**  |
-| ---           | ---             | ---           | ---                                     |
 | **scrypt**    | **Variable**    | **✅ Secure** | **Password hashing, key derivation**    |
-| ---           | ---             | ---           | ---                                     |
+
 
 **🔷 B. Non-Cryptographic Hash Functions**
 
@@ -1249,13 +1003,9 @@
 | **Algorithm**  | **Use Case**                           |
 | -------------- | -------------------------------------- |
 | **MurmurHash** | **Hash maps, databases**               |
-| ---            | ---                                    |
 | **xxHash**     | **Fast checksums, data deduplication** |
-| ---            | ---                                    |
 | **FNV**        | **Simple hash tables**                 |
-| ---            | ---                                    |
 | **CRC32**      | **Error detection in networks/files**  |
-| ---            | ---                                    |
 
 **These are fast but NOT secure - never use for passwords or security purposes.**
 
@@ -1266,13 +1016,10 @@
 | **Algorithm** | **Key Feature**               | **Industry Use**                   |
 | ------------- | ----------------------------- | ---------------------------------- |
 | **bcrypt**    | **Cost factor (work factor)** | **Most widely used today**         |
-| ---           | ---                           | ---                                |
 | **Argon2**    | **Memory-hard, time-hard**    | **Modern gold standard**           |
-| ---           | ---                           | ---                                |
 | **scrypt**    | **Memory-hard**               | **Cryptocurrencies, some apps**    |
-| ---           | ---                           | ---                                |
 | **PBKDF2**    | **Iteration count**           | **FIPS compliant, legacy systems** |
-| ---           | ---                           | ---                                |
+
 
 ### **5\. WHY PASSWORDS NEED SPECIAL HASHING**
 
@@ -1333,13 +1080,10 @@
 | **Cost Factor** | **Hashes/second (modern CPU)** | **Time to hash 1 password** |
 | --------------- | ------------------------------ | --------------------------- |
 | **10**          | **~100/sec**                   | **~100ms**                  |
-| ---             | ---                            | ---                         |
 | **12**          | **~25/sec**                    | **~400ms**                  |
-| ---             | ---                            | ---                         |
 | **14**          | **~6/sec**                     | **~1.5 sec**                |
-| ---             | ---                            | ---                         |
 | **16**          | **~1.5/sec**                   | **~6 sec**                  |
-| ---             | ---                            | ---                         |
+
 
 **✅ Recommended: cost factor 12 for most apps As hardware gets faster, increase the cost factor - this is bcrypt's key advantage**
 
@@ -1367,55 +1111,11 @@
 
 **🔷 Use Case 2: Data Integrity Verification**
 
-**File download (e.g., Ubuntu ISO):**
-
-**Website publishes: SHA-256: a1b2c3d4...**
-
-**You download the file**
-
-**You compute SHA-256 of downloaded file**
-
-**Compare → match means file is not corrupted or tampered**
-
-**Used in: package managers (npm, pip, apt), Docker images, Git commits**
-
 **🔷 Use Case 3: Git Commit Hashing**
 
 **Every Git commit is identified by a SHA-1 hash:**
 
-**commit abc123def456...**
-
-**The hash is computed from:**
-
-**\- File contents**
-
-**\- Author**
-
-**\- Timestamp**
-
-**\- Parent commit hash**
-
-**Change anything → completely different hash**
-
-**This makes Git history tamper-evident**
-
 **🔷 Use Case 4: Digital Signatures**
-
-**Instead of signing the whole document (slow):**
-
-**1\. Hash the document → SHA-256 → fixed 256-bit digest**
-
-**2\. Encrypt the digest with private key → signature**
-
-**3\. Send document + signature**
-
-**Verification:**
-
-**1\. Decrypt signature with public key → digest**
-
-**2\. Hash received document → digest**
-
-**3\. Compare → match means document is authentic and unmodified**
 
 **🔷 Use Case 5: Hash Tables / Databases**
 
@@ -1723,27 +1423,12 @@
 
 **✅ RANDOM**
 
-**Generated using a cryptographically secure random number generator (CSPRNG)**
-
-**Not predictable, not sequential**
-
 **✅ UNIQUE PER PASSWORD**
-
-**Every user gets a different salt**
-
-**Even if same user changes password → new salt generated**
 
 **✅ LONG ENOUGH**
 
-**16 bytes (128 bits) minimum**
-
-**bcrypt uses 16 bytes by default**
-
 **✅ STORED ALONGSIDE THE HASH**
 
-**Salt is not secret - it just needs to be unique**
-
-**Storing it with the hash is fine and standard practice**
 
 ### **5\. SALT vs PEPPER - THE DIFFERENCE**
 
@@ -1751,16 +1436,11 @@
 
 |                      | **Salt**                                             | **Pepper**                                            |
 | -------------------- | ---------------------------------------------------- | ----------------------------------------------------- |
-| **Unique per user?** | **✅ Yes**                                           | **❌ No (global)**                                    |
-| ---                  | ---                                                  | ---                                                   |
-| **Stored where?**    | **In DB (with hash)**                                | **App config / secret manager**                       |
-| ---                  | ---                                                  | ---                                                   |
-| **Secret?**          | **❌ No**                                            | **✅ Yes**                                            |
-| ---                  | ---                                                  | ---                                                   |
+| **Unique per user?** | **✅ Yes**                                           | **❌ No (global)**                                   |
+| **Stored where?**    | **In DB (with hash)**                                |  **App config / secret manager**                      |
+| **Secret?**          | **❌ No**                                            | **✅ Yes**                                           |
 | **Purpose**          | **Defeats rainbow tables, deduplication**            | **Adds secret layer - DB breach alone is not enough** |
-| ---                  | ---                                                  | ---                                                   |
 | **If compromised**   | **Attacker must brute-force each hash individually** | **Entire system needs re-hashing**                    |
-| ---                  | ---                                                  | ---                                                   |
 
 #### **How Pepper Works**
 
@@ -2031,11 +1711,8 @@
 | **Variant** | **Key Size** | **Rounds** | **Security**                         |
 | ----------- | ------------ | ---------- | ------------------------------------ |
 | **AES-128** | **128 bits** | **10**     | **✅ Secure - 2¹²⁸ combinations**    |
-| ---         | ---          | ---        | ---                                  |
 | **AES-192** | **192 bits** | **12**     | **✅ More secure**                   |
-| ---         | ---          | ---        | ---                                  |
 | **AES-256** | **256 bits** | **14**     | **✅✅ Highest - quantum resistant** |
-| ---         | ---          | ---        | ---                                  |
 
 **AES-256 brute force: more combinations than atoms in the observable universe. Even quantum computers (Grover's algorithm) reduce it to effectively AES-128 security - still secure.**
 
@@ -2134,15 +1811,11 @@
 | **Mode** | **Parallelizable** | **Authentication** | **Padding** | **Use**             |
 | -------- | ------------------ | ------------------ | ----------- | ------------------- |
 | **ECB**  | **✅**             | **❌**             | **✅**      | **❌ Never**        |
-| ---      | ---                | ---                | ---         | ---                 |
 | **CBC**  | **❌ (encrypt)**   | **❌**             | **✅**      | **Legacy**          |
-| ---      | ---                | ---                | ---         | ---                 |
 | **CTR**  | **✅**             | **❌**             | **❌**      | **Rarely alone**    |
-| ---      | ---                | ---                | ---         | ---                 |
 | **GCM**  | **✅**             | **✅**             | **❌**      | **✅ Recommended**  |
-| ---      | ---                | ---                | ---         | ---                 |
 | **CCM**  | **❌**             | **✅**             | **❌**      | **IoT/constrained** |
-| ---      | ---                | ---                | ---         | ---                 |
+
 
 ### **4\. RSA - RIVEST-SHAMIR-ADLEMAN**
 
@@ -2175,13 +1848,9 @@
 | **Key Size** | **Security**         | **Status**                         |
 | ------------ | -------------------- | ---------------------------------- |
 | **512-bit**  | **❌ Broken**        | **Factored in hours**              |
-| ---          | ---                  | ---                                |
 | **1024-bit** | **❌ Broken**        | **Factored with enough resources** |
-| ---          | ---                  | ---                                |
 | **2048-bit** | **✅ Secure**        | **Minimum recommended**            |
-| ---          | ---                  | ---                                |
 | **4096-bit** | **✅✅ Very Secure** | **High-value use cases**           |
-| ---          | ---                  | ---                                |
 
 **RSA security relies on the integer factorization problem - hard to factor n back into p × q for large primes. Quantum computers (Shor's algorithm) can break RSA - post-quantum alternatives are being developed.**
 
@@ -2204,11 +1873,9 @@
 | **Security Level** | **RSA Key Size** | **ECC Key Size** |
 | ------------------ | ---------------- | ---------------- |
 | **80-bit**         | **1024-bit**     | **160-bit**      |
-| ---                | ---              | ---              |
 | **128-bit**        | **3072-bit**     | **256-bit**      |
-| ---                | ---              | ---              |
 | **256-bit**        | **15360-bit**    | **512-bit**      |
-| ---                | ---              | ---              |
+
 
 **256-bit ECC ≈ 3072-bit RSA in security - but ECC is much smaller and faster.**
 
@@ -2217,13 +1884,9 @@
 | **Curve**             | **Key Size** | **Use**                          |
 | --------------------- | ------------ | -------------------------------- |
 | **P-256 (secp256r1)** | **256-bit**  | **TLS, HTTPS, most common**      |
-| ---                   | ---          | ---                              |
 | **P-384**             | **384-bit**  | **NSA Suite B, high security**   |
-| ---                   | ---          | ---                              |
 | **Curve25519**        | **255-bit**  | **Signal, WhatsApp, modern TLS** |
-| ---                   | ---          | ---                              |
 | **secp256k1**         | **256-bit**  | **Bitcoin, Ethereum**            |
-| ---                   | ---          | ---                              |
 
 **Curve25519 designed by Daniel Bernstein - no alleged NSA backdoors, very fast, widely trusted.**
 
@@ -2252,13 +1915,10 @@
 |                    | **AES-256-GCM** | **ChaCha20-Poly1305**          |
 | ------------------ | --------------- | ------------------------------ |
 | **With AES-NI**    | **Faster**      | **Slightly slower**            |
-| ---                | ---             | ---                            |
 | **Without AES-NI** | **Slow**        | **Much faster**                |
-| ---                | ---             | ---                            |
 | **Security**       | **✅**          | **✅**                         |
-| ---                | ---             | ---                            |
 | **Used in**        | **Most HTTPS**  | **Android, WireGuard, Signal** |
-| ---                | ---             | ---                            |
+
 
 **TLS 1.3 supports both - negotiated based on device capabilities.**
 
@@ -2313,17 +1973,11 @@
 | **Feature**          | **TLS 1.2**  | **TLS 1.3**           |
 | -------------------- | ------------ | --------------------- |
 | **Handshake RTTs**   | **2 RTT**    | **1 RTT**             |
-| ---                  | ---          | ---                   |
 | **0-RTT resumption** | **❌**       | **✅ (with caveats)** |
-| ---                  | ---          | ---                   |
 | **Weak ciphers**     | **Allowed**  | **❌ Removed**        |
-| ---                  | ---          | ---                   |
 | **Forward secrecy**  | **Optional** | **✅ Mandatory**      |
-| ---                  | ---          | ---                   |
 | **SHA-1 support**    | **✅**       | **❌ Removed**        |
-| ---                  | ---          | ---                   |
 | **RSA key exchange** | **✅**       | **❌ Removed**        |
-| ---                  | ---          | ---                   |
 
 ### **8\. KEY EXCHANGE - DIFFIE-HELLMAN**
 
@@ -2466,24 +2120,6 @@
 **Browser: verifies chain up to trusted Root CA**
 
 **uses server's public key for TLS key exchange**
-
-#### **🏢 PGP Email Encryption**
-
-**Alice wants to send encrypted email to Bob:**
-
-**1\. Generate random AES session key**
-
-**2\. Encrypt email with AES session key**
-
-**3\. Encrypt session key with Bob's PGP public key**
-
-**4\. Send both together**
-
-**Bob:**
-
-**1\. Decrypt session key with his PGP private key**
-
-**2\. Decrypt email with session key**
 
 ### **11\. EDGE CASES & GOTCHAS**
 
@@ -2817,19 +2453,6 @@
 
 **else: allow**
 
-#### **Visual**
-
-**Time: 0 10 20 30 40 50 60 70 80 90 100 110 120**
-
-**|────────────────────────|────────────────────────|**
-
-**Window: \[ Window 1 \]\[ Window 2 \]**
-
-**Window 1: 95 requests by t=55**
-
-**5 more requests at t=58,59 → hits limit (100)**
-
-**Window 2: RESETS at t=60 → 100 more allowed immediately**
 
 #### **✅ Pros**
 
