@@ -22,36 +22,33 @@
   Document 2:  
   "Celery uses Redis as a message broker."  
     
-  Document 3:  
+  Document 3:
   "FastAPI supports asynchronous request handling."
 
-           User asks:
+  User asks:
+  "How can I process tasks asynchronously?"
 
-"How can I process tasks asynchronously?"
+   Keyword search looks for:
 
-          Keyword search looks for:
+   asynchronously  
+   process  
+   tasks
 
-asynchronously  
-process  
-tasks
+   It might return Document 3 only.
+   But semantically 
 
-          It might return Document 3 only.
+   1. Celery  
+   2. Message Broker  
+   3. Background Jobs  
+   4. Async Processing
+   are related concepts.
 
-           But semantically 
-
-1. Celery  
-2. Message Broker  
-3.  Background Jobs  
-4. Async Processing
-
-             are related concepts.
-
-             Embeddings capture **meaning**, not just words.
+   Embeddings capture **meaning**, not just words.
 
 * An embedding converts text into a high \- dimensional vector   
   "dog" → \[0.23, \-0.91, 1.12, ...\]  
   "puppy" → \[0.27, \-0.89, 1.08, ...\]   
-  Because the meanings are similar , distance(dog, puppy)  is very small . Whereas distance ( dog, airplane ) is much larger .  
+  Because the meanings are similar , distance(dog, puppy)  is very small . Whereas distance ( dog, airplane ) is      much larger .  
 * Embeddings are not the fastest solutions but these are a tradeoff and have better relevance 
 
 
@@ -66,11 +63,10 @@ tasks
       
 
 
-         For pure speed:
-
+For pure speed:
 Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search 
 
-* We don't compare vector against every document as it would make the search very slow so we use the top K search and just compare them instead of comparing the whole data .  
+* We don't compare vector against every document as it would make the search very slow so we use the top K search     and just compare them instead of comparing the whole data .  
     
 * Vector databases like pinecone , weviate , mivus use approximate nearest neighbour ( ANN ) algorithms.  
   Popular indexes :   
@@ -91,7 +87,7 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
 * Conversion of word or chunk of data into embeddings    
    
 
-  Step 1 \- computers don't understand words so they convert the words into numbers . Suppose we have Dog , Cat , Car .   
+  Step 1 \- computers don't understand words so they convert the words into numbers . Suppose we have Dog , Cat ,     Car .   
   The simplest coding will be   
   Dog \= 1  
   Cat \= 2  
@@ -133,7 +129,7 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
 
   The idea behind this is , instead of manually assigning vectors let a neural network learn them . 
 
-  In sentence “ the dog chased the ball “ , for the word “ dog “ , the surrounding words are “ the “ , “ chased “ , “ball” 
+  In sentence “ the dog chased the ball “ , for the word “ dog “ , the surrounding words are “ the “ , “ chased “ ,   “ball” 
 
   The network learns , “dog “ appears near : “ ball “, “ puppy “ , “ bark “ , “ animal “ 
 
@@ -235,7 +231,7 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   90 degrees apart     :        cosine similarity \= 0   
   Opposite directions  :       cosine similarity \= \-1
 
-  Cosine is better because euclidean distance is large but semantically same direction , while cosine similarity says similarity \= 1 , which is correct .
+  Cosine is better because euclidean distance is large but semantically same direction , while cosine similarity      says similarity \= 1 , which is correct .
 
 * What happens during RAG retrieval 
 
@@ -261,8 +257,7 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
 
   Query  —\>   nearest region  —\>  closest region  —\>  top K result 
 
-  Instead of checking all the vectors ( 3000000 vectors )  it checks  around 500-5000 vectors and still finds the nearest neighbour   
-  Here ‘ K ‘ is the top K retrieved chunks that are then retrieved and sent to LLM to generate output and context is taken from those K chunks .  
+  Instead of checking all the vectors ( 3000000 vectors )  it checks  around 500-5000 vectors and still finds the     nearest neighbour . Here ‘ K ‘ is the top K retrieved chunks that are then retrieved and sent to LLM to generate    output and context is taken from those K chunks .  
   
 
   Attention is All you Need 
@@ -274,7 +269,7 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
 
 * Problem 1: Long Range Dependencies   
   For eg : the animal didn’t cross the road because it was too tired   
-  To understand “it”, the model must remember “ animal “ several words earlier . RNNs struggle because information gradually vanishes . This is called   
+  To understand “it”, the model must remember “ animal “ several words earlier . RNNs struggle because information    gradually vanishes . This is called   
   Vanishing Gradient Problem , even LSTMs improve but do not completely solve it .
 
   Problem 2 : No Parallelization   
@@ -282,11 +277,11 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   X1 —\> x2 —\> x3 —\> ……—\> xn   
   You must wait for x1 before x2 , then x2 before x3 , training becomes slow .
 
-* So do we really need recurrence , actually no . Instead every word can directly look at every other word all at once no recurrence no hidden state , this mechanism is called self attention .
+* So do we really need recurrence , actually no . Instead every word can directly look at every other word all at     once no recurrence no hidden state , this mechanism is called self attention .
 
 * Intuition behind Attention .   
   for eg : The animal didn’t cross the road because it was tired .  
-  When processing “ it ” the model should focus strongly on “ animal “ and weakly on irrelevant words . Attention learns these weights automatically . 
+  When processing “ it ” the model should focus strongly on “ animal “ and weakly on irrelevant words . Attention     learns these weights automatically . 
 
 * Mathematical Foundation   
   Every token embedding produces :   
@@ -342,7 +337,7 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   Eg : x \= \[ 1,2,1,0 \]  
   Choose :   
                          | 1  0  1  |  
-               Wq \=  | 0  1  0 |  
+               Wq \=     | 0  1  0  |  
                          | 1  1   0 |  
                          | 0   0  1 |
 
@@ -353,7 +348,7 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   Now compute : Q \= xWq  
                                                     | 1  0  1 |  
                                                     | 0  1  0 |  
-                            \= \[ 1, 2 , 1 , 0 \] | 1  1  0 |  
+                            \= \[ 1, 2 , 1 , 0 \]   | 1  1  0 |  
                                                     | 0  0  1 |
 
   First component :    1( 1 ) \+ 2( 0 ) \+ 1( 1 ) \+ 0( 0 ) \= 2  
@@ -377,18 +372,18 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
                                  K ∈ R ^ Dk  
                                  V ∈ R ^ Dv
 
-  The dimensions of Q,K,V are determined by the number of columns in the projection matrices , not by the embedding dimension itself .
+  The dimensions of Q,K,V are determined by the number of columns in the projection matrices , not by the embedding   dimension itself .
 
 * Attention Score   
   Compute : score \= Qi Kj ^ T  
-  This simply tells us if a dot product is large then it is very relevant and if a small score then it is not relevant .  
+  This simply tells us if a dot product is large then it is very relevant and if a small score then it is not         relevant .  
   Eg :   
   Query : Q \= \[ 1,2 \]  
   Key :  K \= \[ 3,4 \]  
   Dot product : 1 x 3 \+ 2 x 4 \= 11  
   Score \= 11 
 
-* We divide the raw dot product by √Dk , because the raw dot product becomes huge and the large number makes softmax unstable .  
+* We divide the raw dot product by √Dk , because the raw dot product becomes huge and the large number makes          softmax unstable .  
   Therefore :  QKt / √Dk   
   If    Dk \= 64   
   Then : √64 \= 8  
@@ -494,7 +489,7 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
                   K ∈ R ^ n x d  
                   V ∈ R ^ n x d
 
-  R stands for set of all real numbers  , so when we write  Q ∈ R ^ n x d we mean Q is a matrix containing real numbers 
+  R stands for set of all real numbers  , so when we write  Q ∈ R ^ n x d we mean Q is a matrix containing real       numbers 
 
   ∈ stands for belong to , so when we write Q ∈ R ^ n x d  means “ Q is an n x d matrix  of real numbers “ 
 
@@ -508,7 +503,7 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   Q stands for query “ what information am i looking for ? “ . every token generates a query vector   
   Eg \- “ the animal was tired because it ran “  
   When processing “ it “  
-  The query may effectively be : “ Which previous word does ‘ it ’ refer to ? ” . The model learns this automatically .  
+  The query may effectively be : “ Which previous word does ‘ it ’ refer to ? ” . The model learns this               automatically .  
   Mathematically Q \= XWq  
   Where:  
   X \= embeddings   
@@ -539,14 +534,14 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   After softmax : \[  α1​,α2​,…,αn​ \]  
   Finally : Outputi​ \= α1​V1 ​+ α2​V2 ​+⋯+ αn​Vn
 
-* Single attention may learn only one relationship . instead of one attention we focus on different heads and run them simultaneously .  
+* Single attention may learn only one relationship . instead of one attention we focus on different heads and run     them simultaneously .  
   For each head : Qi , Ki , Vi compute attention independently . Then concatenate :    
                         Concat( head1 , ……, head h)  
   Formula :   
              ​Multi Head (Q,K,V) \= Concat (head1​,...,headh​) Wo
 
 * Positional Encoding  
-  Attention alone doesn't know order . Sentences “ Dog bites man “ and “ Man bites dog “ contain the same words . Need position information.
+  Attention alone doesn't know order . Sentences “ Dog bites man “ and “ Man bites dog “ contain the same words .     Need position information.
 
   Transformer adds : Embedding \+ Position Encoding  
 
@@ -554,7 +549,7 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   For even dimensions : PE ( pos, 2i ) \= sin ( pos / 10000 ^ 2i / d )  
   For odd dimensions :  PE ( pos, 2i \+ 1 ) \= cos (pos / 10000 ^ 2i / d )
 
-  Where pos stands for position of token , d for embedding dimension , i for dimension pair index and PE for positional encoding .
+  Where pos stands for position of token , d for embedding dimension , i for dimension pair index and PE for          positional encoding .
 
   Eg \- lets use :  d \= 4
 
@@ -618,9 +613,9 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
 
   Final  :  PE ( 2 ) \= \[ 0.9093,−0.4161,0.019998,0.9998 \]
 
-  Positional Encoding Matrix  : |      0               1                0                 1       |  
-                                                | 0.84147    0.54030     0.009999     0.99995 |  
-                                                | 0.9093      \-0.4161      0.019998     0.9998   |
+  Positional Encoding Matrix  : |      0             1            0            1      |  
+                                |   0.84147       0.54030      0.009999      0.99995  |  
+                                |   0.9093       \-0.4161      0.019998      0.9998   |
 
   Shape :  3 x 4   
   Because :   
@@ -650,11 +645,11 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   Position 1 : \[ 0.84,0.54,0.01,0.999 \]  
   Position 2 : \[ 0.91,−0.41,0.02,0.999 \]
 
-  These vectors are added to embeddings before computing, so positional information gets baked into Q, K, and V, allowing attention to know both :  
+  These vectors are added to embeddings before computing, so positional information gets baked into Q, K, and V,      allowing attention to know both :  
   \- what the word means (embedding)  
   \- where the word occurs (position)
 
-  So the original transformer can understand both “ dog bites man “ and “ man bites dog “ have the same words but different meaning . 
+  So the original transformer can understand both “ dog bites man “ and “ man bites dog “ have the same words but     different meaning . 
 
 * Transformer Encoder   
   Each encoder layer : 
@@ -690,12 +685,12 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   First layer expands dimension   
   Choose :   
                             | 1   2 |  
-                   W1 \= | 0   1 |  
-                            | 2  \-1 |  
+                   W1 \=    | 0   1 |  
+                            | 2  \-1|  
   Shape : 3 x 2   
   Bias :   
                   | 1 |  
-          b1 \= | 0 |  
+          b1 \=   | 0 |  
                   | 2 |
 
   Shape : 3 x 1 
@@ -709,7 +704,7 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   Shape : 2 x 3 
 
   Bias :   
-                  b2 \= | 1 |  
+                  b2 \=   | 1 |  
                           | 2 |  
   Shape : 2 x 1
 
@@ -719,8 +714,8 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
 
   Substitute values :   
                                         | 1    2 |  
-                                     \= | 0    1 |  | 1 |  
-                                        | 2   \-1 |  | 2 |
+                                     \= | 0    1 |   | 1 |  
+                                        | 2   \-1|   | 2 |
 
   First Row :  ( 1\) ( 1 ) \+ ( 2 ) ( 2 )  
                      \= 1 \+ 4  
@@ -735,20 +730,17 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
                              | 0 |
 
   Step 4: Add bias b1  : W1x \+ b1  
-                                      | 5 |    | 1 |  
-                                   \= | 2 | \+ | 0 |  
-                                      | 0 |    | 2 |
-
-                                         | 6 |  
-                                      \= | 2 |  
-                                         | 2 |
+                                      | 5 |    | 1 |       | 6 |
+                                   \= | 2 | \+ | 0 |    \= | 2 |  
+                                      | 0 |    | 2 |       | 2 |    
+     
 
   Step 5 : Apply ReLU   
   It means :    
                     ReLU ( z ) \= max (0,z)  
   Apply to each element:  
                                         | 6 |      | 6 |  
-                             ReLU  | 2 |  \=  | 2 |  
+                             ReLU       | 2 |  \=  | 2 |  
                                         | 2 |      | 2 |
 
   Nothing changes because all values are positive 
@@ -760,13 +752,13 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   Step 6: Multiply by W2  
   Now :   
                          | 6 |  
-                  W2  | 2 |  
+                  W2     | 2 |  
                          | 2 |
 
   Substitute :   
                    | 1  0  2 |  | 6 |  
                 \= | 0  1  1 |  | 2 |  
-                                   | 2 |
+                                | 2 |
 
   First Row :  (1) (6) \+ (0)(2) \+ (2)(2)  
                       \= 6 \+ 4   
@@ -780,16 +772,16 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
 
   Step 7: Add b2 
 
-                           | 10 |   \+  | 1 |  
-                           | 4   |       | 2 |  
+    | 10 |   \+  | 1 |  
+    | 4  |       | 2 |  
       
-                               \= | 11 |  
-                                  |  6  |
+    \= | 11 |  
+       | 6  |
 
   Final FFN output 
 
-                    FFN (x) \= | 11 |  
-                                    |  6  |
+     FFN (x) \= | 11 |  
+                | 6  |
 
 * The FNN first expands 512 —\> 2048 , then compresses 2048  —\> 512   
   . This gives the model a larger space to learn complex patterns.  
@@ -797,15 +789,15 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   Attention : find relevant information   
   FFN : Process and transform that information 
 
-* Attention mixes information between tokens , FFN doesn’t  mix  tokens . Instead it processes each token separately . If the sequence is :   
+* Attention mixes information between tokens , FFN doesn’t  mix  tokens . Instead it processes each token             separately . If the sequence is :   
          \[ x1, x2, x3 \]  
   Transformer applies : FFN ( x1 )  
                                      FFN ( x2 )  
                                      FFN ( x3 )  
-  Independently. That's why attention handles communication between words , while the FFN acts like a powerful feature extractor for each individual word representation .
+  Independently. That's why attention handles communication between words , while the FFN acts like a powerful        feature extractor for each individual word representation .
 
 * Transformer decoder adds masked self attention .   
-  For eg : generating “ i love …… “ cannot see further tokens  “ learning “ during training . It uses masked self attention 
+  For eg : generating “ i love …… “ cannot see further tokens  “ learning “ during training . It uses masked self     attention 
 
 * In normal self \- attention every token can attend to all tokens   
   Eg : “ i love AI “ 
@@ -842,10 +834,10 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   “ i love machine learning “
 
   Create :   
-                            |  0    −∞    −∞    −∞ |     
-                            |  0     0      −∞    −∞ |   
-                   M  \=  |  0     0       0     −∞ |  
-                            |  0     0       0        0 |
+                            |  0    −∞    −∞   −∞ |     
+                            |  0     0    −∞   −∞ |   
+                   M  \=    |  0     0     0   −∞ |  
+                            |  0     0     0    0 |
 
   This is called a casual mask or triangular mask .
 
@@ -873,8 +865,8 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   Visually :   
                           |  O   X    X   X  |  
                           |  O   O    X   X  |  
-                          |  O   O   O   X   |  
-                          |  O   O   O   O  |
+                          |  O   O    O   X  |  
+                          |  O   O    O   O  |
 
   Allowed entries from a lower triangle 
 
@@ -892,9 +884,9 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   Apply masks : 
 
     
-                             |  2    −∞     −∞  |  
-                             |  1     4      −∞  |   
-                             |  3     2        1   |
+                             |  2    −∞    −∞  |  
+                             |  1     4    −∞  |   
+                             |  3     2     1  |
 
   Now apply softmax row \- wise : 
 
@@ -952,20 +944,20 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   which creates : n x n  interactions   
   Memory explodes   
 
-        The Hidden Attention of Mamba Models 
+   The Hidden Attention of Mamba Models 
 
-* “ Mamba secretly performs something very similar to attention , even though it doesn't explicitly compute attention matrices “ 
+* “ Mamba secretly performs something very similar to attention , even though it doesn't explicitly compute             attention matrices “ 
 
 * Why do we need mamba ?  
   Transformers uses self attention ie every token checks on every other token present , giving it a On ^ 2 complexity making it really expensive 
 
   Mamba’s Goal   
   Transformer like intelligence \+ RNN like efficiency   
-  Instead of storing all previous tokens , it stores compressed memory state called hidden state , this gives O(n) complexity instead of O(n ^ 2 ) which is why mamba scales much better to long contexts 
+  Instead of storing all previous tokens , it stores compressed memory state called hidden state , this gives O(n)    complexity instead of O(n ^ 2 ) which is why mamba scales much better to long contexts 
 
-* Mamba models show implicit attention mechanism not explicit attention like transformers but mathematically very close to attention 
+* Mamba models show implicit attention mechanism not explicit attention like transformers but mathematically very     close to attention 
 
-* Transformers  create an attention matrix . Every cell contains importance scores . This matrix is explicitly computed . 
+* Transformers  create an attention matrix . Every cell contains importance scores . This matrix is explicitly        computed . 
 
   Mamba never computes QK ^ t , no attention matrix exists . Instead it uses selective state updates .  
   For every token :   
@@ -1005,13 +997,13 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
   Before this paper : Mamba was mostly a black box   
   After this paper : We can inspect its internal dependencies . 
 
-* Mamba often focuses on specific past tokens similarly to transformers .It is not simply “ compress everything equally “ , instead “ selective preserves important information “ through its state dynamics .   
+* Mamba often focuses on specific past tokens similarly to transformers .It is not simply “ compress everything       equally “ , instead “ selective preserves important information “ through its state dynamics .   
   This explains why Mamba performs surprisingly well on :   
   \- language modelling   
   \- long context tasks   
   \- sequence reasoning 
 
-* When you care about long context , transformers struggle because memory grows quadratically . Mamba offers linear memory linear compute while still retaining attention-like behaviour 
+* When you care about long context , transformers struggle because memory grows quadratically . Mamba offers linear   memory linear compute while still retaining attention-like behaviour 
 
 * Industry level takeaway   
   RNN   
@@ -1087,14 +1079,6 @@ Hash Table —--\>  B tree Index —--\> Full Text Search —--\> Vector Search
 
 
   
-
-
-  
-
-
-  
-
-
 
 
 | Aspect | Transformer | Mamba ( State Space Model) |
