@@ -7,9 +7,9 @@
   RAG retrieval :   
     
   Documents → Embeddings → Vector Database  
-                                 ↓  
+                   ↓  
   User Query → Embedding → Similarity Search  
-                                 ↓  
+                   ↓  
   Relevant Context → LLM  
     
 * We don't use SQL or keyword search for AI retrieval because it just looks for specific words in the data and does not search sementically .  
