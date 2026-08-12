@@ -22,20 +22,25 @@ Primes
 def prime(n):
     if n < 2:
         return False
-    i=2
-    while i*i<=n:
-        if n%i==0:
+
+    i = 2
+    while i * i <= n:
+        if n % i == 0:
             return False
-        i+=1
+        i += 1
+
     return True
 
+
 n = int(input())
-count = 0
-for i in range(2, n+1):
+primes = []
+
+for i in range(2, n + 1):
     if prime(i):
-        count += 1
-print(count)
+        primes.append(i)
+
+print(f"Number of primes: {len(primes)}")
 print("Primes")
-for i in range(2, n+1):
-    if prime(i):
-        print(i)
+
+for i in primes:
+    print(i)
