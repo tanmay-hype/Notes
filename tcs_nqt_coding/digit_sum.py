@@ -5,7 +5,8 @@ Input
 
 Output
 
-19"""
+19 (digit sum)
+"""
 
 num = int(input())
 digit_sum = 0

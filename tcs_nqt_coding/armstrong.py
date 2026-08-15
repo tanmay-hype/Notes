@@ -3,7 +3,11 @@ Armstrong Number
 
 Input
 
-153
+153 
+
+1³ + 5³ + 3³
+= 1 + 125 + 27
+= 153
 
 Output
 
