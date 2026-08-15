@@ -93,7 +93,28 @@ def perplexity(model, test_sentences):
 ### **Word2Vec and N-Grams context**
 * Word2Vec uses a **sliding window** to create context for each word.
 
-**SKip-Gram Model:** Predicts context words given a target word.
+* **SSkip-Gram Model:** Predicts context words given a target word.
+* **CBOW( Continuous Bag of Words ) Model:** Predicts a target word given context words. Reverse of Skip-Gram.
+
+### **BERT and Subword N-Grams**
+* **BERT** (Bidirectional Encoder Representations from Transformers) is a transformer-based model that uses subword tokenization to handle rare words and out-of-vocabulary tokens.
+* BERT uses **WordPiece Tokenization** (subword N-grams) to handle rare words and out-of-vocabulary tokens. It splits words into subword units, allowing it to represent unseen words as combinations of known subwords.
+* **Example:** "unhappiness" → `["un", "##happiness"]` (where `##` indicates a subword continuation).
+* **Advantage:** BERT can understand and generate embeddings for rare or unseen words by leveraging the embeddings of their subword components.
+
+* **FastText** (by Facebook) also uses subword N-grams to create word embeddings. It represents each word as a bag of character N-grams, allowing it to generate embeddings for words not seen during training.
+* **Example:** "where" → `["whe", "her", "ere"]` (character trigrams). The embedding for "where" is the sum of the embeddings of its character trigrams.
+* **Advantage:** FastText can handle misspellings and morphological variations better than traditional word embeddings.
+
+* **BLEU Score** (Bilingual Evaluation Understudy) is a metric for evaluating the quality of machine-translated text. It compares the N-grams of the candidate translation to those of reference translations, calculating precision for N-grams of different lengths (typically up to 4-grams). BLEU uses a modified precision score that accounts for multiple reference translations and applies a brevity penalty to discourage overly short translations.
+* **Example:** If the candidate translation is "the cat sat" and the reference translation is "the cat is sitting", BLEU would compare the unigrams, bigrams, trigrams, and 4-grams of both sentences to compute a score.
+* **Advantage:** BLEU provides a quantitative measure of translation quality, allowing for automated evaluation of machine translation systems.
+
+### **N-Grams in Industry**
+* **Search Engines:** Google, Bing, and Elasticsearch use N-grams for query expansion, autocomplete, and spell correction.
+* **Text Analytics:** N-grams are used in sentiment analysis, topic modeling, and text classification to capture context and relationships between words.
+* **Chatbots and Virtual Assistants:** N-grams help in understanding user queries and generating relevant responses by analyzing the context of the conversation.
+
 
 ### 1.5 Edge Cases & Gotchas
 > **⚠️ Edge Case 1: Data Sparsity Problem**
@@ -112,12 +133,119 @@ def perplexity(model, test_sentences):
 > Very short words fail to generate larger character N-grams.
 > **Solution:** Pad with special characters (e.g., `<a\>`).
 
+### **Tricky Interview Questions**
+**Q1. What is the trade-off between using unigrams vs trigrams in a language model?**
+
+**A1.** Unigrams capture individual word frequencies but lose context, leading to ambiguity. Trigrams capture more context (two preceding words) but suffer from data sparsity and require more memory. The trade-off is between **contextual understanding** (trigrams) and **data availability** (unigrams).
+
+**Q2. How does Google's search autocomplete work at a high level using N-grams?**
+
+**A2.** Google uses N-grams to predict the next word(s) in a query based on historical search data. It analyzes the frequency of N-grams in past queries and suggests completions that are statistically likely given the user's input. The system may also incorporate user location, trending searches, and personalization to refine suggestions.
+
+**Q3. Why do character N-grams handle out-of-vocabulary words better than word N-grams?**
+
+**A3.** Character N-grams break words into smaller units, allowing the model to recognize patterns in prefixes, suffixes, and roots. This enables it to generate embeddings for unseen words based on their subword components, making it more robust to misspellings and morphological variations compared to word N-grams, which treat each word as a distinct token.
+
+**Q4. How would you use N-grams to detect plagiarism?**
+
+**A4.** To detect plagiarism, you can generate N-grams (typically bigrams or trigrams) from both the source and the target documents. By comparing the sets of N-grams, you can identify overlapping sequences that indicate potential copying. A high percentage of shared N-grams suggests that the target document may have been plagiarized from the source.
+
+**Q5. What is the difference between BLEU score and perplexity, and when would you use each?**
+
+**A5.** BLEU score evaluates the quality of machine-translated text by comparing N-grams of the candidate translation to reference translations, focusing on precision and brevity. Perplexity measures how well a language model predicts a sequence of words, indicating how "surprised" the model is by the test data. Use BLEU for evaluating translation quality and perplexity for assessing language model performance.
+
+**Q6. How would you build a real-time autocomplete for a search box that handles 10,000 requests per second?**
+
+**A6.** To build a real-time autocomplete system handling 10,000 requests per second, you can:
+1. **Precompute N-grams:** Generate and store N-grams from historical search queries in a fast-access data structure (e.g., Trie or HashMap).
+2. **Use Caching:** Implement caching for popular queries to reduce computation.
+3. **Asynchronous Processing:** Use asynchronous request handling to manage high throughput.
+4. **Load Balancing:** Distribute requests across multiple servers to handle traffic spikes.
+
+### **Mental Model Summary**
+
+* **RAM \= Sliding window of N items over sequence**
+
+
+* **WINDOW SIZES:**  
+  N=1 (Unigram)  → individual tokens, no context
+
+  N=2 (Bigram)   → pairs, local context 
+
+  N=3 (Trigram)  → triples, better context  
+
+  N=4+           → more context, more sparsity
+
+* **TOKEN TYPES:**  
+  Word n-grams    → standard NLP, search  
+  
+  Char n-grams    → fuzzy search, morphology, OOV
+  
+  Subword n-grams → modern tokenization (BPE, WordPiece)
+
+* **APPLICATIONS:**  
+  Language model   → P(next word | context) 
+  
+  Text similarity  → Jaccard / cosine of n-gram sets
+
+  Spell check      → char n-gram overlap
+  
+  Autocomplete     → n-gram frequency predictioN
+  
+  Search           → TF-IDF with n-gram features 
+  
+  Translation eval → BLEU score
+
+  Plagiarism       → fingerprint matching
+
+* **CORE TRADE-OFFS:**  
+  Large N: more context, better model, more sparsity 
+  
+  Small N: less context, weaker model, less sparsity
+
+* **SOLVE SPARSITY WITH:**  
+
+    Smoothing (Laplace, Kneser-Ney)
+
+    Backoff models 
+
+    Interpolation
+
+
+*  **GOLDEN RULES:**  
+   ✅ Always normalize text before building n-grams
+
+   ✅ Add sentence boundary markers (\<START\>, \<END\>)
+
+   ✅ Use smoothing — zero probability is never right 
+
+   ✅ Character n-grams for typo-tolerance and OOV  
+
+   ✅ Minimum frequency threshold to reduce noise  
+
+    ✅ For search: character trigrams enable substring matching 
+   
+   ❌ Don't cross sentence boundaries with n-grams  
+   
+   ❌ Don't forget sparsity grows exponentially with N  
+  
+   ❌ Don't use KEYS  in Redis n-gram index
 ---
 
 ## 2. Recurrent Neural Networks (RNN)
 
 ### 2.1 What is an RNN?
-An RNN is a neural network designed to work with **SEQUENTIAL DATA** by maintaining a **HIDDEN STATE** (memory) that carries information from previous time steps to the current one. Unlike regular NNs, the SAME network is applied at EACH TIME STEP with SHARED WEIGHTS.
+* An RNN is a neural network designed to work with **SEQUENTIAL DATA** by maintaining a **HIDDEN STATE** (memory) that carries information from previous time steps to the current one. Unlike regular NNs, the SAME network is applied at EACH TIME STEP with SHARED WEIGHTS.
+
+  * Think of it as a "rolling window" that processes one token at a time, updating its memory as it goes.
+
+* Why Sequential data needs special treatment:
+  * **Temporal Dependencies:** The meaning of a word often depends on previous words.
+  * **Variable Length Sequences:** Sentences can be of different lengths.
+  * **Context Preservation:** RNNs can, in theory, remember long-term dependencies.
+  * **Example:** "The cat sat on the mat. It was very comfortable." The pronoun "It" refers to "the mat," which is context from earlier in the sequence.
+
+
 
 ### 2.2 RNN Architecture
 
@@ -135,18 +263,51 @@ h_0 ─►│  RNN  ├──►│  RNN  ├──►│  RNN  ├──►│ 
           ▼           ▼           ▼           ▼
          y_1         y_2         y_3         y_4
 ```
+**Key Insights:**
+* **Weight Sharing:** The same RNN cell (with the same weights) is applied at each time step.
+* **Hidden State:** The hidden state `h_t` captures information from all previous time steps.
+* **Output:** The output `y_t` is generated at each time step based on the hidden state.
 
-**The Math Behind RNN:**
-1. **Hidden State Update:** `h_t = tanh(W_xh * x_t + W_hh * h_{t-1} + b_h)`
-2. **Output:** `y_t = W_hy * h_t + b_y`
+ **The Math Behind RNN:**
+ 1. **Hidden State Update:** `h_t = tanh(W_xh * x_t + W_hh * h_{t-1} + b_h)`
+ 2. **Output:** `y_t = W_hy * h_t + b_y`
+
+
+**RNN types by Input/Output:**
+
+| Input | Output | Description |
+|-------|--------|-------------|
+| Sequence | Sequence | Many-to-Many (e.g., translation) |
+| Sequence | Single | Many-to-One (e.g., sentiment analysis) |
+| Single | Sequence | One-to-Many (e.g., image captioning) |
+| Single | Single | One-to-One (e.g., classification) |
 
 ### 2.3 Vanishing & Exploding Gradients
 When backpropagating through T time steps, gradients involve multiplying $W_{hh}^{T-1}$.
 * **Exploding Gradients:** Solved with **Gradient Clipping**.
 * **Vanishing Gradients:** RNN forgets long-ago context. Solved with **LSTM / GRU**.
+* Example: For a weight matrix $W_{hh}$ with eigenvalues < 1, repeated multiplication causes gradients to shrink exponentially. 
+
+  Weight matrix spectral radius = 0.9
+Gradient at t = 1 : 0.9^99 ≈ 0.00003 (vanished)
+
+  Weight matrix spectral radius \= 1.1
+Gradient at t=1: 1.1^99 ≈ 13,780 (exploded)
+
+* Consequences
+  * **Vanishing:** Model fails to learn long-term dependencies.
+  * **Exploding:** Model becomes unstable and diverges during training.
+
+* Solutions:
+  * **Gradient Clipping:** Limit the gradient norm to a threshold.
+  * **LSTM / GRU:** Use gating mechanisms to preserve long-term dependencies.
+  
 
 ### 2.4 LSTM — Long Short-Term Memory
 Introduces a **CELL STATE (c_t)** as a "highway" for information flow, controlled by three gates.
+Cell state is a vector that runs through the entire sequence, allowing information to flow unchanged unless explicitly modified by the gates.
+Gates control information : forget, input, and output.
+
 
 ```text
          ┌────────────────────────────────────────────────┐
@@ -167,11 +328,85 @@ c_{t-1}──┼─► × f_t → + ← × (i_t × g_t) → c_t ──► tanh  
 ```
 **LSTM Equations:**
 1. **Forget Gate:** `f_t = σ(W_f · [h_{t-1}, x_t] + b_f)`
+
+   "What to erase from cell state?" (0 = forget, 1 = keep)
+
 2. **Input Gate:** `i_t = σ(W_i · [h_{t-1}, x_t] + b_i)`
+    
+    "What to add to cell state?" (0 = ignore, 1 = add)
+
 3. **Candidate:** `g_t = tanh(W_g · [h_{t-1}, x_t] + b_g)`
+
+   "Potential new information for cell state"
+
 4. **Cell State:** `c_t = f_t ⊙ c_{t-1} + i_t ⊙ g_t`
+
+    "Update the memory"
+
 5. **Output Gate:** `o_t = σ(W_o · [h_{t-1}, x_t] + b_o)`
+
+   "Controlled output of the cell state"
+
 6. **Hidden State:** `h_t = o_t ⊙ tanh(c_t)`
+
+   " Final output of the LSTM cell"
+
+#### **GRU — Gated Recurrent Unit**
+
+Similar to LSTM but with fewer parameters and simpler architecture. Combines the forget and input gates into a single update gate.
+
+Fewer parameters = faster training, but may not capture long-term dependencies as well as LSTM.
+
+Reset Gate: `r_t = σ(W_r · [h_{t-1}, x_t] + b_r)`
+
+" What to forget from the previous hidden state?"
+
+Update Gate: `z_t = σ(W_z · [h_{t-1}, x_t] + b_z)`
+
+" How much of the previous hidden state to keep?"
+
+### **Bidirectional RNNs**
+
+Bidirectional RNNs process the sequence in both forward and backward directions, allowing the model to capture context from both past and future tokens.
+
+```text
+         ┌───────────────┐
+         │ Forward RNN   │
+         └───────────────┘
+                │
+                ▼          
+         ┌───────────────┐
+         │ Backward RNN  │
+         └───────────────┘
+                │
+                ▼
+         ┌───────────────┐
+         │ Concatenate   │
+         └───────────────┘
+                │
+                ▼
+             Output
+
+```
+* Example: For the sentence "The cat sat," a bidirectional RNN can use information from both "The" and "sat" to better understand the context of "cat."
+
+* Use cases :
+
+  ✅ Text classification (can see full sentence)
+
+  ✅ Named Entity Recognition (context both ways)
+
+  ✅ Question answering
+
+  ✅ Encoder in seq2seq models
+
+
+  ❌ Language modeling (can't see future during generation)
+
+  ❌ Real-time streaming (can't wait for futur
+
+  ❌ Decoder in seq2seq (generates left-to-right)
+
 
 ### 2.5 Sequence-to-Sequence (Seq2Seq)
 Powers machine translation and chatbots. Uses an **Encoder** to read input into a context vector and a **Decoder** to generate output.
