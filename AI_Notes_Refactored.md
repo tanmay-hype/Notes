@@ -411,6 +411,51 @@ Bidirectional RNNs process the sequence in both forward and backward directions,
 ### 2.5 Sequence-to-Sequence (Seq2Seq)
 Powers machine translation and chatbots. Uses an **Encoder** to read input into a context vector and a **Decoder** to generate output.
 
+### **Seq2Seq Architecture:**
+```text
+         ┌───────────────┐
+         │   Encoder     │
+         └───────────────┘
+                │
+                ▼
+         ┌───────────────┐
+         │ Context Vector│
+         └───────────────┘
+                │
+                ▼
+         ┌───────────────┐
+         │   Decoder     │
+         └───────────────┘
+```
+
+**Encoder (processess input sequence):** Takes the input sequence and encodes it into a context vector that captures the essential information from the input.
+
+Eg: For machine translation, the encoder reads the source language sentence and produces a context vector that summarizes its meaning.
+
+**Decoder (generates output sequence):** Takes the context vector and generates the output sequence, one token at a time.
+
+Eg: For machine translation, the decoder takes the context vector and generates the target language sentence.
+
+**RNN LIMITATIONS:**
+
+* Sequential processing (no parallelism) : RNNs process one token at a time, which can be slow for long sequences.
+
+* Fixed-length context vector : The context vector may not capture all relevant information for long input sequences, leading to information loss.
+
+* Long-term dependency issues : Even with LSTM/GRU, RNNs may struggle to capture dependencies over long sequences.
+
+
+**RNN USEFULLNESS:**
+
+* Good for sequential data with short-term dependencies.
+
+* Can be used for tasks like sentiment analysis, speech recognition, and time series prediction.
+
+
+* Simple to implement and train.
+
+* Can handle variable-length inputs.
+
 ### 2.6 Edge Cases & Gotchas
 > **⚠️ Edge Case 1: Vanishing Gradients Even in LSTM**
 > Forget gate saturating near 0 or 1.
@@ -418,16 +463,57 @@ Powers machine translation and chatbots. Uses an **Encoder** to read input into 
 >
 > **⚠️ Edge Case 2: Exploding Gradients**
 > Always use gradient clipping.
+> Gradient clipping is a technique to prevent the gradients from becoming too large during backpropagation, which can cause the model to diverge or become unstable. It involves scaling down the gradients if their norm exceeds a certain threshold.
 > ```python
 > torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 > ```
 >
 > **⚠️ Edge Case 3: Padding in Batches**
-> Use `pack_padded_sequence` so the LSTM skips padding tokens.
+> Use `pack_padded_sequence` so the LSTM skips padding tokens. Padding tokens are something added to sequences to make them the same length in a batch. If not handled properly, they can introduce noise and affect the model's performance. `pack_padded_sequence` allows the LSTM to ignore these padding tokens during processing. 
 >
 > **⚠️ Edge Case 4: Teacher Forcing Instability**
 > Exposure bias causes error spiraling during inference. 
+>
 > **Solution:** Scheduled sampling (gradually decrease teacher forcing ratio).
+>
+
+### **Tricky Interview Questions**
+
+**Q1. Why do RNNs struggle with long-term dependencies, and how do LSTMs address this issue?**
+
+RNNs struggle with long-term dependencies because the information from earlier time steps is exponentially decayed as it propagates through the network. This leads to the vanishing gradient problem, where gradients become very small during backpropagation, making it difficult for the network to learn long-term patterns. LSTMs address this issue by introducing a memory cell that can maintain information over longer periods. The forget gate in LSTMs allows them to decide which information to discard and which to keep, helping to preserve important information across time steps.
+
+**Q2. How does a bidirectional RNN differ from a standard RNN, and when would you use it?**
+
+A bidirectional RNN processes the input sequence in both forward and backward directions, allowing it to capture context from both past and future tokens. This is particularly useful in tasks where understanding the entire context of a sequence is important, such as text classification, named entity recognition, and question answering. In contrast, a standard RNN only processes the sequence in one direction (typically forward), which may limit its ability to capture context from future tokens.
+
+**Q3. What is the main advantage of using Transformers over RNNs?**
+
+The main advantage of using Transformers over RNNs is their ability to process sequences in parallel, rather than sequentially. This allows for significantly faster training times and the ability to capture long-range dependencies more effectively. Transformers use self-attention mechanisms to weigh the importance of different tokens in the input sequence, enabling them to consider the entire context at once. In contrast, RNNs process one token at a time, which can lead to issues with vanishing gradients and difficulty in capturing long-term dependencies.
+
+
+**Q4. Explain backpropagation through time and why we use truncated BPTT.**
+
+Truncated Backpropagation Through Time (BPTT) is a technique used to train RNNs on long sequences without running into memory and computational issues. In standard BPTT, the gradients are computed for the entire sequence, which can be computationally expensive and lead to vanishing or exploding gradients. Truncated BPTT addresses this by dividing the sequence into smaller segments and performing backpropagation on these segments independently. This allows for more manageable computations and helps mitigate the issues associated with long sequences while still allowing the model to learn from temporal dependencies.
+
+**Q5. How would you implement a Seq2Seq model for machine translation using RNNs?**
+
+To implement a Seq2Seq model for machine translation using RNNs, you would follow these steps:
+1. **Data Preparation:** Collect parallel corpora of source and target language sentences. Tokenize the sentences and create vocabulary mappings for both languages.
+2. **Encoder:** Build an RNN (or LSTM/GRU) encoder that takes the source language sentence as input and encodes it into a context vector (the final hidden state).
+3. **Decoder:** Build an RNN (or LSTM/GRU) decoder that takes the context vector as input and generates the target language sentence token by token. Use teacher forcing during training to feed the correct previous token to the decoder.
+4. **Training:** Define a loss function (e.g., cross-entropy loss) and an optimizer (e.g., Adam). Train the model on the parallel corpora, minimizing the loss between the predicted and actual target sentences.
+
+
+###  Mental Model Summary
+
+* **RNN = Rolling window of hidden states over sequence**
+* **Vanilla RNN = Sequential processing of one token at a time**
+* **LSTM = RNN with memory cell and gates to preserve long-term dependencies**
+* **GRU = Simplified LSTM with fewer parameters**
+* **Seq2Seq = Encoder-Decoder architecture for sequence-to-sequence tasks**
+* **Bidirectional RNN = Processes sequence in both forward and backward directions**
+* **Transformer = Parallel processing of entire sequence with self-attention**
 
 ---
 
@@ -473,19 +559,87 @@ A deep learning architecture that uses **SELF-ATTENTION** to process sequences i
 ```
 
 ### 3.2 Self-Attention
+
 Attention decides **HOW MUCH** to focus on each other word.
+
 * **Query (Q):** "What am I looking for?"
+
 * **Key (K):** "What do I contain?"
+
 * **Value (V):** "What do I give to others?"
 
 **Formula:** `Attention(Q, K, V) = softmax(QK^T / √d_k) × V`
+
 *(Dividing by `√d_k` normalizes the scale to prevent vanishing gradients).*
+
+### 3.2.1 Why Transformers are better than RNNs
+1. **Parallelism:** RNNs process sequentially, while Transformers process all tokens simultaneously
+2. **Long-Range Dependencies:** RNNs struggle with long sequences due to vanishing gradients, while Transformers can attend to all tokens directly.
+3. **Scalability:** Transformers can be easily scaled to larger models and datasets, while RNNs become increasingly difficult to train as the sequence length increases.
+4. **Flexibility:** Transformers can handle various tasks (translation, summarization, question answering) with the same architecture, while RNNs often require task-specific modifications.
+5. **Pretraining and Transfer Learning:** Transformers can be pretrained on large corpora and fine-tuned for specific tasks, while RNNs typically require training from scratch for each task.
+
+
 
 ### 3.3 Modern Variants
 * **BERT:** Bidirectional Encoder (Masked Language Modeling).
 * **GPT:** Autoregressive Decoder (Predict next token).
 * **T5:** Text-to-Text Framework.
 * **LLaMA:** Modern efficient decoder utilizing RoPE, SwiGLU, and Grouped Query Attention (GQA).
+
+###  SELF-ATTENTION - THE CORE MECHANISM OF TRANSFORMERS
+
+### **What is Self-Attention?**
+Self-attention is a mechanism that allows the model to weigh the importance of different tokens in the input sequence when encoding a particular token. It enables the model to capture relationships between tokens, regardless of their distance in the sequence.
+
+Eg : In the sentence "The cat sat on the mat," when encoding the word "cat," self-attention allows the model to consider the words "sat" and "mat" to understand the context of "cat."
+
+### **Query, Key, Value - The Core Abstractions**
+* **Query (Q):** Represents the token for which we want to compute attention. It is a vector that captures the information we are looking for in the other tokens.
+
+* **Key (K):** Represents the tokens in the sequence that we are attending to. It is a vector that captures the information contained in each token.
+
+* **Value (V):** Represents the information that we want to extract from the tokens we are attending to. It is a vector that contains the actual content we want to use in the output.
+
+### **MULTI-HEAD ATTENTION**
+* Multi-head attention allows the model to attend to different parts of the sequence simultaneously. Each head learns a different representation of the input, capturing various aspects of the relationships between tokens.
+* The outputs of all heads are concatenated and linearly transformed to produce the final output.
+* This approach helps the model to better capture the nuances in the data.
+* By using multiple heads, the model can focus on different aspects of the input, leading to a more comprehensive understanding.
+* **Example:** In a sentence, one head might focus on syntactic relationships (e.g., subject-verb agreement), while another head might focus on semantic relationships (e.g., word meaning).
+* **Advantage:** Multi-head attention allows the model to capture a richer set of relationships between tokens, improving its ability to understand complex sequences.
+
+### Positional Encoding 
+Positional encoding is a technique used to inject information about the position of tokens in the sequence into the model. This is necessary because transformers are permutation-invariant, meaning they do not inherently understand the order of tokens in the input.
+
+Types of Positional Encoding:
+* **Sinusoidal Positional Encoding:** Uses sine and cosine functions of different frequencies to encode positions. This allows the model to learn relative positions and generalize to longer sequences.
+
+  Properties:
+  * **Deterministic:** The encoding is fixed and does not require learning.
+  * **Generalization:** The model can extrapolate to longer sequences than seen during training.
+  * **Example:** For a sequence of length 5, the positional encodings for each position would be computed using sine and cosine functions, resulting in unique vectors for each position.
+
+* **Learned Positional Encoding:** Uses trainable embeddings for each position in the sequence. This allows the model to learn position-specific information during training.
+
+    Properties:
+    * **Trainable:** The model learns the positional embeddings during training.
+    * **Flexibility:** The model can adapt the positional embeddings to the specific task and dataset
+    * **Example:** For a sequence of length 5, the model would learn a unique embedding for each position during training.
+
+### **FEED-FORWARD NETWORKS**
+Feed-forward networks are fully connected layers that process the output of the attention mechanism. They consist of two linear transformations with a non-linear activation function (e.g., ReLU) in between. These networks allow the model to learn complex representations of the input data.
+* **Structure:** Each feed-forward network consists of two linear layers with a ReLU activation in between. The first layer projects the input to a higher-dimensional space, and the second layer projects it back to the original dimension.
+* **Example:** If the input dimension is 512, the feed-forward network might project it to 2048 dimensions and then back to 512 dimensions, allowing the model to learn more complex representations.
+* **Advantage:** Feed-forward networks enable the model to learn non-linear transformations of the input, improving its ability to capture complex patterns in the data.
+
+* **Why FFN over Attention?**  
+   * Attention captures relationships between tokens, while feed-forward networks learn complex transformations of the token representations. Both components are essential for the model to understand and process the input effectively.
+   * FFN allows the model to learn more complex and nuanced representations of the input data, which can be crucial for tasks that require a deep understanding of the context and meaning of the text.
+   * FFN can be applied to each token independently, making it computationally efficient.
+   
+
+
 
 ### 3.4 Edge Cases & Gotchas
 > **⚠️ Edge Case 1: Attention Score Overflow**
