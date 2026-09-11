@@ -637,26 +637,189 @@ Feed-forward networks are fully connected layers that process the output of the 
    * Attention captures relationships between tokens, while feed-forward networks learn complex transformations of the token representations. Both components are essential for the model to understand and process the input effectively.
    * FFN allows the model to learn more complex and nuanced representations of the input data, which can be crucial for tasks that require a deep understanding of the context and meaning of the text.
    * FFN can be applied to each token independently, making it computationally efficient.
-   
 
+### **Decoder and Masking**
+The decoder generates the output sequence one token at a time. To ensure that the model does not attend to future tokens during training, a masking mechanism is applied to the attention scores. This prevents the model from "cheating" by looking ahead at the next token in the sequence.
+* **Masking:** A triangular mask is applied to the attention scores, setting the scores for future tokens to negative infinity. This ensures that the model can only attend to the current and previous tokens when generating the output.
+* **Example:** When generating the second token in the output sequence, the model can only attend to the first token and itself, but not the third token or any subsequent tokens.
+
+   Mask for sequence of length 4:  
+   Position:     0      1      2      3  
+   0 ("Le"):    ✅     ❌    ❌     ❌  
+   1 ("chat"):  ✅     ✅    ❌     ❌  
+   2 ("est"):   ✅     ✅    ✅     ❌  
+   3 ("là"):    ✅     ✅    ✅     ✅  
+
+### **Modern Variants of Transformers**
+* **BERT (Bidirectional Encoder Representations from Transformers):** Pretrained on large corpora using masked language modeling. It captures bidirectional context and is widely used for NLP tasks like question answering and sentiment analysis.
+   
+   Model randomly mask some tokens in the input and trains the model to predict them based on the surrounding context. This allows BERT to learn rich representations of language that can be fine-tuned for various downstream tasks.
+
+   
+* **GPT (Generative Pre-trained Transformer):** Autoregressive model that predicts the next token in a sequence. It is used for text generation and has been fine-tuned for various applications, including chatbots and content creation.
+
+  Decoder only architecture that generates text by predicting the next token based on the previous tokens. GPT models are trained on large datasets and can generate coherent and contextually relevant text.
+
+  Casual attention masks are used to prevent the model from attending to future tokens during training, ensuring that the generated text is coherent and follows the context of the input.
+
+  Temperature controls the randomness of the generated text, allowing for more creative or conservative outputs depending on the desired application.
+
+* **T5 (Text-to-Text Transfer Transformer):** A unified framework that treats all NLP tasks as text-to-text problems. It can be fine-tuned for tasks like translation, summarization, and question answering.
+
+  Eg : For a translation task, the input might be "translate English to French: The cat sat on the mat," and the output would be "Le chat s'est assis sur le tapis."
+
+
+
+* **LLaMA (Large Language Model Meta AI):** A modern efficient decoder that utilizes techniques like Rotary Position Embeddings (RoPE), SwiGLU activation functions, and Grouped Query Attention (GQA) to improve performance and efficiency.
+
+  ROPE: Rotary Position Embeddings (RoPE) is a technique that encodes positional information in a way that allows the model to generalize to longer sequences than seen during training. It rotates the embeddings based on their position in the sequence, enabling the model to capture relative positions effectively.
+
+  SwiGLU: SwiGLU (Swish-Gated Linear Unit) is an activation function that combines the benefits of Swish and Gated Linear Units. It helps in improving the model's ability to learn complex patterns and representations.
+
+  GQA: Grouped Query Attention (GQA) is a technique that reduces the number of queries in the attention mechanism, leading to improved efficiency without sacrificing much performance.
+
+  FlashAttention: FlashAttention is an optimized implementation of the attention mechanism that reduces memory usage and improves computational efficiency. It allows for faster training and inference, especially for large models.
 
 
 ### 3.4 Edge Cases & Gotchas
 > **⚠️ Edge Case 1: Attention Score Overflow**
 > Large $d_k$ causes softmax saturation. Handled via scaling by `1/√d_k`.
 >
+> Solution: Use **FlashAttention** or **xFormers** for memory-efficient attention computation.
+>
 > **⚠️ Edge Case 2: Positional Encoding for Long Sequences**
 > Training length mismatch with inference. **Solution:** Use **RoPE** (Rotary Position Embeddings) or ALiBi.
 >
+>Solution : Use **RoPE** (Rotary Position Embeddings) or ALiBi (Attention with Linear Biases) to handle positional encoding for long sequences. These methods allow the model to generalize to longer sequences than those seen during training, ensuring that the positional information is accurately captured during inference.
+>
 > **⚠️ Edge Case 3: KV Cache Memory Explosion**
 > KV cache grows linearly. **Solutions:** Grouped Query Attention (GQA), Sliding Window Attention, PagedAttention (vLLM).
-
+>
+>Solution: Use **Grouped Query Attention (GQA)**, **Sliding Window Attention**, or **PagedAttention** (as implemented in vLLM) to manage the memory usage of the key-value cache during inference. These techniques help reduce the memory footprint while maintaining performance, allowing for efficient handling of long sequences.
 ---
+
+### **TRICKY INTERVIEW QUESTIONS**
+
+**Q1. What is the computational complexity of self-attention and why is this a problem?**
+
+The computational complexity of self-attention is O(n^2 * d), where n is the sequence length and d is the dimensionality of the embeddings. This quadratic complexity arises because each token attends to every other token in the sequence, leading to a large number of pairwise interactions. This can be problematic for long sequences, as it results in high memory usage and slow computation, making it challenging to scale transformers to longer inputs.
+
+**Q2. How does FlashAttention improve upon traditional self-attention?**
+
+FlashAttention improves upon traditional self-attention by optimizing the computation and memory usage. It reduces the memory footprint and speeds up the attention mechanism, making it more efficient for large models and long sequences. It achieves this by using techniques such as kernel fusion, memory-efficient attention computation, and optimized GPU kernels. As a result, FlashAttention allows for faster training and inference while maintaining the same level of performance as traditional self-attention.
+
+**Q3. Explain the difference between absolute and relative positional encodings.**
+
+Absolute positional encodings assign a unique position to each token in the sequence, typically using sinusoidal functions or learned embeddings. This means that the model knows the exact position of each token, which can be useful for tasks where the absolute position is important. However, it may not generalize well to sequences longer than those seen during training.
+
+Relative positional encodings, on the other hand, encode the relative distances between tokens rather than their absolute positions. This allows the model to focus on the relationships between tokens regardless of their specific positions in the sequence. Relative positional encodings can generalize better to longer sequences and are often more effective for tasks where the relationships between tokens are more important than their absolute positions.
+
+**Q4. Why do we divide attention scores by √d\_k?**
+
+We divide attention scores by √d\_k to prevent the attention scores from becoming too large, which can lead to the softmax function saturating and gradients vanishing. This normalization helps maintain a more stable gradient flow during training, especially when the dimensionality of the embeddings is large.
+
+**Q5. What is the difference between BERT and GPT architecturally, and what tasks suit each?**
+
+BERT is a bidirectional encoder that uses masked language modeling to learn contextual representations of text. It is well-suited for tasks that require understanding the context of a sentence, such as question answering, sentiment analysis, and named entity recognition. BERT can capture information from both the left and right context of a token, making it effective for tasks that require a deep understanding of the input.
+GPT, on the other hand, is an autoregressive decoder that generates text by predicting the next token in a sequence. It is well-suited for tasks that involve text generation, such as chatbots, content creation, and language modeling. GPT generates text in a left-to-right manner, making it effective for tasks that require generating coherent and contextually relevant text based on the input.
+
+**Q6. How does multi-head attention improve over single-head attention?**
+
+Multi-head attention improves over single-head attention by allowing the model to attend to different parts of the input sequence simultaneously. Each head learns a different representation of the input, capturing various aspects of the relationships between tokens. This enables the model to capture a richer set of dependencies and interactions, leading to better performance on complex tasks. By combining the outputs of multiple heads, the model can leverage diverse information and improve its understanding of the input data.
+
+**Q7. How would you handle a Transformer that needs to process 100K token documents?**
+
+To handle a Transformer that needs to process 100K token documents, you can use the following strategies:
+1. **Chunking:** Split the document into smaller chunks (e.g., 512 or 1024 tokens) and process each chunk separately. You can then aggregate the results from each chunk to form a final output.
+2. **Long-Range Transformers:** Use architectures designed for long sequences, such as Longformer, BigBird, or Reformer, which employ sparse attention mechanisms to reduce the computational complexity of self-attention.
+3. **Memory-Efficient Attention:** Implement memory-efficient attention mechanisms like FlashAttention or xFormers to reduce memory usage and speed up computation.
+
+###  MENTAL MODEL SUMMARY
+
+TRANSFORMER \= "Parallel reader with perfect memory" 📖
+
+**CORE COMPONENTS:**  
+
+  Input Embedding \+ Positional Encoding 
+
+"Here's what each token means AND where it is"
+    
+**Self-Attention**
+
+  → "Every token looks at every other token"
+
+  → Computes weighted combination of all values
+
+  → Based on query-key similarity  
+    
+  **Multi-Head Attention**  
+  → "8 different perspectives on the same relationships"  
+  → Each head specializes in different patterns
+    
+  **Feed-Forward Network**  
+  → "Process each position's mixed information"  
+    → Two linear layers \+ activation (per position)  
+    
+**Add & Norm**  
+  → "Residual highway \+ stability"
+
+  → Enables deep networks (96+ layers) 
+    
+**Encoder vs Decoder:**  
+  Encoder: bidirectional (full context) 
+  
+  Decoder: causal (left-to-right generation)
+
+**ATTENTION FORMULA:**  
+  Attention(Q,K,V) \= softmax(QK^T / √d\_k) × V  
+   
+**KEY INNOVATIONS vs RNN:**  
+
+  ✅ Parallelism: ALL positions at once (not sequential) 
+
+  ✅ Direct connections: O(1) path between any two positions 
+
+  ✅ No vanishing gradient over distance (direct attention)
+
+  ✅ Scale: works up to trillion parameters
+
+
+**COMPLEXITY:**  
+
+Attention: O(n²) time, O(n²) memory 
+
+FFN:       O(n × d²) time
+
+FlashAttn: O(n²) time, O(n) memory ← use this
+
+**GOLDEN RULES:**  
+
+  ✅ Scale by √d\_k (prevent vanishing gradients in softmax)
+
+  ✅ Use causal mask for generation 
+
+  ✅ Use padding mask for variable length batches  
+
+  ✅ Warmup learning rate (training stability)  
+
+  ✅ Pre-norm (modern) \> Post-norm (original) for stability  
+
+  ✅ FlashAttention for any serious training  
+
+  ✅ KV cache for efficient inference
+
+  ❌ Don't use full O(n²) attention for long sequences  
+
+  ❌ Don't skip positional encoding (order matters\!)  
+
+  ❌ Don't use post-norm for very deep transformers
 
 ## 4. LangChain
 
 ### 4.1 What is LangChain?
 An open-source framework for building applications powered by Large Language Models (LLMs). It provides standardized interfaces, memory management, and agent frameworks.
+
+The problem LangChain solves is that LLMs are stateless and cannot maintain context across interactions. LangChain provides a framework to manage state, memory, and interactions with external tools.
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
@@ -677,7 +840,7 @@ An open-source framework for building applications powered by Large Language Mod
 ```
 
 ### 4.2 Agents (ReAct Pattern)
-Agents allow LLMs to take actions.
+Agents are autonomous entities that can perceive their environment and take actions to achieve specific goals. Agents allow LLMs to take actions.
 `Thought → Action → Observation → Thought → Final Answer`
 
 ### 4.3 Edge Cases & Gotchas
@@ -691,10 +854,44 @@ Agents allow LLMs to take actions.
 >
 > **⚠️ Edge Case 3: Embedding Dimensionality Mismatch**
 > Using a 1536-dim embedding to query a 384-dim DB. **Always validate and document embedding models.**
+>
+> **⚠️ Edge Case 4: Embedding Dimensionality Mismatch**
+> Using a 384-dim embedding to query a 1536-dim DB. **Always validate and document embedding models.**
+>
+
+#### **TRICKY INTERVIEW QUESTIONS**
+
+**Q1. How does LangChain manage state across multiple interactions with an LLM?**
+
+LangChain manages state across multiple interactions with an LLM by providing memory management capabilities. It allows developers to store and retrieve context, enabling the LLM to maintain continuity in conversations or tasks. This is achieved through various memory backends, such as in-memory storage, databases, or external services, which can be used to persist information across sessions.
+
+**Q2. What is the ReAct pattern in LangChain, and how does it enhance LLM capabilities?**
+
+The ReAct pattern in LangChain stands for "Reasoning" and "Action". It is a framework that allows LLMs to perform reasoning and take actions in the real world. The pattern involves the LLM generating a plan, executing the plan, and then evaluating the results. This enhances LLM capabilities by enabling them to interact with external systems and perform complex tasks that require both reasoning and action.
+
+**Q3. How does LangChain handle hallucinations in Retrieval-Augmented Generation (RAG) systems?**
+
+LangChain handles hallucinations in RAG systems by implementing various techniques such as explicit grounding instructions, confidence scoring, and citation checking. These methods help ensure that the generated responses are based on the retrieved information and not on the model's own assumptions or biases.
+
+**Q4. What are some strategies to manage context window limits in LangChain?**
+Some strategies to manage context window limits in LangChain include limiting the number of retrieved documents (k), using MapReduce techniques to process large amounts of data in smaller chunks, and implementing token-aware retrieval methods that prioritize the most relevant information while staying within the context window constraints.
+
+**Q5. What is the differeence between a Chain and an agent in LangChain?**
+In LangChain, a Chain is a sequence of operations that processes input data and produces output, while an Agent is an autonomous entity that can perceive its environment and take actions to achieve specific goals. Chains are typically used for straightforward data processing tasks, whereas Agents are designed for more complex interactions that require reasoning, decision-making, and the ability to take actions based on the current state of the environment.
+
+**RAG Pipeline:**
+1. **Indexing Pipeline (Offline):** Load documents, split into chunks, embed, and store in a vector database (e.g., Chroma, Pinecone, FAISS, Weaviate).
+2. **Query Pipeline (Online):** User query → Retrieval (semantic search, keyword, hybrid) → Augmented Prompt (System + Context + Query) → LLM Generation → Final Answer.
 
 ---
 
+
 ## 5. Large Language Models (LLMs)
+
+**What makes LLMs different from traditional ML models and previous NLP approaches?**
+1. **Scale:** LLMs have billions of parameters, enabling them to capture complex patterns and relationships in data.
+2. **Pretraining:** LLMs are pretrained on massive datasets, allowing them to learn general language representations that can be fine-tuned for specific tasks.
+3. **Transfer Learning:** LLMs can be fine-tuned on smaller datasets for specific tasks, leveraging their pretrained knowledge.
 
 ### 5.1 Training Pipeline
 1. **Pretraining:** Self-supervised learning on massive web data (next-token prediction).
@@ -712,7 +909,85 @@ LLMs operate on tokens, not raw text. E.g., BPE (Byte Pair Encoding).
 ### 5.4 Safety and Alignment
 Safety approaches include Constitutional AI, RLHF, Red Teaming, and Output Filters to prevent jailbreaks and harmful content generation.
 
+### **Inference - How LLMs Generate Text**
+1. **Input:** User prompt is tokenized into a sequence of tokens.
+2. **Processing:** The model processes the token sequence and generates a probability distribution over the vocabulary.
+3. **Sampling:** A token is sampled from the probability distribution based on the specified sampling strategy (e.g., greedy, top-k, top-p).
+4. **Output:** The generated token is added to the output sequence, and the process repeats until a stopping criterion is met (e.g., maximum length, end-of-sequence token).
+
+### **Prompting Techniques**
+* **Zero-Shot:** Directly ask the model to perform a task without examples.
+* **Few-Shot:** Provide a few examples to the model to guide its response.
+* **Chain-of-Thought (CoT):** Encourage the model to think step-by-step before generating a final answer.
+
+### **Advanced Prompting Techniques**
+* **Self-Consistency:** Generate multiple reasoning paths and select the most consistent answer.
+* **Tree-of-Thought (ToT):** Explore multiple reasoning paths in a tree-like structure to find the best solution.
+
+
+### **Fine-Tuning vs Prompting**
+| Aspect | Fine-Tuning | Prompting |
+|--------|-------------|-----------|
+| **Process** | Modify the model's weights to adapt to a specific task. | Adjust the input prompt to guide the model's response. |
+| **Data Requirements** | Requires a large, labeled dataset for training. | Relies on the model's existing knowledge and the quality of the prompt. |
+| **Computational Cost** | High, as it involves training the entire model. | Lower, as it only requires generating responses based on the prompt. |
+| **Flexibility** | Less flexible, as the model is fixed after training. | More flexible, as prompts can be easily modified. |
+| **Use Case** | Best for tasks that require significant customization. | Best for tasks that can be accomplished with a well-crafted prompt. |
 ---
+
+### **BLEU Score**
+BLEU (Bilingual Evaluation Understudy) is a metric for evaluating the quality of machine-generated text, particularly in machine translation. It compares the n-grams of the generated text to those of a reference text and calculates a score based on the overlap.
+
+### **G-Eval framework**
+G-Eval is a framework for evaluating the performance of LLMs on various tasks. It provides a standardized set of benchmarks and metrics to assess the capabilities of LLMs in areas such as reasoning, understanding, and generation. G-Eval helps researchers and developers compare different models and track improvements over time. 
+
+### **Safety Approaches**
+1. **Constitutional AI:** A method that uses a set of guiding principles (the "constitution") to steer the model's behavior and ensure it adheres to ethical guidelines.
+2. **RLHF (Reinforcement Learning from Human Feedback):** A technique that uses human feedback to train a reward model, which is then used to fine-tune the LLM to align with human preferences.
+3. **Red Teaming:** A process where a team of experts attempts to find vulnerabilities and weaknesses in the model's behavior, helping to identify potential risks and improve safety measures.
+4. **Output Filters:** Mechanisms that filter or block certain types of content generated by the model, preventing the output of harmful or inappropriate responses.
+5. **Jailbreak Prevention:** Techniques and strategies to prevent users from bypassing safety measures and prompting the model to generate harmful or unintended content.
+
+### **Edge Cases & Gotchas**
+> **⚠️ Edge Case 1: Model Hallucinations**
+The model may generate text that is plausible but factually incorrect or entirely fabricated.
+>
+> **Solutions:** Use RAG, grounding instructions, and confidence scoring to mitigate hallucinations.
+>
+> **⚠️ Edge Case 2: Prompt Injection Attacks**
+Users may attempt to manipulate the model by injecting malicious prompts that could lead to unintended behavior or the generation of harmful content.
+>
+> **Solutions:** Implement input validation, use of secure coding practices, and regular security audits to prevent such attacks.
+>
+> **⚠️ Edge Case 3: Tokenization Issues**
+Different tokenization methods may lead to inconsistencies in how text is processed, potentially affecting model performance.
+>
+> **Solutions:** Standardize tokenization methods across the pipeline and ensure compatibility with the model's expected input format.  
+>
+> **⚠️ Edge Case 4: Overfitting During Fine-Tuning**
+Fine-tuning on a small dataset may lead to overfitting, where the model performs well on the training data but poorly on unseen data.
+>
+> **Solutions:** Use techniques such as regularization, data augmentation, and cross-validation to prevent overfitting and ensure the model generalizes well to new data. 
+
+
+#### TRICKY INTERVIEW QUESTIONS
+
+**Q1 . What is the difference between temperature, top-k, and top-p sampling?**
+
+Temperature controls the randomness of the output. A higher temperature leads to more diverse and creative outputs, while a lower temperature results in more conservative and predictable outputs.
+Top-k sampling limits the choices to the top k most likely tokens at each step. This can help reduce the likelihood of generating low-probability tokens.
+Top-p (nucleus) sampling selects from the smallest possible set of tokens whose cumulative probability exceeds p. This approach balances diversity and quality by considering a variable number of top tokens based on their probabilities.
+
+**Q2. Why do LLMs sometimes refuse to answer and how does this work internally?**
+
+LLMs may refuse to answer due to safety mechanisms, ethical guidelines, or content filters implemented during training or fine-tuning. Internally, the model evaluates the input prompt against its learned patterns and safety constraints. If the prompt triggers a condition that is deemed unsafe, inappropriate, or outside the model's knowledge scope, it may generate a refusal response. This behavior is often reinforced through techniques like RLHF (Reinforcement Learning from Human Feedback) and output filtering to ensure responsible usage of the model.
+
+**Q3. What is LoRA and how does it help in fine-tuning LLMs?**
+
+LoRA (Low-Rank Adaptation) is a parameter-efficient fine-tuning technique that allows for the adaptation of large language models without updating all of their parameters. Instead, it introduces low-rank matrices that are trained alongside the frozen base model. This approach significantly reduces the number of trainable parameters, making fine-tuning more efficient in terms of both computational resources and time. LoRA is particularly useful for adapting LLMs to specific tasks or domains while maintaining the benefits of the pretrained model.
+
+
+
 
 ## 6. Retrieval-Augmented Generation (RAG)
 
@@ -750,15 +1025,98 @@ A technique that enhances LLM responses by **retrieving** relevant information f
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
+**The Core Problem RAG Solves:** 
+* LLMs may generate plausible-sounding but incorrect information. RAG ensures the model's response is grounded in factual data.
+* LLMs may not have access to the most up-to-date information. RAG provides a way to retrieve the latest relevant data from external sources.
+* contextual understanding can be limited by the model's training data. RAG allows the model to access specific context from a knowledge base, improving its ability to generate accurate and relevant responses.
+
+#### RAG Detailed Pipeline
+
+* **Indexing Pipeline (Offline):** Load documents, split into chunks, embed, and store in a vector database (e.g., Chroma, Pinecone, FAISS, Weaviate).
+* **Query Pipeline (Online):** User query → Retrieval (semantic search, keyword, hybrid) → Augmented Prompt (System + Context + Query) → LLM Generation → Final Answer.
+
+
 ### 6.2 Advanced Retrieval Techniques
-* **Hybrid Retrieval:** BM25 (keyword) + Semantic Search.
-* **HyDE (Hypothetical Document Embeddings):** Embed a hypothetical answer to improve semantic matching.
-* **Cross-Encoder Reranking:** Fast bi-encoder finds top 20, accurate cross-encoder reranks top 4.
-* **Parent Document Retrieval:** Index small chunks for matching but return large chunks for context.
+* **Hybrid Retrieval:** BM25 (keyword) + Semantic Search. retrieves documents based on both keyword matching and semantic similarity, improving retrieval quality.
+* **HyDE (Hypothetical Document Embeddings):** Embed a hypothetical answer to improve semantic matching. it can be used to generate a hypothetical answer to a query, which is then embedded and used to retrieve relevant documents from the knowledge base. This approach can improve retrieval quality by providing a more contextually relevant representation of the query.
+* **Cross-Encoder Reranking:** Fast bi-encoder finds top 20, accurate cross-encoder reranks top 4. Cross-encoder reranking is a technique that uses a more computationally expensive model to re-rank the top retrieved documents based on their relevance to the query. This can improve the quality of the final results by ensuring that the most relevant documents are prioritized.
+* **Parent Document Retrieval:** Index small chunks for matching but return large chunks for context. Indexing small chunks allows for more precise matching during retrieval, while returning larger chunks provides more context for the LLM to generate a coherent and informative response.
+* **Multi-Vector Embeddings:** Use multiple embeddings per document to capture different semantic aspects. it can be used to create multiple embeddings for a single document, each capturing different semantic aspects of the content. This allows for more nuanced retrieval, as the model can consider various perspectives when matching queries to documents.
+* **Query Transformations:** Reformulate queries to improve retrieval quality (e.g., paraphrasing, adding context). Reformulating queries can help improve retrieval quality by providing the model with a more contextually relevant representation of the user's intent. This can involve paraphrasing the query, adding additional context, or using synonyms to ensure that the retrieval process captures the most relevant documents.
+* **Embedding Model Selection:** Choose embedding models that align with the task and domain for better semantic understanding.It is important to select embedding models that are well-suited to the specific task and domain, as different models may capture different semantic nuances. Choosing the right embedding model can improve retrieval quality and ensure that the LLM has access to the most relevant information for generating accurate responses.
+
+
+### Edge Cases & Gotchas
+
+* **Data Quality:** Poor quality data can lead to poor retrieval results. Ensure that the data in the knowledge base is accurate and up-to-date.
+  
+  **Solution:** Implement data validation and cleaning processes to maintain high-quality data in the knowledge base.
+
+* **Chunking Strategy:** Improper chunking can lead to loss of context or irrelevant retrieval. Use semantic or parent-child chunking strategies to maintain context.
+
+   **Solution:** Experiment with different chunking strategies and evaluate their impact on retrieval quality. Consider using semantic chunking to preserve context and ensure that relevant information is retained.
+
+* **Query Ambiguity:** Ambiguous queries can result in irrelevant or incomplete results. Encourage users to provide clear and specific queries.
+
+   **Solution:** Implement query clarification mechanisms, such as asking follow-up questions or providing suggestions for refining the query.
+
+* **Contextual Relevance:** The model may not always understand the full context of a query, leading to suboptimal results. Consider using more sophisticated context-aware models.
+
+   **Solution:** Use context-aware retrieval models that can better understand the relationships between the query and the retrieved documents. This can help improve the relevance of the results and ensure that the LLM has access to the most pertinent information.
+
+
+
+#### TRICKY INTERVIEW QUESTIONS
+
+**Q1. How does RAG improve the factual accuracy of LLM outputs?**
+
+RAG improves the factual accuracy of LLM outputs by retrieving relevant information from a knowledge base and augmenting the prompt with this context. This ensures that the model's responses are grounded in factual data rather than relying solely on its pretrained knowledge, which may be outdated or incomplete.
+
+**Q2. What is the difference between RAG and fine-tuning? When would you use each?**
+
+RAG and fine-tuning are two different approaches to improving the performance of LLMs. RAG focuses on enhancing the model's responses by retrieving relevant information from an external knowledge base, while fine-tuning involves modifying the model's weights to adapt it to a specific task or domain.
+
+
+**Q3. What are the main faliure modes of RAG and how do you address them?**
+
+The main failure modes of RAG include:
+1. **Retrieval Failure:** The system fails to retrieve relevant information from the knowledge base.
+   - **Solution:** Improve the search algorithms and ensure the knowledge base is well-structured and comprehensive.
+2. **Contextual Mismatch:** The retrieved information does not align with the query's context.
+   - **Solution:** Implement more sophisticated context-aware retrieval mechanisms and use techniques like query expansion or paraphrasing.
+3. **Over-reliance on Retrieved Information:** The model may overly depend on the retrieved information, leading to hallucinations or incorrect conclusions.
+   - **Solution:** Balance the use of retrieved information with the model's own knowledge and implement mechanisms to detect and correct potential errors.
+
+
+**Q4. How would you design a RAG system that needs to handle both structred data (e.g., tables) and unstructured data (e.g., text documents)?**
+
+
+To design a RAG system that handles both structured and unstructured data, you can follow these steps:
+1. **Data Preprocessing:** Convert structured data (e.g., tables) into a suitable format for embedding, such as JSON or CSV. For unstructured data, perform text cleaning and normalization.
+2. **Embedding Generation:** Use appropriate embedding models for both structured and unstructured data. For structured data, consider using models that can capture relationships between entities, while for unstructured data, use models that capture semantic meaning.
+3. **Retrieval and Integration:** Implement a retrieval mechanism that can effectively search and retrieve information from both types of data sources. Integrate the retrieved information into the RAG pipeline.
+4. **Augmented Prompt Construction:** Construct the augmented prompt by combining the retrieved information from both structured and unstructured sources, ensuring that the context is clear and relevant to the query.
+
+
+**Q5. How would you evaluate the performance of a RAG system?**
+To evaluate the performance of a RAG system, you can use a combination of automatic metrics and human evaluation:
+1. **Automatic Metrics:** Use metrics like BLEU, ROUGE, or METEOR to compare the generated responses with reference answers.
+2. **Human Evaluation:** Have human evaluators assess the quality of the generated responses in terms of relevance, coherence, and informativeness.
+3. **Error Analysis:** Analyze the types of errors made by the system to identify areas for improvement.
+4. **User Feedback:** Collect feedback from actual users to understand how well the system performs in real-world scenarios.
 
 ---
 
+
 ## 7. Attention Mechanisms
+
+### What is Attention?
+Attention is a mechanism that allows models to focus on specific parts of the input sequence when making predictions. It enables the model to weigh the importance of different tokens in the input, allowing it to capture long-range dependencies and relationships between tokens. Attention mechanisms are a key component of transformer architectures and have been instrumental in improving the performance of LLMs.
+
+Eg: In a translation task, attention allows the model to focus on relevant words in the source sentence when generating each word in the target sentence.
+
+### Why is Attention Needed?
+Attention is needed because it allows models to focus on the most relevant parts of the input, which can significantly improve the quality of the output. By weighting different parts of the input differently, attention mechanisms enable models to capture complex relationships and dependencies that might be missed by simpler approaches.
 
 ### 7.1 The Mechanism
 Attention allows a network to selectively focus on relevant parts of the input sequence. 
@@ -766,14 +1124,92 @@ Attention allows a network to selectively focus on relevant parts of the input s
 * **Luong (Multiplicative):** Dot-product based (2015).
 * **Scaled Dot-Product (Transformers):** Parallelizable standard.
 
+### **Attention Formula:**
+$$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V $$
+
+Where:
+- $Q$ is the query matrix
+- $K$ is the key matrix
+- $V$ is the value matrix
+- $d_k$ is the dimension of the keys
+
+### Softmax 
+
+It is applied to the dot product of the query and key matrices, scaled by the square root of the key dimension, to produce attention weights. These weights are then used to compute a weighted sum of the value matrix, resulting in the final output of the attention mechanism.
+
+Softmax ensures that the attention weights are positive and sum to one, allowing the model to focus on the most relevant parts of the input sequence.
+
+### **Key Points:**
+* Attention enables models to focus on relevant parts of the input.
+* The query, key, and value matrices are used to compute attention weights.
+* The scaled dot-product attention is the standard in transformer architectures.
+* Multi-head attention allows the model to focus on different aspects of the input simultaneously.
+
+### **Types of Attention:**
+* **Global Attention:** Considers all positions in the input sequence.
+* **Local Attention:** Only considers a local window of positions in the input sequence.
+* **Sparse Attention:** Uses a sparse attention pattern to reduce computational complexity.
+
+### **Attention vs Feed-Forward Networks vs Self-Attention**
+| Aspect | Attention | Feed-Forward Networks | Self-Attention |
+|--------|-----------|-----------------------|----------------|
+| **Function** | Focus on relevant parts of the input | Transform the input in a fixed way | Focus on the input itself |
+| **Input** | Query, Key, Value matrices | Input vector | Input vector |
+| **Output** | Weighted sum of values | Transformed input | Weighted sum of values |
+| **Use Case** | Capturing dependencies and relationships | Feature transformation | Capturing dependencies within the input |
+
+### **Multi-Head Attention:**
+ This allows the model to attend to information from different representation subspaces at the same time.
+* Each head has its own set of query, key, and value matrices, allowing the model to capture different types of relationships and dependencies in the input data.
+* The outputs of all heads are concatenated and linearly transformed to produce the final output.
+* Multi-head attention improves the model's ability to capture complex patterns and relationships in the input data, leading to better performance on a wide range of tasks.
+* Multi-head attention also helps to reduce the risk of overfitting by providing a more diverse set of features for the model to learn from.
+
+
 ### 7.2 Attention Complexity
 * **Time & Memory:** $O(n^2 \times d)$
 * Very long sequences quickly consume GPU memory (8192 seq length with 32 heads = ~8.6GB per layer).
 * **Flash Attention:** Fuses softmax and matrix multiplication using fast SRAM. Reduces memory to $O(n)$ and speeds up processing 2-4x.
 
+### **Edge Cases & Gotchas**
+> **⚠️ Edge Case 1: Long Sequences**
+When dealing with very long sequences, the quadratic complexity of attention can lead to significant memory and computational overhead. Techniques like local or sparse attention can help mitigate these issues.
+>
+> **Solution:** Implement attention mechanisms that reduce the number of computations, such as local attention, sparse attention, or using memory-efficient attention implementations like FlashAttention.
+>
+> **⚠️ Edge Case 2: Multi-Head Attention Overhead**
+Multi-head attention can introduce additional computational overhead due to the increased number of parameters and operations. This can lead to slower training and inference times, especially for large models.
+>
+> **Solution:** Optimize the number of attention heads based on the specific task and model size, and consider using techniques like parameter sharing or pruning to reduce the overhead.
+>
+> **⚠️ Edge Case 3: Attention to Irrelevant Tokens**
+> The model may attend to irrelevant tokens in the input sequence, leading to suboptimal performance and potentially incorrect outputs.
+>
+> **Solution:** Implement techniques to filter out or down-weight irrelevant tokens, such as using attention masks or incorporating domain-specific knowledge into the attention mechanism.
+
+### **TRICKY INTERVIEW QUESTIONS**
+
+**Q1. How does attention help in capturing long-range dependencies in sequences?**
+
+Attention mechanisms allow models to weigh the importance of different tokens in the input sequence, enabling them to focus on relevant information regardless of its position. This means that even tokens that are far apart in the sequence can influence each other's representations, allowing the model to capture long-range dependencies effectively.
+
+**Q2. How does the multi-head attention improve over single -head attention?**
+
+Multi-head attention allows the model to attend to information from different representation subspaces at the same time. This provides a more comprehensive view of the input data and can lead to better performance, especially in tasks that require understanding of complex relationships between different parts of the input.
+
+**Q3. What are the trade-offs between global, local, and sparse attention mechanisms?**
+
+Global attention considers all positions in the input sequence, which can capture long-range dependencies but is computationally expensive. Local attention focuses on a limited window of positions, reducing computational overhead but potentially missing important information outside the window. Sparse attention uses a sparse pattern to reduce computations while still capturing relevant information, but it may require careful design to ensure that important dependencies are not missed.
+In practice, the choice of attention mechanism depends on the specific requirements of the task and the available computational resources.
+
+
 ---
 
 ## 8. Reinforcement Learning
+
+### What is Reinforcement Learning (RL)?
+Reinforcement Learning is a type of machine learning where an agent learns to make decisions by performing actions in an environment to maximize a reward signal.
+It is different from supervised learning, where the model learns from labeled data, and unsupervised learning, where the model finds patterns in unlabeled data. In RL, the agent learns through trial and error, receiving feedback in the form of rewards or penalties based on its actions.
 
 ### 8.1 The RL Framework
 An agent learns to make decisions by interacting with an environment to maximize cumulative reward.
@@ -811,27 +1247,212 @@ Taking a pretrained model and continuing training on a specific dataset.
 
 ### 9.2 Parameter-Efficient Fine-Tuning (PEFT)
 * **LoRA (Low-Rank Adaptation):** Freezes base weights and trains small rank-decomposition matrices ($\Delta W = B \times A$). Reduces trainable parameters by 100-1000x.
-* **QLoRA:** Quantizes base model to 4-bit, enabling fine-tuning of large models on a single GPU.
+It is particularly useful for adapting large language models to specific tasks or domains while maintaining the benefits of the pretrained model.
+* **QLoRA:** Quantizes base model to 4-bit, enabling fine-tuning of large models on a single GPU. It is a technique that allows for efficient fine-tuning of large language models by quantizing the base model to 4-bit precision, which significantly reduces memory requirements and computational overhead. This enables researchers and developers to fine-tune large models on a single GPU, making it more accessible and cost-effective.
+
+
+### Bellman Equation and its role in fine-tuning
+The Bellman equation is a fundamental concept in reinforcement learning that describes the relationship between the value of a state and the values of its successor states. In the context of fine-tuning, the Bellman equation can be used to update the model's parameters based on the expected future rewards of its actions. By optimizing the model to maximize cumulative rewards, fine-tuning can improve the model's performance on specific tasks or domains.
+
+
+### The RL taxonomy in fine-tuning
+* **On-Policy:** Learns from actions taken by the current policy. (e.g., PPO). It is a reinforcement learning approach where the agent learns from the actions it takes based on its current policy. This means that the agent's learning is directly influenced by its own behavior and the feedback it receives from the environment.
+* **Off-Policy:** Learns from actions taken by a different policy. (e.g., Q-Learning, DQN). It is a reinforcement learning approach where the agent learns from actions taken by a different policy, rather than its own policy. This allows the agent to learn from a broader range of experiences and can lead to more robust and generalizable policies.
+* **Model-Free:** Learns value functions or policies without an explicit model of the environment. (e.g., DQN, PPO). It is a reinforcement learning approach where the agent learns to make decisions based on the observed rewards and state transitions, without having an explicit model of the environment's dynamics. This allows the agent to learn directly from its interactions with the environment, making it more flexible and adaptable to different tasks.
+* **Model-Based:** Learns a model of the environment to plan actions. (e.g., Dyna-Q, Model Predictive Control). It is a reinforcement learning approach where the agent learns a model of the environment's dynamics, which it can use to plan and optimize its actions. By understanding how the environment behaves, the agent can make more informed decisions and improve its performance on specific tasks.
+* **Value-Based:** Focuses on learning the value of states or state-action pairs. (e.g., Q-Learning, DQN). It is a reinforcement learning approach where the agent learns to estimate the value of different states or state-action pairs, which represents the expected cumulative reward that can be obtained from those states. By learning these values, the agent can make informed decisions about which actions to take in order to maximize its overall reward.
+* **Policy-Based:** Focuses on learning a policy that maps states to actions. (e.g., PPO, DPO). It is a reinforcement learning approach where the agent learns a policy that directly maps states to actions, rather than estimating the value of states or state-action pairs. By learning a policy, the agent can make decisions about which actions to take in different states, allowing it to optimize its behavior and maximize its overall reward.
+* **Actor-Critic:** Combines value-based and policy-based methods, using an actor to select actions and a critic to evaluate them. (e.g., A3C, PPO). It is a reinforcement learning approach that combines both value-based and policy-based methods. The actor is responsible for selecting actions based on the current policy, while the critic evaluates the actions taken by the actor and provides feedback in the form of value estimates. This allows the agent to learn both the optimal policy and the value function simultaneously, leading to more efficient learning and improved performance.
+
+### Q-learning
+
+Q-learning is a model-free reinforcement learning algorithm that aims to learn a policy that maximizes the expected cumulative reward. It works by maintaining a table of Q-values for each state-action pair, which represent the expected future rewards of taking a particular action in a given state. The Q-values are updated iteratively based on the observed rewards and the maximum Q-value of the next state, using the Bellman equation.
+
+### RLHF (Reinforcement Learning from Human Feedback)
+RLHF is a technique that uses human feedback to train a reward model, which is then used to fine-tune the LLM to align with human preferences. It involves three main steps:
+1. **Collecting Human Feedback:** Human annotators provide feedback on model outputs, indicating which responses are preferred or more aligned with human values.
+2. **Training a Reward Model:** The collected feedback is used to train a reward model that predicts the quality of model outputs based on human preferences.
+3. **Fine-Tuning the LLM:** The reward model is used to fine-tune the LLM using reinforcement learning techniques, such as PPO, to optimize its behavior according to the learned reward function.
+
+Eg: In the case of ChatGPT, RLHF is used to ensure that the model generates responses that are helpful, safe, and aligned with user expectations.
+
+### Multi Armed Bandit (MAB) Problem
+The Multi-Armed Bandit problem is a classic reinforcement learning problem that involves making decisions in a scenario where an agent must choose between multiple options (or "arms") with uncertain rewards. The goal is to maximize the cumulative reward over time by balancing exploration (trying out different arms to learn their rewards) and exploitation (choosing the arm that has yielded the highest reward so far).
+
 
 ### 9.3 Fine-Tuning Anti-Patterns
 * **Overfitting:** Training loss drops, validation loss spikes.
 * **Catastrophic Forgetting:** Over-specialization destroys pretraining general knowledge.
 * **Data Contamination:** Training data leaking into evaluation sets.
 
+### **9.4 Fine-Tuning Best Practices**
+* **Data Quality:** Ensure high-quality, diverse, and representative datasets for fine-tuning.
+* **Regular Monitoring:** Keep track of model performance and adjust the fine-tuning process as needed.
+* **Iterative Process:** Fine-tuning is an iterative process that requires experimentation and refinement.
+
+### **Edge Cases & Gotchas**
+> **⚠️ Edge Case 1: Overfitting During Fine-Tuning**
+Fine-tuning on a small dataset may lead to overfitting, where the model performs well on the training data but poorly on unseen data.
+>
+> **Solution:** Use techniques such as regularization, data augmentation, and cross-validation to prevent overfitting and ensure the model generalizes well to new data.
+>
+> **⚠️ Edge Case 2: Catastrophic Forgetting**
+Fine-tuning on a specific task may cause the model to forget previously learned knowledge, leading to degraded performance on other tasks.
+>
+> **Solution:** Use techniques like Elastic Weight Consolidation (EWC) or Progressive Neural Networks to mitigate catastrophic forgetting and preserve previously learned knowledge while fine-tuning on new tasks. 
+>
+> **⚠️ Edge Case 3: Data Contamination**
+If the fine-tuning dataset contains examples that are also present in the evaluation set, it can lead to inflated performance metrics and an inaccurate assessment of the model's capabilities.
+>
+> **Solution:** Carefully curate the fine-tuning dataset to ensure that there is no overlap with the evaluation set, and use techniques like cross-validation to assess the model's performance more accurately.
+>
+> **⚠️ Edge Case 4: Hyperparameter Sensitivity**
+Fine-tuning can be sensitive to hyperparameters such as learning rate, batch size, and number of training epochs. Poorly chosen hyperparameters can lead to suboptimal performance or instability during training.
+>
+> **Solution:** Perform hyperparameter tuning using techniques like grid search, random search, or Bayesian optimization to find the best hyperparameters for the fine-tuning process. Additionally, consider using learning rate schedulers and early stopping to improve training stability and performance.  
+
+
+### **TRICKY INTERVIEW QUESTIONS**
+
+
+**Q1. What is the difference between on-policy and off-policy learning? Give examples.**
+
+On-policy learning refers to reinforcement learning methods where the agent learns from actions taken by its current policy. In other words, the agent updates its policy based on the experiences it gathers while following that same policy. An example of an on-policy algorithm is Proximal Policy Optimization (PPO), where the agent learns to improve its policy based on the rewards received from actions taken according to that policy. 
+
+Off-policy learning, on the other hand, allows the agent to learn from actions that are not necessarily taken by its current policy. This means the agent can learn from a different behavior policy than the one it is following. An example of an off-policy algorithm is Q-Learning, where the agent learns to improve its policy based on the rewards received from actions taken according to a different policy.
+
+**Q2. How does RLHF differ from traditional supervised fine-tuning?**
+RLHF (Reinforcement Learning from Human Feedback) differs from traditional supervised fine-tuning in that it uses human feedback to guide the learning process, rather than relying solely on labeled data. This allows the model to learn more nuanced and complex behaviors that may not be captured by simple labeled examples.
+Supervised fine-tuning typically involves training a model on a dataset with input-output pairs, where the model learns to map inputs to desired outputs based on the provided labels. In contrast, RLHF involves collecting human feedback on model outputs, training a reward model based on that feedback, and then using reinforcement learning techniques to fine-tune the model to align with human preferences.
+
+**Q3. What are the main challenges in fine-tuning large language models?**
+The main challenges in fine-tuning large language models include:
+1. **Computational Resources:** Fine-tuning large models requires significant computational power, memory, and storage, which can be a barrier for many organizations.
+2. **Data Quality and Quantity:** Obtaining high-quality, diverse, and representative datasets for fine-tuning can be challenging, and insufficient or biased data can lead to poor model performance.
+3. **Overfitting and Catastrophic Forgetting:** Fine-tuning on a small dataset can lead to overfitting, where the model performs well on the training data but poorly on unseen data. Additionally, fine-tuning can cause catastrophic forgetting, where the model loses previously learned knowledge and generalization capabilities.
+
+### Choosing the Right Algorithm for Fine-Tuning
+When selecting an algorithm for fine-tuning, consider the following factors:  
+* **Task Requirements:** Different algorithms may be better suited for specific tasks or domains. For example, PPO may be more appropriate for tasks that require continuous action spaces, while Q-Learning may be better for discrete action spaces.
+* **Data Availability:** The amount and quality of available data can influence the choice of algorithm.
+
+* **State Space:** The nature of the state space (discrete or continuous) can affect the choice of algorithm.
+
+  * Small discrete state space     → Q-Learning / Value Iteration  
+  * Large continuous state space   → DQN / SAC / TD3  
+  * Stable, on-policy training     → PPO (most common\!)  
+  * Align LLMs with humans         → RLHF (PPO) or DPO  
+  * Real-time / streaming          → Online Actor-Critic  
+  * Sparse rewards                 → HER \+ curriculum learning  
+  * Safety-critical                → Constrained RL
+
 ---
 
 ## 10. Chunking Strategies
 
+### What is chunking ?
+Chunking is the process of breaking down large documents or datasets into smaller, manageable segments (chunks) for efficient retrieval and processing. This is particularly important in the context of large language models (LLMs) and retrieval-augmented generation (RAG) systems, where the model's context window is limited, and retrieving large amounts of information at once can be impractical.
+
+
 ### 10.1 Why Chunk?
 LLMs have finite contexts; retrieving 100 pages is impossible. We chunk to retrieve specific, targeted text segments.
+Retrieval quality is sensitive to chunk size. Too small → loss of context. Too large → irrelevant retrieval.
 
 ### 10.2 Chunking Strategies
 * **Fixed-Size:** Splits at $N$ characters with overlap. Simple but breaks sentences.
+Fixed-size chunking involves dividing the text into segments of a predetermined number of characters, often with some overlap between chunks to preserve context. While this method is straightforward and easy to implement, it can result in chunks that break sentences or paragraphs, potentially leading to loss of meaning or context.
 * **Recursive Character:** Splits hierarchically (`\n\n`, `\n`, `. `, ` `). Best default.
+Recursive character chunking involves splitting the text hierarchically based on specific delimiters, such as double newlines, single newlines, periods followed by spaces, or spaces. This method preserves the natural structure of the text and is often considered the best default approach for chunking, as it maintains context and meaning more effectively than fixed-size chunking.
 * **Semantic:** Splits where cosine similarity between sentences drops significantly.
+Semantic chunking involves splitting the text based on the semantic similarity between sentences. This method uses techniques such as cosine similarity to identify points in the text where the meaning or topic shifts significantly, allowing for more contextually relevant chunks. Semantic chunking can help ensure that each chunk contains coherent and meaningful information, improving retrieval quality and model performance.
 * **Parent-Child:** Small child chunks for indexing, large parent chunks returned for context.
+Parent-child chunking involves creating a hierarchy of chunks, where smaller child chunks are used for indexing and larger parent chunks are returned for context. This approach can help improve the efficiency of the retrieval process by allowing the system to quickly find relevant information at a higher level while still providing detailed context when needed.
+
+### Why Chunking is Important
+Chunking is important because it allows for more efficient retrieval and processing of information, especially when dealing with large documents or datasets. By breaking down the information into smaller segments, chunking enables models to focus on relevant portions of the data, improving retrieval quality and ensuring that the model can generate accurate and contextually appropriate responses.
+
+### Edge Cases & Gotchas
+* **Overlapping Chunks:** Be careful with the amount of overlap between chunks to avoid redundancy.
+
+  Solution: Experiment with different overlap sizes and evaluate their impact on retrieval quality. Consider using semantic chunking to ensure that overlapping chunks maintain context without introducing unnecessary redundancy.
+* **Context Loss:** Ensure that the chunking strategy preserves the necessary context for each segment.
+
+  Solution: Use hierarchical or semantic chunking methods to maintain context and meaning within each chunk. Additionally, consider using parent-child chunking to provide both detailed and high-level context when needed.
+
+* **Performance Impact:** Consider the performance implications of different chunking strategies on the overall system.
+
+  Solution: Evaluate the trade-offs between retrieval quality and computational efficiency when selecting a chunking strategy. Optimize the chunking process to balance performance and accuracy, ensuring that the system can handle large datasets effectively.
+
+### TRICKY INTERVIEW QUESTIONS
 
 ---
+## 11. Fine Tuning 
+
+### 11.1 Fine-Tuning Overview
+Fine-tuning is the process of taking a pre-trained model and adapting it to a specific task or domain by continuing the training process on a smaller, task-specific dataset. This allows the model to leverage the knowledge it has already acquired during pre-training while learning to perform well on the new task.
+### 11.2 Fine-Tuning Techniques
+* **Full Fine-Tuning:** Fine-tune the entire model with the new data. 
+* **Adapter Fine-Tuning:** Add small, trainable modules (adapters) to the pre-trained model.
+* **Prompt Tuning:** Learn a set of prompt templates that guide the model's behavior.
+* **LoRA (Low-Rank Adaptation):** Adapt the model by updating only a small subset of its parameters.
+
+### Why Fine-Tuning is Important
+Fine-tuning is important because it allows models to be specialized for specific tasks or domains, improving their performance and relevance. It enables the model to learn task-specific patterns and nuances that may not have been captured during pre-training, leading to better results in real-world applications.
+
+### The spectrum of Adaptation techniques
+* **Prompt Engineering:** Crafting prompts to elicit desired behavior from the model without changing its parameters. This is a lightweight approach that can be effective for many tasks.
+* **Prompt Tuning:** Learning a set of prompt templates that guide the model's behavior.
+* **Adapter Fine-Tuning:** Adding small, trainable modules (adapters) to the pre-trained model. This allows for task-specific adaptation without modifying the entire model.
+* **LoRA (Low-Rank Adaptation):** Adapting the model by updating only a small subset of its parameters. This is a parameter-efficient approach that can achieve good performance with minimal computational resources.
+
+### Catastrophic Forgetting
+Catastrophic forgetting is a phenomenon that occurs when a model forgets previously learned knowledge while being fine-tuned on a new task. This can happen when the model is over-specialized to the new task and loses its ability to generalize to other tasks or domains. To mitigate catastrophic forgetting, techniques such as regularization, knowledge distillation, and multi-task learning can be employed.
+
+Solutions to mitigate catastrophic forgetting include:
+* **Regularization:** Adding constraints to the fine-tuning process to prevent the model from deviating too much from its pre-trained knowledge. This can be done through techniques like weight decay or L2 regularization.
+* **Knowledge Distillation:** Transferring knowledge from the pre-trained model to the fine-tuned model by using the pre-trained model's outputs as soft targets during training. This helps the fine-tuned model retain some of the knowledge from the pre-trained model.
+* **Multi-Task Learning:** Training the model on multiple tasks simultaneously, allowing it to learn shared representations and retain knowledge across tasks. This can help prevent the model from forgetting previously learned information while adapting to new tasks.
+
+### LoRa (Low-Rank Adaptation)
+LoRA is a parameter-efficient fine-tuning technique that allows for the adaptation of large language models to specific tasks or domains without requiring extensive computational resources. It works by freezing the pre-trained model's weights and introducing small, trainable low-rank matrices that capture task-specific information. This approach significantly reduces the number of trainable parameters, making it feasible to fine-tune large models on limited hardware.
+Use cases for LoRA include:
+* **Domain Adaptation:** Adapting a pre-trained model to a specific domain, such as legal, medical, or financial text, where the model needs to understand domain-specific terminology and context.
+* **Task-Specific Fine-Tuning:** Fine-tuning a model for a specific task, such as sentiment analysis, question answering, or named entity recognition, where the model needs to learn task-specific patterns and relationships.
+
+### QLoRA
+QLoRA is an extension of the LoRA technique that further reduces the computational requirements for fine-tuning large language models. It achieves this by quantizing the pre-trained model's weights to a lower precision (e.g., 4-bit) while still allowing for effective fine-tuning. This enables researchers and developers to fine-tune large models on a single GPU, making it more accessible and cost-effective.
+
+Use cases for QLoRA include:
+* **Resource-Constrained Environments:** Fine-tuning large language models in environments with limited computational resources, such as on a single GPU or in cloud-based settings with restricted budgets.
+* **Rapid Prototyping:** Quickly adapting large models to new tasks or domains without the need for extensive computational resources, allowing for faster experimentation and iteration.
+
+### Fine Tuning Anti Patterns 
+* **Overfitting:** The model performs well on the training data but poorly on unseen data. This can occur when the fine-tuning dataset is too small or not representative of the target task.
+* **Catastrophic Forgetting:** The model loses previously learned knowledge while being fine-tuned on a new task. This can happen when the model is over-specialized to the new task and forgets how to perform well on other tasks.
+* **Data Contamination:** The fine-tuning dataset contains examples that are also present in the evaluation set, leading to inflated performance metrics and an inaccurate assessment of the model's capabilities.
+
+### Fine Tuning Best Practices
+
+* **Data Quality:** Ensure that the fine-tuning dataset is of high quality, diverse, and representative of the target task or domain. This helps the model learn relevant patterns and generalize well to unseen data.
+* **Regular Monitoring:** Continuously monitor the model's performance during the fine-tuning process to identify any signs of overfitting or catastrophic forgetting. Adjust the fine-tuning process as needed to maintain a balance between task-specific adaptation and retention of pre-trained knowledge.
+* **Iterative Process:** Fine-tuning is an iterative process that requires experimentation and refinement.
+
+### Edge Cases & Gotchas
+> **⚠️ Edge Case 1: Overfitting During Fine-Tuning**
+> Fine-tuning on a small dataset may lead to overfitting, where the model performs well on the training data but poorly on unseen data.
+>
+> **Solution:** Use techniques such as regularization, data augmentation, and cross-validation to prevent overfitting and ensure the model generalizes well to new data.
+>
+> **⚠️ Edge Case 2: Catastrophic Forgetting**
+> Fine-tuning on a specific task may cause the model to forget previously learned knowledge, leading  to degraded performance on other tasks.
+>
+> **Solution:** Use techniques like Elastic Weight Consolidation (EWC) or Progressive Neural Networks to mitigate catastrophic forgetting and preserve previously learned knowledge while fine-tuning on new tasks.
+>
+> **⚠️ Edge Case 3: Data Contamination**
+> If the fine-tuning dataset contains examples that are also present in the evaluation set, it can lead to inflated performance metrics and an inaccurate assessment of the model's capabilities.
+>
+> **Solution:** Carefully curate the fine-tuning dataset to ensure that there is no overlap with the evaluation set, and use techniques like cross-validation to assess the model's performance more accurately.
+>
 
 ## 11. Clustering
 
