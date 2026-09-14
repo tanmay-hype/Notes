@@ -1648,7 +1648,23 @@ Intrinsic hallucinations occur when the model generates information that directl
 * **Over-Reliance on Pre-Trained Knowledge:** LLMs may rely too heavily on their pre-trained knowledge, leading to hallucinations when generating content that requires up-to-date or context-specific information. To mitigate this, incorporate retrieval mechanisms or grounding techniques that provide the model with access to current and relevant information.
 * **Sycophantic Hallucination:** LLMs may generate responses that are overly agreeable or flattering, even when the information is incorrect. To address this, encourage critical thinking and fact-checking in the model's responses, and implement verification pipelines to assess the accuracy of the generated content.
 
+### Tricky Interview Questions 
 
+**Q1. What are the main types of hallucinations in LLMs, and how do they differ?**
+The main types of hallucinations in LLMs are intrinsic and extrinsic hallucinations. Intrinsic hallucinations occur when the model generates information that directly contradicts the provided source material, while extrinsic hallucinations involve the generation of unverifiable additions that are not found in the source. Intrinsic hallucinations can lead to misinformation and undermine the credibility of the model's outputs, while extrinsic hallucinations can be particularly problematic in applications where accuracy and reliability are critical.
+
+
+**Q2. What are some common root causes of hallucinations in LLMs, and how can they be addressed?**
+Common root causes of hallucinations in LLMs include data quality issues, model architecture limitations, prompt design flaws, inadequate evaluation metrics, overconfidence, and attention mechanism limitations. To address these issues, developers can improve data quality by curating high-quality training datasets, enhance model architecture to better capture nuances in the data, design effective prompts that provide sufficient context, implement robust evaluation metrics to assess factual accuracy, and incorporate techniques to manage attention mechanisms for maintaining context over long sequences.
+
+
+
+**Q3. Why does RLHF sometimes make hallucinations worse ?**
+RLHF (Reinforcement Learning from Human Feedback) can sometimes exacerbate hallucinations because the feedback provided by humans may not always be comprehensive or consistent. If the human feedback is biased or incomplete, the model may learn to generate responses that align with the feedback rather than being factually accurate. Additionally, the reward function used in RLHF might inadvertently reward responses that sound plausible but are not necessarily true, leading to an increase in hallucinations.
+
+
+**Q4. How can grounding techniques help reduce hallucinations in LLMs?**
+Grounding techniques can help reduce hallucinations in LLMs by providing the model with access to reliable and relevant context. By grounding the model's responses in trusted sources or external knowledge bases, the model can generate more accurate and factually correct outputs. Techniques such as retrieval-augmented generation (RAG) allow the model to retrieve relevant documents or data to inform its responses, reducing the likelihood of hallucinations. Additionally, grounding can involve providing explicit citations or references in the model's outputs, which can help users verify the information and increase trust in the generated content.
 
 ---
 
