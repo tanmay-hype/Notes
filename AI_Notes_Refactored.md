@@ -1670,15 +1670,96 @@ Grounding techniques can help reduce hallucinations in LLMs by providing the mod
 
 ## 13. GPU Optimization
 
+GPU optimization is the process of improving the performance and efficiency of GPU-accelerated applications, particularly in deep learning and high-performance computing. It involves techniques to maximize the utilization of GPU resources, reduce memory bottlenecks, and enhance overall throughput.
+
+### GPU Memory Hierarchy 
+The memory hierarchy of a GPU consists of multiple levels, including registers, shared memory, and global memory. Each level has different characteristics in terms of speed and capacity.
+
+```mermaid
+flowchart TD
+  CPU[CPU / Host Memory] -->|Transfer| GM[Global Memory<br/>Largest capacity<br/>Highest latency]
+  GM -->|Load / Store| SM[Shared Memory<br/>Per-block<br/>Fast, limited capacity]
+  SM -->|Low-latency access| R[Registers<br/>Per-thread<br/>Fastest, smallest capacity]
+```
+### Profiling 
+
+* **Data Profiling:** Understanding the structure, content, and quality of your data.
+* **Descriptive Statistics:** Mean, median, mode, standard deviation, etc.
+* **Data Quality Metrics:** Completeness, accuracy, consistency, validity.
+* **CUDA Timing:** Use `torch.cuda.Event` to measure GPU operation time.
+
+### Gradient Checkpointing 
+
+Gradient checkpointing is a technique used to reduce memory usage during backpropagation in deep learning models. It allows you to trade off computation for memory, by recomputing intermediate activations instead of storing them. 
+
+### Batch Size and Gradient Accumilation 
+* **Batch Size:** Larger batch sizes can improve GPU utilization but may lead to memory constraints. Smaller batch sizes may require more iterations to converge.
+
+* **Gradient Accumulation:** Accumulating gradients over multiple mini-batches before updating the model parameters.
+  * This is useful when you have limited GPU memory but want to use a larger effective batch size.
+
+
+### Model Parallelism
+* **Data Parallelism:** Splitting data across multiple GPUs, each with a copy of the model. Gradients are averaged across GPUs during backpropagation.
+* **Model Parallelism:** Splitting the model across multiple GPUs, each GPU handling a portion of the model. This is useful for very large models that cannot fit into a single GPU's memory.
+* **Tensor Parallelism:** Splitting individual tensor operations across multiple GPUs. This is often used in conjunction with model parallelism to further optimize memory usage and computation.
+* **Pipeline Parallelism:** Splitting the model into stages and processing different mini-batches through the stages in a pipelined fashion. This can help improve GPU utilization and reduce idle time.
+
+* **Hybrid Parallelism:** Combining data, model, tensor, and pipeline parallelism to optimize training of large models across multiple GPUs. This approach allows for efficient utilization of resources and can help overcome memory constraints.
+
+* **Distributed Data Parallelism (DDP):** A PyTorch feature that allows for distributed training across multiple GPUs and nodes. It synchronizes gradients and updates model parameters in a distributed manner, enabling efficient training of large models on multipleGPUs .
+
 ### 13.1 Maximizing Efficiency
-GPUs process data in parallel but often sit idle waiting for memory or CPU. 
+GPUs process data in parallel but often sit idle waiting for memory or CPU. It is crucial to maximize GPU utilization by overlapping computation and communication, optimizing memory access patterns, and minimizing data transfer between CPU and GPU.
+
+### Flash Attention and memory efficient operations 
+* **Flash Attention:** A memory-efficient attention mechanism that reduces memory usage and speeds up training for transformer models. It computes attention in a more efficient manner, allowing for larger batch sizes and longer sequences without running out of memory.
+* **Memory-Efficient Operations:** Use in-place operations and avoid unnecessary data copies to reduce memory overhead. This can help improve GPU utilization and overall performance during training and inference.
+
+### Quantization 
+
+* **Quantization:** Reduces the precision of model weights and activations (e.g., from FP32 to INT8) to decrease memory usage and increase inference speed. Quantization can be applied post-training or during training, and it can lead to significant improvements in performance, especially for deployment on resource-constrained devices.
+
+### Interference Optimization
+
+* **Interference Optimization:** Minimize interference between different processes or threads running on the GPU to improve performance. This can involve optimizing kernel launches, managing memory access patterns, and reducing contention for shared resources.
+
+### Kernel Fusion
+* **Kernel Fusion:** Combines multiple GPU operations into a single kernel launch to reduce overhead and improve performance. By fusing operations, you can minimize the number of kernel launches and memory accesses, leading to better GPU utilization and faster execution times.
+
 
 ### 13.2 Optimization Techniques
 * **Mixed Precision (FP16/BF16):** Doubles speed, halves memory footprint. Requires matrix dimensions to align (multiples of 8 or 64).
+Mixed precision training involves using lower-precision data types (e.g., FP16 or BF16) for model weights and activations, while maintaining higher precision (e.g., FP32) for certain operations like loss scaling. This can lead to significant speedups and reduced memory usage during training, especially on GPUs that support mixed precision operations. However, care must be taken to ensure that matrix dimensions are aligned to multiples of 8 or 64 to avoid performance degradation.
 * **Gradient Checkpointing:** Trades compute for memory by recalculating forward activations during the backward pass (reduces memory from $O(N)$ to $O(\sqrt{N})$).
+Gradient checkpointing is a technique that allows for reduced memory usage during backpropagation by selectively storing only a subset of intermediate activations during the forward pass. During the backward pass, the missing activations are recomputed as needed, trading off additional computation for reduced memory consumption. This can be particularly useful when training large models that would otherwise exceed GPU memory limits.
 * **DataLoader Prefetching:** Set `num_workers=4` and `pin_memory=True`.
-* **DeepSpeed ZeRO:** Partitions optimizer states, gradients, and model parameters across GPUs to save memory.
-* **Quantization (INT8/INT4):** Speeds up inference by reducing memory bandwidth bottlenecks.
+DataLoader prefetching is a technique used to improve the efficiency of data loading during training. By setting `num_workers` to a positive integer (e.g., 4), multiple worker processes can load data in parallel, reducing the time spent waiting for data to be available for training. Additionally, setting `pin_memory=True` allows the DataLoader to allocate memory in a way that is optimized for GPU transfers, further improving performance. This combination of prefetching and pinned memory can help maximize GPU utilization and reduce training time.
+* **DeepSpeed ZeRO:** Partitions optimizer states, gradients, and model parameters across GPUs to save memory.DeepSpeed ZeRO (Zero Redundancy Optimizer) is a memory optimization technique that partitions the optimizer states, gradients, and model parameters across multiple GPUs. This allows for efficient training of large models that would otherwise exceed the memory capacity of a single GPU. By distributing the memory load, DeepSpeed ZeRO enables training of models with billions of parameters while maintaining high performance and scalability.
+* **Quantization (INT8/INT4):** Speeds up inference by reducing memory bandwidth bottlenecks.Quantization is a technique that reduces the precision of model weights and activations (e.g., from FP32 to INT8 or INT4) to decrease memory usage and increase inference speed. By using lower-precision representations, quantization can help alleviate memory bandwidth bottlenecks and improve overall performance during inference, especially on resource-constrained devices. However, care must be taken to ensure that the reduced precision does not significantly impact model accuracy.
+
+### Tricky Interview Questions 
+
+**Q1. Why is GPU memory bandwith often the bottleneck rather than compute for LLM inference ?**
+
+In Large Language Model (LLM) inference, the amount of data that needs to be transferred between the GPU and system memory can become a significant bottleneck. This is because LLMs typically have a large number of parameters, and during inference, these parameters need to be accessed frequently. The memory bandwidth required to transfer this data can exceed the compute capabilities of the GPU, leading to a bottleneck in performance.
+
+**Q2. How does mixed precision training improve GPU efficiency, and what are the potential challenges associated with it?**
+
+Mixed precision training improves GPU efficiency by using lower-precision data types (e.g., FP16 or BF16) for model weights and activations, while maintaining higher precision (e.g., FP32) for certain operations like loss scaling. This can lead to significant speedups and reduced memory usage during training, especially on GPUs that support mixed precision operations. However, potential challenges include ensuring numerical stability, managing loss scaling to prevent underflow or overflow, and aligning matrix dimensions to multiples of 8 or 64 to avoid performance degradation.
+
+**Q3. What is the difference between gradient checkpointing and regular backpropagation, and when would you use each?**
+
+Gradient checkpointing is a technique that reduces memory usage during backpropagation by selectively storing only a subset of intermediate activations during the forward pass. During the backward pass, the missing activations are recomputed as needed, trading off additional computation for reduced memory consumption. This can be particularly useful when training large models that would otherwise exceed GPU memory limits. Regular backpropagation, on the other hand, stores all intermediate activations in memory, which can be computationally expensive and memory-intensive.
+
+**Q4. How does DeepSpeed ZeRO optimize memory usage during training, and what are the trade-offs involved?**
+
+DeepSpeed ZeRO (Zero Redundancy Optimizer) optimizes memory usage during training by partitioning the optimizer states, gradients, and model parameters across multiple GPUs. This allows for efficient training of large models that would otherwise exceed the memory capacity of a single GPU. The trade-offs involved include increased communication overhead between GPUs, which can impact training speed, and the complexity of managing distributed training across multiple devices. Additionally, careful tuning of hyperparameters may be required to achieve optimal performance with DeepSpeed ZeRO.
+
+**Q5. Explain flash attention and how it reduces memory usage in transformer models.**
+
+Flash attention is a memory-efficient attention mechanism that reduces memory usage and speeds up training for transformer models. It computes attention in a more efficient manner by leveraging techniques such as kernel fusion and optimized memory access patterns. By reducing the amount of memory required for storing intermediate activations and attention scores, flash attention allows for larger batch sizes and longer sequences to be processed without running out of memory. This can lead to improved performance and faster training times for transformer models, especially when dealing with large-scale datasets. 
+
 
 ---
 
@@ -1686,6 +1767,17 @@ GPUs process data in parallel but often sit idle waiting for memory or CPU.
 
 ### 14.1 Fundamentals
 Tensors are multi-dimensional arrays (0D Scalar, 1D Vector, 2D Matrix, N-D Tensor). They power all hardware-accelerated deep learning via contiguous memory allocation.
+
+### Why tensors are important:
+* **Hardware Acceleration:** Tensors enable efficient computation on GPUs and TPUs, which are optimized for parallel processing of multi-dimensional data.
+* **Automatic Differentiation:** Tensors support automatic differentiation, allowing for easy computation of gradients during backpropagation in neural networks.
+* **Data Representation:** Tensors provide a flexible and efficient way to represent and manipulate data in various formats, including images, text, and audio.
+* **Interoperability:** Tensors can be easily converted between different deep learning frameworks (e.g., PyTorch, TensorFlow) and can be used with various libraries for data processing and visualization.
+* **Memory Efficiency:** Tensors are designed to minimize memory overhead and maximize cache efficiency, enabling faster computations and reduced memory usage during training and inference.
+* **Batch Processing:** Tensors allow for efficient batch processing of data, enabling the simultaneous processing of multiple samples in a single forward or backward pass, which is essential for training deep learning models.
+* **Mathematical Operations:** Tensors support a wide range of mathematical operations, including element-wise operations, matrix multiplication, and tensor contractions, making them suitable for various machine learning and deep learning tasks.
+* **Scalability:** Tensors can be easily scaled to handle large datasets and complex models, making them suitable for a wide range of applications in machine learning and deep learning.
+* **Community Support:** Tensors are widely used in the deep learning community, with extensive documentation, tutorials, and resources available for learning and troubleshooting.
 
 ### 14.2 Autograd & Memory
 * **Views vs Copies:** `view()` alters strides without copying data; `clone()` duplicates memory. Modifying views modifies the original memory.
@@ -1737,6 +1829,8 @@ Detecting and correcting corrupt, inaccurate, or incomplete data.
 │  CLEAN DATA ✅                                               │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+
 
 ### 15.2 Handling Missing Values & Outliers
 * **MCAR / MAR / MNAR:** Missing Completely At Random, Missing At Random, Missing Not At Random.
