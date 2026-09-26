@@ -1779,13 +1779,109 @@ Tensors are multi-dimensional arrays (0D Scalar, 1D Vector, 2D Matrix, N-D Tenso
 * **Scalability:** Tensors can be easily scaled to handle large datasets and complex models, making them suitable for a wide range of applications in machine learning and deep learning.
 * **Community Support:** Tensors are widely used in the deep learning community, with extensive documentation, tutorials, and resources available for learning and troubleshooting.
 
+### Why Tensors are fundamental to Deep Learning
+Tensors are the foundational data structure for all deep learning operations. They provide the necessary framework for representing and manipulating data in a way that is optimized for the hardware and algorithms used in modern neural networks.
+
+Forward pass is a tensor operation that computes the output of a neural network given an input tensor. During the forward pass, the input tensor is transformed through a series of layers, each performing specific operations (e.g., linear transformations, activations) to produce the final output tensor.
+
+Backward pass is a tensor operation that computes the gradients of the loss with respect to the parameters of the neural network. During the backward pass, the gradients are propagated backwards through the network, allowing for the update of the model's parameters.
+
+Gradient computation is a tensor operation that calculates the gradients of the loss function with respect to the model's parameters. This is essential for optimizing the model during training, as it allows for the adjustment of weights and biases to minimize the loss.
+
+For example, in PyTorch, tensors are used to represent inputs, outputs, weights, and gradients in neural networks. The ability to perform efficient tensor operations on GPUs and TPUs allows for faster training and inference of deep learning models. Additionally, the support for automatic differentiation enables the computation of gradients required for optimization algorithms like stochastic gradient descent (SGD) and its variants.
+
+### Tensor Fundamentals 
+
+Tensors are multi-dimensional arrays that can be used to represent and manipulate data in a way that is optimized for the hardware and algorithms used in modern neural networks. They are the basic building blocks of deep learning models and are used to store and process data in a way that is efficient and scalable.
+
+### Autograd 
+Autograd is a core feature of deep learning frameworks like PyTorch that enables automatic differentiation of tensor operations. It allows for the computation of gradients with respect to model parameters, which is essential for training neural networks using optimization algorithms like stochastic gradient descent (SGD).
+
+
+
 ### 14.2 Autograd & Memory
 * **Views vs Copies:** `view()` alters strides without copying data; `clone()` duplicates memory. Modifying views modifies the original memory.
 * **Strides:** Determine how to jump through a flat 1D memory array to access N-D elements. `.contiguous()` rearranges memory sequentially for better cache behavior.
 
+### Tricky Interview Questions
+
+**Q1. Explain the difference between a view and a copy in PyTorch tensors, and provide an example of when to use each.**
+In PyTorch, a view is a new tensor that shares the same underlying data as the original tensor, while a copy creates a new tensor with its own separate memory allocation. Modifying a view will affect the original tensor, whereas modifying a copy will not.
+Example:
+```python
+import torch
+
+x = torch.tensor([1, 2, 3, 4])
+y = x.view(-1, 2)  # This creates a view
+z = x.clone()      # This creates a copy
+
+print(x)  # tensor([1, 2, 3, 4])
+print(y)  # tensor([[1, 2], [3, 4]])
+print(z)  # tensor([1, 2, 3, 4])
+
+y[0, 0] = 100      # This modifies the original tensor
+print(x)           # tensor([100, 2, 3, 4])
+print(y)           # tensor([[100, 2], [3, 4]])
+
+z[0] = 5           # This does not modify the original tensor
+print(x)           # tensor([100, 2, 3, 4])
+print(z)           # tensor([5, 2, 3, 4])
+```
+
+**Q2. How do strides affect the way tensors are stored in memory, and why is it important to understand them when working with PyTorch?**
+
+Strides determine how to jump through a flat 1D memory array to access N-D elements. They define the number of elements to skip in each dimension when traversing the tensor. Understanding strides is important because it affects how tensors are stored in memory and can impact performance, especially when performing operations that require contiguous memory access. Using `.contiguous()` can help rearrange the tensor's memory layout for better cache behavior and improved performance during computations.
+
+**Q3. What is the purpose of the `.contiguous()` method in PyTorch, and when should it be used?**
+
+The `.contiguous()` method in PyTorch is used to ensure that a tensor's data is stored in a contiguous block of memory. This is important for certain operations that require contiguous memory access, such as when performing in-place operations or when interfacing with libraries that expect contiguous data. It should be used when a tensor has been created through operations that may result in non-contiguous memory layouts, such as slicing or transposing.
+
+
+**Q4. Explain how autograd works in PyTorch and its role in training neural networks.**
+Autograd in PyTorch is a core feature that enables automatic differentiation of tensor operations. It tracks the operations performed on tensors and builds a computational graph, allowing for the computation of gradients with respect to model parameters. During the backward pass, autograd computes the gradients of the loss function with respect to the model's parameters, which are then used to update the weights and biases during training. This automatic differentiation simplifies the process of training neural networks and allows for efficient optimization using algorithms like stochastic gradient descent (SGD) and its variants.
+
+**Q5. How does broadcasting work in PyTorch, and what are some common use cases and pitfalls for it?**
+
+Broadcasting in PyTorch allows tensors of different shapes to be used in arithmetic operations by automatically expanding their dimensions to match each other. This is useful for performing element-wise operations without explicitly reshaping the tensors. Common use cases include adding a scalar to a tensor or adding two tensors of different shapes. However, broadcasting can lead to unexpected results if not used carefully, especially when the dimensions are not compatible for broadcasting.
+
+Use cases:
+```python
+import torch
+
+# Adding a scalar to a tensor
+a = torch.tensor([1, 2, 3])
+b = a + 5  # Broadcasting the scalar to each element
+
+# Adding two tensors of different shapes
+c = torch.tensor([[1, 2], [3, 4]])
+d = torch.tensor([1, 1])  # This will be broadcast to match the shape of c
+e = c + d  # Broadcasting d to match the shape of c
+```
+
+Pitfalls:
+- Incompatible shapes: If the dimensions of the tensors are not compatible for broadcasting, it will raise an error.
+- Unexpected behavior: Broadcasting can sometimes lead to unexpected results if the user is not aware of how it works.
+- Performance issues: Broadcasting can sometimes lead to performance issues if the tensors are very large.
+- Memory usage: Broadcasting can increase memory usage if the tensors are very large.
+
+
+
 ---
 
 ## 15. Data Cleansing
+
+Data cleansing is the process of detecting and correcting corrupt, inaccurate, or incomplete data. It is a crucial step in data preprocessing to ensure the quality and reliability of the data used for analysis and modeling.
+
+### Why cleaning data is important:
+* **Improved Accuracy:** Clean data leads to more accurate models and predictions, as it reduces
+  the impact of noise and errors in the data. 
+* **Enhanced Decision-Making:** Reliable data enables better decision-making, as it provides a solid foundation for analysis and insights.
+* **Increased Efficiency:** Clean data reduces the time and effort required for data analysis, as it minimizes the need for manual data cleaning and correction.
+* **Compliance and Reporting:** Clean data is essential for meeting regulatory requirements and ensuring accurate reporting, especially in industries with strict data governance standards.  
+* **Better User Experience:** Clean data improves the user experience by providing accurate and relevant information, which can lead to increased trust and satisfaction among users. 
+
+
+
 
 ### 15.1 The Process
 Detecting and correcting corrupt, inaccurate, or incomplete data. 
@@ -1833,15 +1929,78 @@ Detecting and correcting corrupt, inaccurate, or incomplete data.
 
 
 ### 15.2 Handling Missing Values & Outliers
-* **MCAR / MAR / MNAR:** Missing Completely At Random, Missing At Random, Missing Not At Random.
-* **Outliers:** Standard Z-Score, IQR, or Isolation Forests. Treat via dropping, clipping (winsorization), or transformations. 
+* **MCAR / MAR / MNAR:** Missing Completely At Random, Missing At Random, Missing Not At Random. 
+MCAR : The probability of missingness is the same for all observations.
+MAR : The probability of missingness is related to observed data but not the missing data itself.
+MNAR : The probability of missingness is related to the missing data itself.
+* **Missing Values:** Techniques include listwise deletion, pairwise deletion, mean/median/mode imputation, regression imputation, and multiple imputation. Missing values can also be handled using advanced techniques like K-Nearest Neighbors (KNN) imputation or model-based imputation methods. The choice of technique depends on the nature of the data and the underlying assumptions about the missingness mechanism.
+* **Outliers:** Standard Z-Score, IQR, or Isolation Forests. Treat via dropping, clipping (winsorization), or transformations. Outliers can also be handled using robust statistical methods or by applying domain-specific knowledge to determine whether they are valid observations or errors. It is important to carefully consider the impact of outliers on the analysis and modeling process, as they can significantly influence the results and lead to biased conclusions.
+
+### Tricky Interview Questions
+
+**Q1. What are the main types of missing data, and how do they differ?**
+  
+The main types of missing data are Missing Completely At Random (MCAR), Missing At Random (MAR), and Missing Not At Random (MNAR). MCAR occurs when the probability of missingness is the same for all observations, meaning that the missing data is unrelated to any observed or unobserved variables. MAR occurs when the probability of missingness is related to observed data but not the missing data itself, meaning that the missingness can be explained by other variables in the dataset. MNAR occurs when the probability of missingness is related to the missing data itself, meaning that the missingness is dependent on unobserved variables or the values of the missing data.
+
+ **Q2. What are some common techniques for handling missing values, and when would you use each?**
+
+Common techniques for handling missing values include listwise deletion, pairwise deletion, mean/median/mode imputation, regression imputation, and multiple imputation. Listwise deletion involves removing any observations with missing values, which can be appropriate when the amount of missing data is small and the missingness is MCAR. Pairwise deletion involves using all available data for each analysis, which can be useful when the missingness is MAR. Mean/median/mode imputation involves replacing missing values with the mean, median, or mode of the observed data, which can be appropriate when the missingness is MCAR or MAR. Regression imputation involves predicting missing values based on other variables in the dataset, which can be useful when the missingness is MAR. Multiple imputation involves creating multiple datasets with different imputations for the missing values and combining the results, which can be appropriate when the missingness is MNAR.
+
+**Q3. How do you identify and handle outliers in a dataset?**
+
+Outliers can be identified using various methods such as the Z-Score, IQR, or Isolation Forests. Once identified, outliers can be handled by dropping them, clipping them (winsorization), or applying transformations. It is important to carefully consider the impact of outliers on the analysis and modeling process, as they can significantly influence the results and lead to biased conclusions.
+
+**Q4. What are some best practices for data cleansing, and how can they be applied in real-world scenarios?**
+
+
+Best practices for data cleansing include profiling and auditing the data to understand its structure and quality, handling missing values and outliers appropriately, standardizing formats, removing duplicates, and validating the cleaned data. These practices can be applied in real-world scenarios by implementing a systematic data cleansing pipeline that includes automated checks and validations, as well as manual reviews when necessary. Additionally, leveraging domain knowledge and involving stakeholders in the data cleansing process can help ensure that the cleaned data is accurate, reliable, and suitable for analysis and modeling.
+
+
+**Q5. Explain leakage in the context of data cleansing and how it can be prevented.**
+Leakage in the context of data cleansing refers to the unintentional inclusion of information from the test set or future data into the training set, which can lead to overly optimistic model performance and poor generalization to unseen data. Leakage can be prevented by ensuring that the data cleansing process is applied only to the training set and not to the test set, and by carefully managing the flow of information between different stages of the data processing pipeline. Additionally, using techniques such as cross-validation and proper feature engineering can help mitigate the risk of leakage.
 
 ---
 
 ## 16. Scikit-Learn
 
+Scikit-learn is a popular Python library for machine learning that provides simple and efficient tools for data analysis and modeling. It is built on top of NumPy, SciPy, and matplotlib, and offers a wide range of algorithms for classification, regression, clustering, dimensionality reduction, and more.
+
+Core Capabilities:
+* **Preprocessing:** Standardization, normalization, encoding categorical variables, handling missing values.
+* **Model Selection:** Cross-validation, hyperparameter tuning, and model evaluation.
+* **Supervised Learning:** Classification and regression algorithms such as decision trees, random forests, support vector machines, and linear models.
+
+  Supervised learning involves training a model on labeled data, where the input features and corresponding target labels are provided. The goal is to learn a mapping from inputs to outputs that can be used to make predictions on new, unseen data.
+
+  Supervised learning algorithms are : 
+*   Decision Trees : A tree-like model that splits the data based on feature values.
+*   Random Forests : An ensemble of decision trees that improves accuracy and reduces overfitting.
+*   Support Vector Machines (SVM) : A model that finds the optimal hyperplane to separate classes in a high-dimensional space.
+*   Linear Models (e.g., Linear Regression, Logistic Regression) : Models that assume a linear relationship between input features and the target variable.
+
+* **Unsupervised Learning:** Clustering algorithms such as k-means, hierarchical clustering, and DBSCAN, as well as dimensionality reduction techniques like PCA and t-SNE.
+
+   Unsupervised learning involves training a model on unlabeled data, where the input features are provided without corresponding target labels. The goal is to discover patterns, structures, or relationships within the data.
+
+  Unsupervised learning algorithms are :
+*   K-Means Clustering : A method that partitions the data into k clusters based on feature similarity.
+*   Hierarchical Clustering : A method that builds a hierarchy of clusters by iteratively merging or splitting clusters based on distance metrics.
+*   DBSCAN (Density-Based Spatial Clustering of Applications with Noise) : A method that identifies clusters based on density and can handle noise in the data.
+
+
+* **Pipelines:** Chaining preprocessing steps and models to streamline workflows and prevent data leakage. 
+   
+   Pipelines help ensure that the same transformations are applied to both training and test data, preventing data leakage.
+
 ### 16.1 Unified API
 Consistent `.fit()`, `.transform()`, and `.predict()` methods across models.
+
+**Estimator Types:**
+* **Transformers:** Implement `.fit()` and `.transform()` methods (e.g., `StandardScaler`, `PCA`).
+* **Predictors:** Implement `.fit()` and `.predict()` methods (e.g., `LogisticRegression`, `RandomForestClassifier`).
+* **Meta-Estimators:** Wrap other estimators to provide additional functionality (e.g., `GridSearchCV`, `Pipeline`).
+* **Model Selection:** Use `cross_val_score`, `GridSearchCV`, and `RandomizedSearchCV` for evaluation and hyperparameter tuning.
+ 
 
 ### 16.2 Pipelines
 Chaining transformations and models using `Pipeline` prevents data leakage (especially during cross-validation).
@@ -1858,6 +2017,6 @@ pipeline.fit(X_train, y_train)
 ```
 
 ### 16.3 Evaluation & Tuning
-* **Metrics:** Accuracy (balanced data), Precision/Recall/F1 (imbalanced classification), MSE/MAE (regression).
+* **Metrics:** Accuracy (balanced data), Precision/Recall/F1 (imbalanced classification), MSE/MAE (regression).  
 * **Tuning:** `GridSearchCV` (exhaustive) vs `RandomizedSearchCV` (faster, often better for large hyperparameter spaces).
 * **Cross-Validation:** K-Fold (standard) vs Stratified K-Fold (classification).
