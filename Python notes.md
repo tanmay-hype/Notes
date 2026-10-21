@@ -1,15 +1,20 @@
 #   Python Syntax 
 
-* Python does not use {} or ;  
+* Python does not use { } or ; 
+
 * Indentation defines code blocks.  
-* Syntax rules  
+* Syntax rules
+
   1 \- No semicolon required  
   2 \- No curly braces  
   3 \- Indentation defines a block  
   4 \- Dynamically typed  
   5 \- Case sensitive   
   6 \- Everything is an object in Python 
+  
+* Python is interpreted, not compiled.
 
+ # 
 # Python Variable 
 
 * Dynamically typed  
@@ -22,26 +27,29 @@
 * Constants are uppercase by conventions   
 * To create a global variable inside a function, you can use the [global](https://www.w3schools.com/python/ref_keyword_global.asp) keyword.
 
-* ### Variable Rules:
 
-1. ### Must start with a letter or `_`
+### Variable Rules:
 
-2. ### Cannot start with a number
+1.  Must start with a letter or `_`
 
-3. ### Case-sensitive (`age` and `Age` are different)
+2.  Cannot start with a number
 
-4. ### Cannot use keywords (`if`, `for`, `class`, etc.)
+3.  Case-sensitive (`age` and `Age` are different)
+
+4.  Cannot use keywords (`if`, `for`, `class`, etc.)
+
+#
 
 # Python Data Types
 
 * Python has built-in data types divided into categories   
-1. Numeric ( int, float, complex )  
-2. Sequence ( str \- text data , immutable ; list \[\]- ordered , mutable , allows duplicate ; tuple() \- ordered , immutable , allows duplicate )  
-3. Set \- unordered, no duplicates, mutable.  
-4. Dictionary \- stores key-value pairs , key must be immutable (string , int , tuple )  
+   
+   1. Numeric ( int, float, complex )  
+   2. Sequence ( str \- text data , immutable ; list \[\]- ordered , mutable , allows duplicate ; tuple() \- ordered , immutable , allows duplicate )  
+   3. Set \- unordered, no duplicates, mutable.  
+   4. Dictionary \- stores key-value pairs , key must be immutable (string , int , tuple )  
 * List, dict, and  set are mutable   
-* Dict ( API response ) , list ( data collections ) , str ( processing) , none ( return  
-* values ) , bool ( conditions )
+* Dict ( API response ) , list ( data collections ) , str ( processing) , none ( return values ) , bool ( conditions )
 
 # 
 
@@ -50,16 +58,26 @@
 * Ordered, immutable, supports indexing and slicing.  
 * Cannot modify a string directly   
 * “In” operator checks a substring   
-* Real-world use   
-1.  API responses  
-2. Logging  
-3. File reading   
-4. Data cleaning   
-5. Validation   
-6. Parsing unit 
+* String methods:  
+  1. `upper()` \- converts to uppercase  
+  2. `lower()` \- converts to lowercase  
+  3. `strip()` \- removes whitespace from both ends  
+  4. `replace(old, new)` \- replaces a substring  
+  5. `split(separator)` \- splits into a list  
+  6. `join(iterable)` \- joins elements into a string
+  7. `len()` \- returns the length of the string
 
+* string \= "Hello, World!"  
+  print(string\[7:12\])  # Output: World  
+  print(string\[:5\])    # Output: Hello  
+  print(string\[7:\])    # Output: World!  
+  print(string\[-6:-1\]) # Output: World
+
+* taking string as input from user  
+  name \= input("Enter your name: ")  
+  print("Hello, " + name + "!")
    
-
+#
 # Difference between is and \==
 
 * Is \- checks if both variables point to the same object in memory   
@@ -77,29 +95,58 @@
 | **Performance (Lookup)** | O(n) | O(n) | O(1) avg | O(1) avg |
 | **Memory Usage** | Medium | Less (than list) | Medium | More (stores keys & values) |
 
-# 
 
+
+
+# 
 # List 
 
 * Lists are used to store multiple items in a single variable.  
 * List items are ordered, changeable, and allow duplicate values.  
-* A list can contain different data types  
-* thislist \= \["apple", "banana", "cherry", "orange", "kiwi", "melon", "mango"\]  
-  print(thislist\[2:5\])  
-  The search will start at index 2 (included) and end at index 5 (not included).  
-* print(thislist\[:4\])  
-  returns the items from the beginning to, but NOT including, "kiwi"  
-  By leaving out the end value, the range will go on to the end of the list  
-* print(thislist\[2:\])  
-  Returns the items from "cherry" to the end  
-* print(thislist\[-4:-1\])  
-  returns the items from "orange" (-4) to, but NOT including "mango" (-1)  
-    
-  Input in list   
+* A list can contain different data types.The
+* list() constructor can be used to create a list.
+* list functions:  
+  1. `append(x)` \- adds an item to the end  
+  2. `extend(iterable)` \- adds all items from an iterable  
+  3. `insert(i, x)` \- inserts an item at a given position  
+  4. `remove(x)` \- removes the first item with the value x  
+  5. `pop([i])` \- removes and returns the item at index i (default last)  
+  6. `clear()` \- removes all items  
+  7. `index(x)` \- returns the index of the first item with value x  
+  8. `count(x)` \- returns the number of times x appears  
+  9. `sort()` \- sorts the list in place  
+  10. `reverse()` \- reverses the list in place
+
+* list operations:  
+  1. Concatenation: `list1 + list2`  
+  2. Repetition: `list * n`  
+  3. Membership: `x in list`  
+  4. Slicing: `list[start:end]`  
+  5. Length: `len(list)`  
+  6. Iteration: `for item in list:`
+
+* list = [1, 2, 3, 4, 5]  
+  list.append(6)  
+  print(list)  # Output: [1, 2, 3, 4, 5, 6]  
+  list.remove(3)  
+  print(list)  # Output: [1, 2, 4, 5, 6]
+  
+* List comprehension:  
+  squares = [x**2 for x in range(10)]  # Creates a list of squares from 0 to 9
+
+* List comprehension with condition:  
+  even_squares = [x**2 for x in range(10) if x % 2 == 0]  # Squares of even numbers from 0 to 9
+
+* list = [apple, banana, cherry]  
+  print(list\[1\])  # Output: banana  
+  list\[1\] = orange  
+  print(list)  # Output: [apple, orange, cherry
+  ]
+* Input in list   
   numbers \= list(map(int, input("Enter numbers: ").split()))  
   print(numbers)
 
-
+#
 # 
 
 | Feature  | Append() | add() |
@@ -109,7 +156,8 @@
 | MAintains order | yes | no |
 | adds | At end  | anywhere |
 
-# 
+#
+#
 
 | Feature | Append() | Extend |
 | :---- | :---- | :---- |
@@ -119,6 +167,10 @@
 | Modifies original list | yes | yes |
 | eg | \[1,2\].append(\[3,4\])-\>\[1,2,\[3,4\]\] | \[1,2\].extend(\[3,4\])-\>\[1,2,3,4\] |
 
+
+
+
+#
 # 
 
 | feature | remove() | pop() |
@@ -128,7 +180,15 @@
 | Default behaviour | First matching value  | Last element  |
 | eg | remove(2) | pop(1) |
 
+#
 # 
+
+### Copying lists:  
+
+1. Shallow copy: `copy.copy(list)` or `list.copy()` : Creates a new list with the same elements, but the elements are references to the original elements.
+
+2. Deep copy: `copy.deepcopy(list)` (requires `import copy`) : Creates a new list with new copies of the original elements, including nested objects.
+
 
 | Feature  | Shallow copy  | Deep copy |
 | :---- | :---- | :---- |
@@ -138,6 +198,9 @@
 | Affects original nested change  | Yes  | no |
 | Method  | copy.copy() | copy.deepcopy() |
 
+#
+# 
+
 | Feature | sort() | sorted() |
 | :---- | :---- | :---- |
 | Modifies original list  | yes | No  |
@@ -145,33 +208,36 @@
 | Works on | Lists only | Any iterable  |
 | Returns value | none | Sorted list  |
 
-# 
-
-# Customize Sort Function
-
-* You can also customize your own function by using the keyword argument key=function.  
-* The function will return a number that will be used to sort the list (the lowest number first.
 
 
+
+#
 # Tuples
 
-* It is  a collection that is ordered and unchangeable    
-* They are indexed, ordered, and allow duplicates   
-* One item tuple, remember the comma. eg \- thistuple=(“apple”,)  
-* Can contain different data types   
-    
-  Input for tuples   
+
+* Tuples are used to store multiple items in a single variable.
+* Tuple items are ordered, unchangeable, and allow duplicate values.
+* Tuples can contain different data types.
+* Tuple functions:  
+  1. `count(x)` \- returns the number of times x appears  
+  2. `index(x)` \- returns the index of the first item with value x
+  3. `len(tuple)` \- returns the length of the tuple
+  4. `tuple()` \- creates a tuple from an iterable
+
+* tuple = (1, 2, 3, 4, 5)  
+  print(tuple\[2\])  # Output: 3  
+  print(tuple.count(2))  # Output: 1  
+  print(tuple.index(4))  # Output: 3       
+* Input for tuples   
   data \= tuple(map(int, input("Enter values: ").split()))  
   print(data)  
   
-
-
+#
 # Sets
 
 * A set is a collection that is *unordered*, *unchangeable\**, and *unindexed*.  
 * Set *items* are unchangeable, but you can remove items and add new items.  
 * The values [True](https://www.w3schools.com/python/ref_keyword_true.asp) and 1 are considered the same value in sets, and are treated as duplicates  
-* A set can contain different data types  
 * Once a set is created, you cannot change its items, but you can add new items.  
 * If the item to remove does not exist, [remove()](https://www.w3schools.com/python/ref_set_remove.asp) will raise an error.  
 * If the item to remove does not exist, [discard()](https://www.w3schools.com/python/ref_set_discard.asp) will NOT raise an error.  
@@ -180,12 +246,18 @@
 * The intersection() method keeps only the duplicates.  
 * The difference() method keeps the items from the first set that are not in the other set(s).  
 * The symmetric difference() method keeps all items except the duplicates.  
-    
-  Input for set   
+* Set = {1, 2, 3, 4, 5}  
+  Set.add(6)  
+  print(Set)  # Output: {1, 2, 3, 4, 5, 6}  
+  Set.remove(3)  
+  print(Set)  # Output: {1, 2, 4, 5, 6}
+  Set.discard(10)  # No error
+  Set.pop()  # Removes an arbitrary item
+* Input for set   
   values \= set(map(int, input("Enter numbers: ").split()))  
   print(values)
 
-
+#
 # Dictionary 
 
 * Dictionaries are written with curly brackets, and have keys and values  
@@ -193,42 +265,39 @@
 * You cannot refer to an item using an index in a dictionary   
 * You can access the items of a dictionary by referring to its key name. There is also a method called [get()](https://www.w3schools.com/python/ref_dictionary_get.asp) that will give you the same result  
 * The [keys()](https://www.w3schools.com/python/ref_dictionary_keys.asp) method will return a list of all the keys in the dictionary.  
-     
-  inventory \= {}  
-    
-  n \= int(input("How many items? "))  
-    
-  for \_ in range(n):  
-      key, value \= input("Enter key and value: ").split()  
-      inventory\[key\] \= int(value)  
-    
+* The [values()](https://www.w3schools.com/python/ref_dictionary_values.asp) method will return a list of all the values in the dictionary.
+* inventory = {}  
+  n = int(input("How many items? "))  
+  for _ in range(n):  
+    key, value = input("Enter key and value: ").split()  
+      inventory[key] = int(value)  
   print(inventory)
 
+#
+# Memory management in Python 
 
+* Python uses a garbage collector to automatically manage memory.
+* The garbage collector will automatically free up memory that is no longer being used.
+* You can manually trigger the garbage collector using the `gc` module.
+* The `gc` module also provides functions to control the garbage collection process.
+* You can use the `gc.collect()` function to manually trigger garbage collection.
+* Objects are reference counted, and when the reference count drops to zero, the memory is deallocated.
+* Objects that are no longer reachable are considered garbage and will be collected by the garbage collector.
+
+#
 # Git
 
-# Staging Environment
+### Staging Environment
 
 * The staging environment (or staging area) is like a waiting room for your changes.  
 * You use it to tell Git exactly which files you want to include in your next commit.  
-* Some key commands are 
 
-                    git add \<file\> \- Stage a file  
-                    git add \--all or git add \-A \- Stage all changes  
-                    git status \- See what is staged  
-                    git restore \--staged \<file\> \- Unstage a file
-
-# Git Stash
+### Git Stash
 
 * Sometimes you need to quickly switch tasks or fix a bug, but you're not ready to commit your work. Git stash lets you save your uncommitted changes and return to a clean working directory.  
-* Key commands 
+* You can stash your changes with `git stash`, and later retrieve them with `git stash pop` or `git stash apply`.
 
-                        git stash \- Stash your changes  
-                        git stash push \-m "message" \- Stash with a message  
-                        git stash list \- List all stashes  
-                        git stash branch \<branchname\> \- Create a branch from a stash
-
-# Git Config
+### Git Config
 
 * This is important for version control systems, as each Git commit uses this information  
 * Use \--global to set the value for every repository on your computer. Use \--local (the default) to set it only for the current repository.  
@@ -264,7 +333,7 @@
 23. Git tag \- helps in maintaining the versions of the project (v1 , v0 , v2 etc)  
     
 
-# Git workflow 
+### Git workflow 
 
 * Working Directory → git add → Staging Area → git commit → Local Repo → git push → Remote Repo  
 * Workflow eg  
@@ -274,19 +343,14 @@
        git push origin feature-branch
 
 
-# 
-
-#  Github
-
-# 
-
-# Fork
+### Fork
 
 * Copy someones else repository to your github acc , used in open source contri. , practice and experimentation  
 * Fork \-\> modify \-\> pull request
 
 
-# Clone
+
+### Clone
 
 * Download github repo to your local machine 
 
@@ -309,13 +373,13 @@
 
   
 
-# Pull Request (PR)
-
+### Pull Request (PR)
 * Request to merge your branch into another branch   
 * Workflow \- create branch \-\> push \-\> Open PR \-\> Review \-\> Merge 
 
 
-# Github Workflow 
+
+### Github Workflow 
 
 git pull origin main  
 git checkout \-b feature-new-api  
@@ -324,27 +388,32 @@ git add .
 git commit \-m "Added new API"  
 git push origin feature-new-api
 
-# .gitignore
+### .gitignore
 
 * The .gitignore file tells Git which files and folders to ignore (not track).
 
 
-# Git LFS
+
+### Git LFS
 
 * Git LFS is an extension for GIT that helps you manage large files ( like videos , images , or datasets ) efficiently   
 * Instead of sorting big files directly in your repository Lfs stores a small pointer file in your repo and keeps  the real content on a separate LFS server 
 
-# What is the difference between Fork and Clone?
+### What is the difference between Fork and Clone?
 
 * Fork creates a copy of a repository on GitHub under my account, while clone downloads a repository from GitHub to my local system for development.
+* Fork is used for contributing to someone else's project, while clone is used for working on a project locally.
 
 
-# What is “upstream”?
+
+
+### What is “upstream”?
 
 * Upstream is the original repository that my fork is based on. I use it to fetch updates from the main project.
+* Upstream is typically the remote repository that you have forked from.
 
 
-# What happens when two people push at the same time?
+### What happens when two people push at the same time?
 
 * Git prevents overwriting changes. The second person must pull the latest changes, resolve conflicts if any, and then push again.  
 * git pull origin main  
@@ -352,12 +421,15 @@ git push origin feature-new-api
   git push origin main
 
 
-# What is a merge conflict?
+
+### What is a merge conflict?
 
 * A merge conflict happens when Git cannot automatically merge changes due to overlapping modifications. It must be resolved manually.
+* Merge conflicts are common when working with multiple branches and collaborating with others.
 
 
-# What is Rebase?
+
+### What is Rebase?
 
 * Rebase reapplies my commits on top of another branch , creating a linear history , unlike merge which preserves branch history .  
 * Instead of merging branches with a merge commit , rebase rewrites  the commit history .  
@@ -379,20 +451,20 @@ git push origin feature-new-api
     
   A—----B—-----C—----F—-----G—------D’—----E’ (feature)
 
-           D’ and E’ are new commits (rewritten history)
+  
+  D’ and E’ are new commits (rewritten history)
 
 * Benefits of rebase   
-  Creates a clean linear history   
-  Avoids unnecessary merge commits   
-  Makes code review easier   
-  Helps resolve conflicts earlier   
-  Improves debugging   
-  Keep feature branch updated   
-* Rebasse is unsafe on shared branches because it rewrites history   
-  Avoid rebasing :   
-                            Main  
-                            Develop  
-                            Any branch already pushed and used by others 
+   - Creates a clean linear history   
+   - Avoids unnecessary merge commits   
+   - Makes code review easier   
+  - Helps resolve conflicts earlier   
+  - Improves debugging   
+  - Helps keep feature branch updated   
+* Rebase is unsafe on shared branches because it rewrites history and can cause issues for other developers. Avoid rebasing :   
+     - Main  
+    - Develop  
+     - Any branch already pushed and used by others 
 
            
 
@@ -402,14 +474,11 @@ git push origin feature-new-api
 | Adds merge commit  | No merge history |
 | Safe for teams  | Risky if misused |
 
-# What is head in git head?
+### What is head in git head?
 
 * HEAD is the pointer to the current branch.
 
-# Python Functions 
-
-* Are case sensitive   
-* Important for code reusability , cleaner structure , easier debugging , modular backend APIs , and scalability .
+#
 
 # Lambda Functions 
 
@@ -418,15 +487,15 @@ git push origin feature-new-api
 * Helps in sorting, filtering, transforming data, writing quick logic, functional programming and processing data (sort() , filter(), map(), reduce(), min() , max())  
 * Lambda functions do not have name but you can assign them to a variable.  
 * Limitations of lambda   
-1. Only one expresoin is allowed   
-2. Cannot contain —-\> statements , loops , assignments , multiple expression   
-3. Hard to read complex logic   
+  1. Only one expresoin is allowed   
+  2. Cannot contain —-\> statements , loops , assignments , multiple expression   
+  3. Hard to read complex logic   
 * Syntax :  lambda arguments : expressions  
    Result \= list(map(lambda x : x\*2, nums))  
   Meaning → take x , square it , return nums (lambda input : output )
 
-
-  # Map ()
+#
+# Map ()
 
 * It is used to apply a function to every element of an iterable ( like a list , tuple , etc ) and returns the results.  
 * Syntax : map(function , iterable )  
@@ -437,7 +506,8 @@ git push origin feature-new-api
   lambda x:x\*2 —\> function  
   Nums → iterable   
   map() → applies the function to each element 
-
+  
+#
 # Recursion
 
 * When a function calls itself   
@@ -448,8 +518,14 @@ git push origin feature-new-api
                    return result  
            Else:   
                    Return function\_name(modified\_parameters)
+* Eg \- Factorial of n  
+  Def factorial(n):  
+           If n==0:  
+                   return 1  
+           Else:   
+                   Return n\*factorial(n-1)
 
-
+#
 # Function as an argument 
 
 * Passing a function inside another function   
@@ -457,8 +533,15 @@ git push origin feature-new-api
 * Syntax :   
               def main\_function(func)  
                  func() 
+* Eg \- def greet():  
+           print(“Hello”)  
+       def execute(func):  
+           func()  
+       execute(greet)  # Output: Hello
 
 
+
+#
 # Nested functions
 
 * Function inside another function   
@@ -468,12 +551,17 @@ git push origin feature-new-api
                      Def inner\_function():  
                                print(“inner function”)  
                    inner\_function()  
-  
+* Eg \- def outer():  
+           print(“outer function”)  
+           def inner():  
+                   print(“inner function”)  
+           inner()  
+       outer()  # Output: outer function \n inner function  
 
-
+#
 # Closure 
 
-* A function remembers variables from the outer function even after the outer function is over   
+* A function remembers variables from the outer function even after the outer function is over .   
 * Helps in caching, data hiding, factory functions, and decorators   
 * Syntax :   
   Def outer\_function():  
@@ -481,11 +569,23 @@ git push origin feature-new-api
        Def inner\_function():  
              print(X)  
        Return inner\_function
+* Eg \- def outer():  
+           x = 10  
+           def inner():  
+                   print(x)  
+           return inner  
+       closure\_func = outer()  
+       closure\_func()  # Output: 10
 
+* Difference between nested function and closure  
+  - Nested function is defined inside another function, while closure is a nested function that retains access to variables from its enclosing scope even after the outer function has finished executing.  
+  - Nested functions do not necessarily retain state, while closures do.  
+  - Closures are often used for data hiding and maintaining state across function calls.
 
+#
 # Decorators 
 
-* A function that modifies another function   
+* A function that modifies another function without changing its source code
 * Used in logging , authentication , authorization , timing , FastAPI   
 * syntax:  
             Def decorator\_function(func):  
@@ -495,7 +595,7 @@ git push origin feature-new-api
                             print(“after function”)  
                      return wrapper  
     
-  Eg \- logging authentication  
+* Eg \- logging authentication  
       
   def require\_login(func):  
        def wrapper(user):  
@@ -511,6 +611,7 @@ git push origin feature-new-api
   Def dashboard(user):  
        print(“welcome to dashboard “)
 
+#
 # Pure and impure functions 
 
 * Pure functions \- no side effects, same input \-\> same output   
@@ -519,24 +620,25 @@ git push origin feature-new-api
 
 
   
-Function as argument →  
+* Function as argument →  
 "Give me instructions, and I'll execute them."
 
-Nested function (closure)→  
+* Nested function (closure)→  
 "I have a helper function inside me."
 
-Q \- Why are functions first-class objects in Python?  
-      Because 
-
-* They can be assigned to variables  
-* Passed as arguments   
-* Returned from other functions  
+* Why are functions first-class objects in Python?  
+  Because 
+  
+  - They can be assigned to variables  
+  - They can be passed as arguments   
+  - They can be returned from other functions  
   
 
-
+#
 # OOPS 
 
-# Constructors 
+
+## Constructors 
 
 * It is a special method in a class that executes automatically when an object is created   
 * When you create an object, Python must allocate memory for the object, create the object, and initialize attributes. The constructor handles initializing attributes   
@@ -546,8 +648,18 @@ Q \- Why are functions first-class objects in Python?
 * Python does not support traditional overloading; instead, it uses default arguments, \*args, and \*\*kwargs  
 * Python doesn't support multiple constructors because it uses dynamic typing; functions are identified by name only, not parameter types. Method overloading by signature does not exist   
     
-  Q \- Difference between `__new__` and `__init__ ?`  
+*  Difference between `__new__` and `__init__ ?`  
   \_\_new\_\_ is responsible for creating and returning a new instance of a class, while \_\_init\_\_ initializes the instance after it has been created. \_\_new\_\_ is called before \_\_init\_\_ and is typically overridden in advanced cases like singletons or immutable types.  
+* constructors are used for database model initialization, dependency injection, service initialization, and API client.
+* Eg \- class MyClass:  
+           def \_\_new\_\_(cls, *args, **kwargs):  
+               print("Creating instance")  
+               instance = super(MyClass, cls).\_\_new\_\_(cls)  
+               return instance  
+           def \_\_init\_\_(self, value):  
+               print("Initializing instance")  
+               self.value = value  
+       obj = MyClass(10)  # Output: Creating instance \n Initializing instance
     
     
     
@@ -565,7 +677,8 @@ Q \- Why are functions first-class objects in Python?
 | Used for immutable types? | yes | no |
 
 
-  # Class vs Instance variable 
+  
+## Class vs Instance variable 
 
 * Instance variables are specific to an object and stored in the object's namespace, whereas class variables belong to the class itself and are shared among all instances. Python resolves attributes by checking the instance first, then the class.  
 * Instance :    
@@ -586,34 +699,47 @@ Q \- Why are functions first-class objects in Python?
 | Used for  | Object-specific data | Shared config  |
 
 
-  
+ 
 
-  # Instance Method 
+## Instance Method 
 
 * It operates on object-level data  
-* It receives ‘self ‘  , can access instance variables , can access class variables and can modify object state .  
-    
+* Instance methods are used for object behavior, encapsulation, and polymorphism.
+* Instance methods are the most common type of method in Python classes. They are defined with the `def` keyword and take `self` as the first parameter, which refers to the instance of the class.
+* Eg - class MyClass:  
+           def instance_method(self):  
+               print("This is an instance method")  
+       obj = MyClass()  
+       obj.instance_method()  # Output: This is an instance method
   
 
+## Class Methods 
 
-  # Class Methods 
+* It operates on class-level data .   
+* Class methods are defined with the `@classmethod` decorator and take `cls` as the first parameter, which refers to the class itself.
+* Class methods are used for factory methods, alternative constructors, and class-level operations.  
+* Eg - class MyClass:  
+           @classmethod  
+           def class_method(cls):  
+               print("This is a class method")  
+       MyClass.class_method()  # Output: This is a class method
 
-* It operates on class-level data   
-* It uses @classmethod, receives cls, can modify class variables, and cannot directly access instance variables   
-  
 
 
-  # Static Methods
+## Static Methods
 
 * It belongs to the class namespace but does not access a class or an instance   
 * It uses @staticmethod , takes no ‘ self ‘ , takes no ‘ cls ‘ , acts like a normal function inside a class   
-* We use static methods when a function logically belongs to a class, with no access to the instance/class state   
+* We use static methods when a function logically belongs to a class, with no access to the instance/class state  
+* Eg - class MyClass:  
+           @staticmethod  
+           def static_method():  
+               print("This is a static method")  
+       MyClass.static_method()  # Output: This is a static method 
 * For better organization   
-    
-    
-  Instance method \-\> works on one object  
-  Class method \-\> works on all objects   
-  Static method \-\> works independently   
+    - Instance method \-\> works on one object  
+    - Class method \-\> works on all objects   
+     - Static method \-\> works independently   
   
 
 
@@ -629,40 +755,72 @@ Q \- Why are functions first-class objects in Python?
 
   
 
-  # Encapsulation
+## Encapsulation
 
 * It refers to building data (variables) and methods ( functions ) inside a class and restricting direct access to some part of the object. In Python, this is achieved through name mangling and a property decorator to ensure controlled access.  
 * It helps in maintaining invariants, preventing inconsistent object state, improving maintainability, reduce coupling   
 * Access modifiers :   
-       Public\> self.balance ( accessible anywhere)  
-      Protected \- \> self.\_balance ( single underscore, you shouldn't access this directly )  
-  Private \-\> self.\_\_balance  
+       
+  - Public -> self.balance ( accessible anywhere )  
+  - Protected -> self.\_balance ( single underscore, you shouldn't access this directly )  
+  - Private -> self.\_\_balance  ( double underscore, name mangling, not accessible outside the class )
     
 * Getters and setters are used manually  
 * @property allows methods like control and variables like access.
+* Eg - class BankAccount:  
+           def \_\_init\_\_(self, balance):  
+               self.\_\_balance = balance  # private variable  
+           @property  
+           def balance(self):  
+               return self.\_\_balance  
+           @balance.setter  
+           def balance(self, value):  
+               if value < 0:  
+                   raise ValueError("Balance cannot be negative")  
+               self.\_\_balance = value
 
-# Abstraction 
+## Abstraction 
 
 * It means hiding implementation details and exposing only essential features   
 * Python supports abstraction via the abc module ( abstract base classes) and @abstractmethod decorator   
 * Abstraction is used to create plug-and-play architecture, enforce contracts between teams, build scalable systems, and implement SOLID principles .
+* It helps in reducing complexity, improving maintainability, and increasing code reusability.
+* Eg - from abc import ABC, abstractmethod  
+       class Shape(ABC):  
+           @abstractmethod  
+           def area(self):  
+               pass  
+       class Circle(Shape):  
+           def \_\_init\_\_(self, radius):  
+               self.radius = radius  
+           def area(self):  
+               return 3.14 * self.radius ** 2
 
 
-  # Polymorphism
+
+## Polymorphism
 
 * It allows different objects to respond to the same method call in different ways .  
 * With polymorphism code becomes flexible , open for extension , closed for modification , cleaner architecture , plug and play design.  
-* Method overriding \- \> when a child class provides a specific implementation of a method already defined in parent class  
-* Method overloading   
-    
-  Q \- Why is polymorphism better than multiple if else blocks ?  
-  Because it eliminates conditional complexiety and makes system extensible   
-    
-  Q \- what happens if parent method is not overridden ?  
+* Method overloading is not supported in Python, but we can achieve polymorphism through duck typing, method overriding, operator overloading, and function overloading.
+* Method overriding is when a child class provides a specific implementation of a method that is already defined in its parent class. This allows the child class to modify or extend the behavior of the parent class method.
+* Why is polymorphism better than multiple if else blocks ?  
+  Because it eliminates conditional complexity and makes system extensible   
+* What happens if parent method is not overridden ?  
   Child inherits parent version   
-    
-  Q \- is pyhton polymorphism compile \- time or runtime ?  
+* Is pyhton polymorphism compile \- time or runtime ?  
   Runtime (dynamic typing )
+* Eg - class Animal:  
+           def speak(self):  
+               print("Animal speaks")  
+       class Dog(Animal):  
+           def speak(self):  
+               print("Dog barks")  
+       class Cat(Animal):  
+           def speak(self):  
+               print("Cat meows")  
+       def make_animal_speak(animal):  
+           animal.speak()  # Polymorphic behavior based on the object type
 
 | Type  | how | Real use  |
 | :---- | :---- | :---- |
@@ -672,7 +830,7 @@ Q \- Why are functions first-class objects in Python?
 | Function overloading  | Default args | Flexible APIs |
 
 
-  # Dunder methods 
+## Dunder methods 
 
 * Dunder \= double underscore  
 * They allow you to customize how your objects behave with python built in operations.  
@@ -684,7 +842,7 @@ Q \- Why are functions first-class objects in Python?
 * \_\_call\_\_: makes object callable like function 
 
 
-  # Composition
+## Composition
 
 * It is a design principle where one class contains an object of another class as a part of its state .   
 * Composition allows loose coupling , is more flexible , easier to extend  cleaner architecture   
@@ -701,94 +859,166 @@ Q \- Why are functions first-class objects in Python?
 
 
   
+#
+# SOLID principles
 
-  # SOLID principles
-
-1. ## S \- Single Responsibility Principle(SRP)
+## S \- Single Responsibility Principle(SRP)
 
 * A class should have only one reason to cahnge   
 * One class one job .    
 * Identification of SRP violation
-
-      Does this class do more than one thing ?
-
-     Would different teams modify this class ?
-
-     Does this class mix business \+ infrastructure logic ?
+   - Does this class do more than one thing ?
+   - Would different teams modify this class ?
+   - Does this class mix business \+ infrastructure logic ?
 
 * SRP improves : 
-
-      Cohesion increases (class methods strongly related)
-
-      Coupling decreases ( less dependency on other modules)
-
-   
-
-
+    - Cohesion increases (class methods strongly related)
+    - Coupling decreases ( less dependency on other modules)
+* Eg - class User:  
+           def create_user(self):  
+               pass  
+           def send_email(self):  
+               pass  # SRP violation, should be in a separate EmailService class
+               
+  corrected version :
   
+  class EmailService:
+       def send_email(self, user):
+           pass
 
-2. ## O \- Open/Closed (OCP)
+  class User:  
+           def create_user(self):  
+               pass
+           def send_email(self):  
+               EmailService.send_email(self)  # Delegates email sending to a separate service class
+
+
+## O \- Open/Closed (OCP)
 
 * Code should be open for extension  
 * Closed for modification  
 * We should be able to add new features without changing the existing code.  
 * It makes the system stable , scalable and extendable   
 * OCP is implemented using abstract classes , polymorphism and composition.
+* Eg - class Shape(ABC):  
+           @abstractmethod  
+           def area(self):  
+               pass  
+       class Circle(Shape):  
+           def \_\_init\_\_(self, radius):  
+               self.radius = radius  
+           def area(self):  
+               return 3.14 * self.radius ** 2  
+       class Square(Shape):  
+           def \_\_init\_\_(self, side):  
+               self.side = side  
+           def area(self):  
+               return self.side ** 2
 
-3. ## L \- Liskov Substitution Principle (LSP)
+## L \- Liskov Substitution Principle (LSP)
 
 * Child classs must be replaceable for parent class without breaking behaviour   
-* Penguin and bird example   
 * LSP ensures behavioral correectness , reliable polymorphism and no unexpected runtime errors .  
 * LSP rules:  
-1. It must not weaken parent behaviour   
-2. It must not strengthen preconditions   
-3. It must not break expected outputs   
-4. It must not throw unexpected exceptions 
+  - It must not weaken parent behaviour   
+  - It must not strengthen preconditions   
+  - It must not break expected outputs   
+  - It must not change the postconditions   
+  - It must not change the invariants   
+  - It must not throw unexpected exceptions 
+* Eg - class Bird:  
+           def fly(self):  
+               pass  
+       class Sparrow(Bird):  
+           def fly(self):  
+               print("Sparrow flies")  # LSP compliant  
+       class Penguin(Bird):  
+           def fly(self):  
+               raise NotImplementedError("Penguins can't fly")  # LSP violation, should not override fly method
 
-   
+  Corrected version :
+
+  class Bird:  
+           def fly(self):  
+               pass  
+       class Sparrow(Bird):  
+           def fly(self):  
+               print("Sparrow flies")  # LSP compliant  
+       class Penguin(Bird):  
+           def swim(self):  
+               print("Penguin swims")  # LSP compliant, different behavior
 
      
 
-4. ## I \- Interface Segregration Principle (ISP)
+## I \- Interface Segregration Principle (ISP)
 
 * A class should not be forced to implement the methods it doesnt use   
-* Human robot example   
-* Eg \- Machine 
-
-                     print()
-
-                    scan()
-
-                      fax()
-
-  But a simple printer only prints . forcing to implement scan() and fax() is wrong.
-
 * Many small interfaces \> one large interface  
 * It ensures clean architecture , better modularity , flexible systems and easier maintenance .
+* Eg - class Bird:  
+           def fly(self):  
+               pass  
+           def swim(self):  
+               pass  # ISP violation, not all birds can swim  
+       class Sparrow(Bird):  
+           def fly(self):  
+               print("Sparrow flies")  # LSP compliant  
+           def swim(self):  
+               raise NotImplementedError("Sparrows can't swim")  # ISP violation, should not implement swim method
 
+  Corrected version :
+
+  class Flyable(ABC):  
+           @abstractmethod  
+           def fly(self):  
+               pass  
+       class Swimmable(ABC):  
+           @abstractmethod  
+           def swim(self):  
+               pass  
+       class Sparrow(Flyable):  
+           def fly(self):  
+               print("Sparrow flies")  # ISP compliant  
+       class Penguin(Swimmable):  
+           def swim(self):  
+               print("Penguin swims")  # ISP compliant
 
   
 
-
-  
-
-5. ## D \- Dependency Inversion Principle (DIP)
+## D \- Dependency Inversion Principle (DIP)
 
 * High level modules should not depend on low level modules   
 * Both should depend on abstraction . and abstractions should not depend on details . details should depend on abstractions   
-* Eg \- you plug into a socket not into the power plant 
+* It ensures loose coupling , flexible systems , easier testing and maintainability
+* Eg - class MySQLDatabase:  
+           def connect(self):  
+               pass  
+       class UserService:  
+           def \_\_init\_\_(self, db):  
+               self.db = db  # DIP violation, depends on concrete MySQLDatabase class  
+           def get_user(self, user_id):  
+               self.db.connect()  
+               # fetch user logic
 
-  Laptop \-\> plug \-\> socket \-\> electricity
+  Corrected version :
 
-* Instead of ; business logic \-\> directly depends on concrete class 
-
-  We do business logic \-\> Interface / Abstraction \-\> Implementation 
+  class Database(ABC):  
+           @abstractmethod  
+           def connect(self):  
+               pass  
+       class MySQLDatabase(Database):  
+           def connect(self):  
+               pass  # Concrete implementation of Database interface  
+       class UserService:  
+           def \_\_init\_\_(self, db: Database):  
+               self.db = db  # Depends on abstraction (Database) instead of concrete class (MySQLDatabase)  
+           def get_user(self, user_id):  
+               self.db.connect()  
+               # fetch user logic
 
 
       
-
-
+#
 # Error and Exception handling 
 
 * An error is a problem in a program that prevents correct execution  
@@ -829,12 +1059,11 @@ Q \- Why are functions first-class objects in Python?
 # Exception Handling 
 
 *  Basic try-except is not enough for real world systems because applications need to : 
-
-                   Log errors   
-                   Retry failed operations   
-                   Propagate errors across layers   
-                   Categorize failures   
-                    Maintain system stability 
+   - Log errors   
+   - Retry failed operations   
+   - Propagate errors across layers   
+   - Categorize failures   
+   - Maintain system stability 
 
 * Exception chaining \-  sometimes an exception occurs because of another exception . python allows linking them using raise…….from  
 * Custom systems hierarchy \- large systems create structured exception classes.  
@@ -846,8 +1075,14 @@ Q \- Why are functions first-class objects in Python?
 * Circuit Breaker Pattern \- used in microservices , if a service repeatedly fails . stop calling it temporarily   
 * Exception Handling Architecture   
     Controller \-\> service \-\> repository \-\> database  
-    
-  
+Eg - try:  
+           result = service.get_data()  
+       except ServiceException as e:  
+           logger.error(f"Service failed: {e}")  
+           raise ControllerException("Failed to get data") from e
+           finally:  
+           logger.info("Request completed")
+
 
 
 | Block | When it runs |
@@ -857,22 +1092,21 @@ Q \- Why are functions first-class objects in Python?
 
 
   
-
-
-  # Module 
+#
+# Module 
 
 * A module is simply a python file (.py) that contains:  
-  Functions  
-  Classes  
-  Variables  
-  Executable code  
+   - Functions  
+   - Classes  
+   - Variables  
+   - Executable code  
     
 *  Python allows you to reuse code using import  
 * Different ways to import modules  
-1. Normal Import  
-2. Import Specific Function  
-3. Import with Alias  
-4. Import Everything ( not recommended)  
+  - Normal Import  
+  - Import Specific Function  
+  - Import with Alias  
+  - Import Everything ( not recommended)  
      
      
      
@@ -892,8 +1126,8 @@ Q \- Why are functions first-class objects in Python?
    
 
    
-
-   # Package
+#
+# Package
 
 * A package is a folder that contains multiple modules .  
 * It helps in organize code , maintain structure , improve readability  
@@ -913,31 +1147,46 @@ Q \- Why are functions first-class objects in Python?
 
   
 
-
+#
 # List Comprehension 
 
 * It is a short and pythonic way to create list using a single line of code instead of loops , it makes code shorter , faster and more readable .  
 * We can also modify elements while creating the lists .  
 * Types of comprehension   
-1.   List   \[x for x in range (5)\]  
-2.   Set  {x for x in range(5)}  
-3. Dictionary { x : x\*x for x in range(5)}
-
-   
-
+  -  List   \[x for x in range (5)\]  
+  -   Set  {x for x in range(5)}  
+  - Dictionary { x : x\*x for x in range(5)}
 * Avoid comprehension when logic becomes too complex , multiple nested conditions , readability decreases .  
-  
+* Eg - nums = \[1,2,3,4,5\]  
+  squares = \[x\*x for x in nums\]  # Output: \[1,4,9,16,25\]  
+  even\_squares = \[x\*x for x in nums if x%2==0\]  # Output: \[4,16\]  
 
-
+#
 # Iterators
 
 *  It is an object that allows you to traverse through a collection one element at a time .  
-* Instead of loading everything in the memory it produces values on demand   
+* Iterators are used in loops , generators , data streaming , lazy evaluation , and functional programming.
+* Instead of loading everything in the memory it produces values on demand 
 * Real world analogy \- think of a netflix playlist . instead of downloading all movies at once , you watch one movie at a time . same idea with iterators   
 * For an object to be an iterator it must implement two methods   
-1. \_\_iter\_\_() \- returns the iterator object   
-2. \_\_next\_\_() \- returns the next element 
+  - \_\_iter\_\_() \- returns the iterator object   
+   -  \_\_next\_\_() \- returns the next element 
 
+* Eg - class MyIterator:  
+           def \_\_init\_\_(self, data):  
+               self.data = data  
+               self.index = 0  
+           def \_\_iter\_\_(self):  
+               return self  
+           def \_\_next\_\_(self):  
+               if self.index < len(self.data):  
+                   result = self.data[self.index]  
+                   self.index += 1  
+                   return result  
+               else:  
+                   raise StopIteration()  # Signals the end of iteration
+
+#
 # Generators 
 
 * A generator is a simple way to create iterators   
@@ -946,6 +1195,13 @@ Q \- Why are functions first-class objects in Python?
   Generator : 1 number at a time \-\> memory efficient   
     
 * Generators are used in dajngo querysets , fastAPI streaming responses , kafka consumers , log processors , data engineering pipelines , machine learning data loaders .
+* eg - def my\_generator():  
+           for i in range(5):  
+               yield i  # Pauses and returns the value of i, remembers state for next call
+          
+* How to stop the generator ?
+ 
+   - Use StopIteration exception or simply let the function finish executing. When the generator function completes, it raises StopIteration automatically.
 
 
 
@@ -965,18 +1221,20 @@ Q \- Why are functions first-class objects in Python?
 * Generators automatically manage state and stop iteration   
 * Iterators require manual implemnatation
 
-  # Asynchronus Programming 
+#
+# Asynchronus Programming 
 
 * It allows your program to handle multiple tasks concurrently without blocking  
   execution.   
 * It is especially useful for I/O bound operations such as :   
-  Network requests   
-  Database queries  
-  File operations   
-  APIs  
-  Web scraping   
-  Instead of waiting for one task to finish, python can switch to another task while waiting.  
-*  
+  - Network requests   
+  - Database queries  
+  - File operations   
+  - APIs  
+  - Web scraping   
+* Instead of waiting for one task to finish, python can switch to another task while waiting.
+
+
 
 | Type | Best for  |
 | :---- | :---- |
@@ -988,6 +1246,9 @@ Q \- Why are functions first-class objects in Python?
 * Eg \- \> Web requests \- Async  
   Image processing \- Multiprocessing   
   FIle Downloads \- Async   
+  Browser rendering \- Multiprocessing
+  Code compilation \- Multiprocessing
+  Database queries \- Async
     
 * USe async for web scraping , APIs, chat servers , real time systems , network services , fast API / backend systems   
 * Corotuine is a special function that can pause and resume execution . defined using async def   
@@ -997,6 +1258,8 @@ Q \- Why are functions first-class objects in Python?
   Await \- pauses the function without blocking the program   
 * Normal function \- run \-\> finish  
   Coroutine \- run \-\> pause \-\> resume \-\> pause \-\> resume \-\> finish  
+* Why we have to use coroutines instead of threads ?  
+  Because threads are heavy , require context switching , have GIL limitations , and are not memory efficient. Coroutines are lightweight, have lower overhead, and allow cooperative multitasking.
 * Awaitable it is an object that can be used with await  
 * Three main types
 
@@ -1018,13 +1281,14 @@ Q \- Why are functions first-class objects in Python?
 
 *  Async generators combine : async \+ yield   
 * Async flow summary  
-1. Async function \-\> corutine   
-2. Coroutine scheduled \- \> task  
-3. Task executed \-\> event loop  
-4. Await \-\> pause execution   
-5. Future \-\> stores result   
-6. Async generator \-\> produces async data  
-7. Async context manager \-\> manages async resources   
+   
+   1. Async function \-\> corutine   
+   2. Coroutine scheduled \- \> task  
+   3. Task executed \-\> event loop  
+   4. Await \-\> pause execution   
+   5. Future \-\> stores result   
+   6. Async generator \-\> produces async data  
+   7. Async context manager \-\> manages async resources   
      
 * Event Loop  
   │  
@@ -1039,18 +1303,32 @@ Q \- Why are functions first-class objects in Python?
   │  
   resume coroutine
 
+* Eg - import asyncio  
+       async def fetch_data():  
+           print("Fetching data...")  
+           await asyncio.sleep(2)  # Simulate I/O operation  
+           print("Data fetched")  
+           return {"data": 123}  
+       async def main():  
+           task = asyncio.create_task(fetch_data())  # Schedule coroutine as a task  
+           print("Doing other work...")  
+           await task  # Wait for the task to complete  
+       asyncio.run(main())  # Output: Doing other work... \n Fetching data... \n Data fetched
 
-  # Multithreading 
+#
+# Multithreading 
 
+* Multithreading is a programming technique that allows concurrent execution of multiple threads within a single process. It enables efficient utilization of CPU resources and can improve the responsiveness of applications, especially for I/O-bound tasks.
 * It means running multiple threads inside the same process   
 * A thread is the smallest unit of execution . all threads share the same memory space .  
 * Useful for I/O bound tasks :   
-  Web requests   
-  File downloads   
-  Database queries   
-  Network communication  
-  Web scraping   
-  Eg \- Downloading 10 files   
+  - Web requests   
+  - File downloads   
+  - Database queries   
+  - Network communication  
+  - Web scraping   
+  
+* Eg \- Downloading 10 files   
   Without threads \-\> 10 sequential downloads   
   With threads \-\> parallel downloads   
 * Thread lifecycle   
@@ -1058,10 +1336,13 @@ Q \- Why are functions first-class objects in Python?
 * Race conditon \- because threads share memory , data corruption can occur   
   Lock ( thread synchronizatoin ) \- locks ensure only one thread access shared data at a time .  
   Rlock (Reentrant lock ) \- allows the same thread to acquire the lock multiple times . useful in recursive functions .  
-* Semaphore limits number of threads accessing a resource .  
+* Semaphore limits number of threads accessing a resource .
+* Semaphore is a synchronization primitive that controls access to a shared resource by multiple threads. It maintains a counter that represents the number of available resources. When a thread wants to access the resource, it must acquire the semaphore, which decrements the counter. If the counter is zero, the thread will block until another thread releases the semaphore, incrementing the counter and allowing access.
+* Thread pool \- it is a collection of threads that can be reused for multiple tasks . it avoids the overhead of creating and destroying threads .
+* Process pool \- it is a collection of processes that can be reused for multiple tasks . it avoids the overhead of creating and destroying processes .
+* Threading is not suitable for CPU bound tasks because of the GIL (Global Interpreter Lock) in Python. The GIL allows only one thread to execute Python bytecode at a time, which means that even if you have multiple threads, only one can run Python code at once. This limits the performance benefits of multithreading for CPU intensive tasks.
 * Python Global Interpreter Lock (GIL) : it allows only one thread to execute Python bytecode at a time   
   “ Multiple thread exists but only one runs Python code at once “  
-  Therefore 
 
 
 | Task type  | Best Approach  |
@@ -1069,15 +1350,13 @@ Q \- Why are functions first-class objects in Python?
 | I/O bound | Multithreading  |
 | CPU bound  | Multiprocessing  |
 
-   
-
-  Eg CPU task \- image processing , ML computation , encryption , scientific calculations .
+*  Eg CPU task \- image processing , ML computation , encryption , scientific calculations .
 
 * Instead of creating many threads manually , we use thread pool executor   
   Thread pools are used in:  
-  Web servers   
-  API processing   
-  Parallel tasks   
+  - Web servers   
+  - API processing   
+  - Parallel tasks   
 * High Performance Python system combine :   
   Async IO  
   \+Thread pools   
@@ -1124,18 +1403,18 @@ Q \- Why are functions first-class objects in Python?
 
 
 * Threading \- it uses multiple OS threads   
-  Eg :  Thread 1 —\> download file   
-           Thread 2 —\> API request 
-
-                     Thread 3 —\> read database   
-           But python has GIL , so only one thread runs Python bytecode at a time .
+  Eg :  
+  - Thread 1 —\> download file 
+  - Thread 2 —\> API request 
+  - Thread 3 —\> read database   
+    But python has GIL , so only one thread runs Python bytecode at a time .
 
 * Async Programming \- it uses single thread but cooperative multitasking . tasks pause using AWAIT so other tasks run .  
   Task A waiting → switch to task B   
   Task B waiting —\> switch to task C  
     
     
-  
+
 
 
 | Feature | Threading | Async  |
@@ -1162,10 +1441,7 @@ Q \- Why are functions first-class objects in Python?
 
 * Lock \- it allows only one thread at a time to access a resource   
   Problem with lock : if the same thread tries to acquire the lock again , it causes deadlock.  
-  Eg \-  Thread acquires lock    
-            Calls another function   
-            That function tries to acquire a lock   
-            → Deadlock
+  Eg \-  Thread acquires lock  -> Calls another function  -> That function tries to acquire a lock  → Deadlock
 
 * Rlock (Reentrant lock ) \- it allows the same thread to acquire the lock multiple times   
   
@@ -1176,7 +1452,7 @@ Q \- Why are functions first-class objects in Python?
 | Acquisition | Once | Multiple time  |
 | Ownership | Any thread | Same thread  |
 | Deadlock risk | High in nested locks  | Low  |
-| Performance | FAster  | Slightly slower  |
+| Performance | Faster  | Slightly slower  |
 
 
 
@@ -1197,31 +1473,28 @@ Q \- Why are functions first-class objects in Python?
   Event Loop  
          |  
          |--------- Coroutine A  
-         | —----- Coroutine B  
+         | —------- Coroutine B  
          |--------- Coroutine C
 
 
-  # Multiprocessing 
+## Multiprocessing 
 
 * Multiprocessing means running multiple processes simultaneously.   
   Each process :  
-                        Has its own memory   
-                        Has its own Python interpreter    
-                        Can run on different CPU cores   
+  - Has its own memory   
+  - Has its own Python interpreter    
+  - Can run on different CPU cores   
     
-  Eg \- CPU core 1 —\> Process A  
-         CPU core 2 —-\> Process B  
-         CPU core 3 —-\> Process C  
-         CPU core 4 —-\> Process D  
+  Eg -  
+  - CPU core 1 —\> Process A  
+  - CPU core 2 —-\> Process B  
+  - CPU core 3 —-\> Process C  
+  - CPU core 4 —-\> Process D  
       
   This enables true parallelism.  
     
 * Python has a global interpreter Lock (GIL)  
-  This means :   
-                   Only one thread executes Python bytecode at a time.  
-    
-  So for CPU heavy tasks , threading does not give real paralllel speed.  
-  Multiprocessing solves this because each process has its own GIL .  
+  This means only one thread executes Python bytecode at a time. So for CPU heavy tasks , threading does not give real paralllel speed. Multiprocessing solves this because each process has its own GIL .  
     
 * Process Lifecycle   
   New → ready —\> running —\> waiting —-\> terminated  
@@ -1229,16 +1502,14 @@ Q \- Why are functions first-class objects in Python?
 * Process Communication (IPC)  
   Since processes do not share memory , they communicate using IPC  
   Methods include :   
-1. Queue \- It allow safe data transfer between processes  
-2. Pipe \- it connects two processes directly   
-3. Shared Memory \- processes normally do not share memory . But python allows controlled sharing .  
-4. Manager Objects \- it allow shared objects like
-
-    Lists 
-
-   Dicts 
-
-   Sets 
+    1. Queue \- It allow safe data transfer between processes  
+    2. Pipe \- it connects two processes directly   
+    3. Shared Memory \- processes normally do not share memory . But python allows controlled sharing .  
+    4. Manager Objects \- it allow shared objects like
+    
+    - Lists 
+    - Dicts 
+    - Sets 
 
    
 
@@ -1256,7 +1527,7 @@ Q \- Why are functions first-class objects in Python?
 
    
 
-# REST API 
+## REST API 
 
 * Rest is an architectural style for designing networked applications .  
 * Operations happen through HTTP methods  
@@ -1281,7 +1552,7 @@ Q \- Why are functions first-class objects in Python?
    
 
 
-* 
+ 
 
 | HTTP method | CRUD | example |
 | :---- | :---- | :---- |
@@ -1291,19 +1562,16 @@ Q \- Why are functions first-class objects in Python?
 | PATCH | Partial update  | Update email |
 | DELETE | Delete  | Delete user  |
 
-* REST APIs are stateless   
-  Each request contains all required information   
-  Server does not store session state  
+* REST APIs are stateless , each request contains all required information and server does not store session state  
   Benefits :   
-* Scalability  
-* Easier load balancing   
-* Horizontal scaling 
+  * Scalability  
+  * Easier load balancing   
+  * Horizontal scaling 
 
-* Idempotency   
-  An operation is idempotent if repeating it gives the same result   
-  POST  don’t show idempotency as it creates new users each time .
+* Idempotency : An operation is idempotent if repeating it gives the same result   
+  POST don’t show idempotency as it creates new users each time .
 
-# API Status Codes 
+## API Status Codes 
 
 * HTTPS status codes are 3 digits numbered returned by a server to indicate the result of an HTTp request   
 * Categories of HTTP status codes   
@@ -1325,7 +1593,6 @@ Q \- Why are functions first-class objects in Python?
 
 
   
-
 * 200- OK  
   Request succeeded  
     
@@ -1343,9 +1610,9 @@ Q \- Why are functions first-class objects in Python?
   200 OK  
     
   Used when :   
-* Data fetched successfully   
-* Update successful  
-* Request processed normally 
+  * Data fetched successfully   
+  * Update successful  
+  * Request processed normally 
 
 
 * 201 \- created   
@@ -1365,8 +1632,8 @@ Q \- Why are functions first-class objects in Python?
   201 created  
     
   Common in :   
-* Signup APIs   
-* Creating database records 
+  * Signup APIs   
+  * Creating database records 
 
 
 * 204- no content  
@@ -1380,8 +1647,8 @@ Q \- Why are functions first-class objects in Python?
   204 no content  
     
   Used when :   
-* Delete successful   
-* No need to return data 
+  * Delete successful   
+  * No need to return data 
 
 
 * 301 \- Moved permanently   
@@ -1407,8 +1674,8 @@ Q \- Why are functions first-class objects in Python?
   }  
     
   Common causes :   
-* Missing fields   
-* Wrong data format 
+   * Missing fields   
+   * Wrong data format 
 
 
 * 401 \- unauthorized  
@@ -1421,10 +1688,10 @@ Q \- Why are functions first-class objects in Python?
   }
 
 
-          Occurs when: 
-
-* Token missing   
-* Login required 
+  Occurs when: 
+  
+  * Token missing   
+  * Login required 
 
 
 * 403 \- Forbidden   
@@ -1451,7 +1718,10 @@ Q \- Why are functions first-class objects in Python?
    "error": "User not found"  
   }  
     
-    
+  Used when:   
+  * User not found   
+  * Resource does not exist 
+
 * 409 \- conflict   
   Occurs when resource conflicts with existing data.  
     
@@ -1470,10 +1740,7 @@ Q \- Why are functions first-class objects in Python?
   }  
     
     
-    
-    
-    
-    
+            
 * 500 \- Internal Server Error  
     
   Generic server failure   
@@ -1508,18 +1775,19 @@ Q \- Why are functions first-class objects in Python?
   
 
 
-#       Django Project Notes
+## Django Project Notes
 
 Repository: `Django-project/monthly_challenges`
 
 * This app demonstrates **core Django web development concepts** including:  
-1. Url routing  
-2. Views  
-3. Templates  
-4. Dynamic URL parameters  
-5. Static files  
-6. Template handling  
-7. HTTPS response  
+  1. Url routing  
+  2. Views  
+  3. Templates  
+  4. Dynamic URL parameters  
+  5. Static files  
+  6. Template handling  
+  7. HTTPS response  
+
 * Django itself follows the MTV architecture (Model \- Template \- View ) which is similar to MVC .
 
 1. ## Project Architecture
@@ -1697,11 +1965,11 @@ Repository: `Django-project/monthly_challenges`
 
   INSTALLED\_APPS \= \[
 
-      'django.contrib.admin',
+    'django.contrib.admin',
 
-      'django.contrib.auth',
+    'django.contrib.auth',
 
-      'monthly\_challenges',
+    'monthly\_challenges',
 
   \]
 
@@ -1846,11 +2114,11 @@ Repository: `Django-project/monthly_challenges`
   }
 
 
-           Why ?  
-            To simulate database \- like storage without models   
-            Used for learning  
-            →  dictionaries  
-            →  dynamic routing 
+  Why ?  
+  To simulate database \- like storage without models   
+  Used for learning  
+   -  dictionaries  
+   -  dynamic routing 
 
 * Dynamic URL Routing   
     
@@ -2016,37 +2284,42 @@ Repository: `Django-project/monthly_challenges`
 * Use cases of RAG 
 
 
-1. Enhanced content creation   
-2. Customer feedback analysis   
-3. Market intelligence   
-4. Personalized recommendations   
-5. Dialogue systems and chatbots   
+  1. Enhanced content creation   
+  2. Customer feedback analysis   
+  3. Market intelligence   
+  4. Personalized recommendations   
+  5. Dialogue systems and chatbots   
  
 
 
 * Architecture of RAG  
-                                                         4  
-  Response                                          Post Processing
-
-        ←—---------------                                 ←—---------------            LLM  
-User —-----------------\>         Framework      —----------------\>  
-Question                      |  ^                   Prompt              3  
-1                                  |  |               
-                                                |  |                  
-                        Semantic         |  |             ←—----------------           Original            New  
-                        Search             |  |               Contextual Data        content             content   
-                                                 
-                           2           Vector Database      
-                            
-                     
+  ```text
+  User Question (1)
+    |
+    v
+  Semantic Search <-------- Vector Database (2)
+    |
+    v
+  Retrieved Context + User Question
+    |
+    v
+  Prompt ----------------------> LLM (3)
+              |
+              v
+           Post-processing (4)
+              |
+              v
+              Response
+  ```
+                    
 
 #   Large Language Models (LLMs)
 
 * These are designed to understand and generate human like text, playing a critical role in natural language processing (NLP) by enabling machines to intercept , analyze and generate human language .      
 * Key capabilities :   
-1. Text generation : creating coherent and contextually relevant text from prompts   
-2. Understanding : comprehending and summarizing large text inputs   
-3. Translation : covering text between languages with high accuracy 
+  1. Text generation : creating coherent and contextually relevant text from prompts   
+  2. Understanding : comprehending and summarizing large text inputs   
+  3. Translation : covering text between languages with high accuracy 
 
         
 
@@ -2095,49 +2368,40 @@ Question                      |  ^                   Prompt              3
 * Techniques RAG uses to Mitigate False Information   
                                                     
     
-                                                    |----- Context Validation : Cross checks data from                               
-                                                    |        multiple sources to improve accuracy and    
-                                                    |        consistency    
-  Dynamic Querying: Gen —---   |  
-  erates  context specific             |  
-  Queries to retrieve                    |   
-   precise , relevant info.              |      Information Retrieval : Fetches relevant data   
-                                                    |----- from external sources , reducing false info. by 
-
-                                                              |        grounding responses in factual content   
-                                                  |
-
-Post \- processing checks: —---- |                                                    
-Applies checks after response   |                                                 
-generation to correct inaccura   |                                                  
-Cies before delivery                   |                                  
-                                                   |
+```mermaid
+flowchart TD
+  A[Dynamic Querying<br/>Generates context-specific queries] --> B[Information Retrieval<br/>Fetches relevant data from external sources]
+  B --> C[Context Validation<br/>Cross-checks data from multiple sources]
+  C --> D[Response Generation<br/>Grounds the response in factual content]
+  D --> E[Post-processing Checks<br/>Corrects inaccuracies before delivery]
+```
 
 # Embeddings 
 
 * These are dense vector representations of data (eg text , images , audio) that capture semantic meaning . Generated by machine learning models , they position similar data points closer in vector space . This enables tasks like similarity search and classification.  
 * Different embedding models :   
+    1.  Word2Vec \- generates embeddings by predicting words in a context or using words to perdict their surrounding words. Produces fixed \- size vectors based on co-occurence in a corpus .  
     
-1.  Word2Vec \- generates embeddings by predicting words in a context or using words to perdict their surrounding words. Produces fixed \- size vectors based on co-occurence in a corpus .  
-2. GloVe \- creates embeddings by factorizing the word co-occurence matrix of a corpus , capturing global statistical information about word pairs .  
-3. BERT  Based Embeddings \- provides context \-aware embeddings by nuanced understanding of word meanings in different contexts .                                              
+    2. GloVe \- creates embeddings by factorizing the word co-occurence matrix of a corpus , capturing global statistical information about word pairs .  
+    
+    3. BERT  Based Embeddings \- provides context \-aware embeddings by nuanced understanding of word meanings in different contexts .                                              
         
-* GPT Embeddings : GPT models generate embeddings using a transformer architecture trained on diverse texts , capturing rich contextual information.  
+* GPT Embeddings : GPT models generate embeddings using a transformer architecture trained on diverse texts , capturing rich contextual information. 
+ 
 * Advantages : 
-
-           
-
-* Contextual Understanding : captures nuanced menanings and context.  
-* Versatility : Handles text generation , summarization, and translation   
-* Pre trained knowledge : applies extensive pre training to various domains.
+  * Contextual Understanding : captures nuanced menanings and context.  
+  * Versatility : Handles text generation , summarization, and translation   
+  * Pre trained knowledge : applies extensive pre training to various domains.
 
 * Embeddings convert :   
   Text → Meaning → Numbers   
   Retrieval \= math problem, not NLP problem   
 * Use Cases :  
-* Conversational AI : Enhances chatbot responses and dialogue systems .  
-* Content Generation : create coherent and contextually relevant text  
-* Semantic Search : Improvised search engines by matching queries with relevant context
+
+  * Conversational AI : Enhances chatbot responses and dialogue systems .  
+  * Content Generation : create coherent and contextually relevant text  
+  * Information Retrieval : Find relevant information in large datasets  
+  * Semantic Search : Improvised search engines by matching queries with relevant context
 
                                  
 
@@ -2147,56 +2411,53 @@ Cies before delivery                   |
 * Vector embeddings are numerical representations of data objects – such as words , images or users – encoded as dense , continuous valued vectors . They capture semantic or structural relationships so that similar entities are located close together in a geometric space.  
 * In vector embedding , Text —\> converted into high dimensional vectors.  
   Eg \-   
-        "dog" → \[0.2, 0.7, \-0.1\]  
-        "cat" → \[0.21, 0.68, \-0.05\]  
-        "car" → \[-0.5, 0.1, 0.9\]  
+  * "dog" → \[0.2, 0.7, \-0.1\]  
+  * "cat" → \[0.21, 0.68, \-0.05\]  
+  * "car" → \[-0.5, 0.1, 0.9\]  
+
   Observations :   
-* Dog \= cat (close)  
-* Dog \=\! car(far)
+  * Dog \= cat (close)  
+  * Dog \=\! car(far)
 
     
 
-* Core components of vector databases : 
 
-                                                                               |---- Storage : designed to store large    
-                                                                               |      numbers of high-dimensional   
-                                                                               |      embeddings, sometimess with   
-                                                                               |       thousands of dimensions.  
-Querying : Focused on similarity \- based      —--- |  
-search , finding vectors closest to the query          |  
-for relevant results                                                  |-----Indexing : uses techniques like                                 
-                                                                               |  approximate nearest neighbour (ANN)  
-                                                                               |     Algorithms (eg, FAISS, HNSW) and    
-                                                                               |      partitioning to enable fast searches   
-                                                                               |     and reduce computational cost  
-Scalability : Optimized to handle massive   —----- |       
-datasets ,scaling to millions or billions of               |  
-vectors .                                                                 |
+* Core components of vector databases :
 
-* Role in RAG systems   
-    
+```mermaid
+flowchart TD
+  VDB[Vector Database]
+  VDB --> Q[Querying]
+  VDB --> S[Storage]
+  VDB --> I[Indexing]
+  VDB --> Sc[Scalability]
+
+  Q --> Q1[Similarity-based search]
+  Q1 --> Q2[Find the nearest vectors to a query]
+  Q2 --> Q3[Return relevant results]
+
+  S --> S1[Store large numbers of high-dimensional embeddings]
+  I --> I1[Approximate nearest-neighbour algorithms]
+  I1 --> I2[FAISS, HNSW, and partitioning]
+  I2 --> I3[Fast search with lower computational cost]
+  Sc --> Sc1[Handle millions or billions of vectors]
+```
+
+### Role in RAG systems   
+
 1. Fast Similarity Search for Relevant Information Retrieval 
 
-   
-
-* Similarity Search : when a query is received the RAG system generates a query embedding . the vector database performs a fast similarity search, comparing this embedding against the stored document embeddings.  
-* Nearest Neighbour Search : The database identifies the most semantically similar documents or passages to the query, enabling retrieval of the most relevant information .
+   * Similarity Search : when a query is received the RAG system generates a query embedding . the vector database performs a fast similarity search, comparing this embedding against the stored document embeddings.  
+  
+   * Nearest Neighbour Search : The database identifies the most semantically similar documents or passages to the query, enabling retrieval of the most relevant information .
 
 
 2. Efficient Storage of Document Embeddings : 
 
-   
-
-* Storage \- RAG systems generate embeddings for documents, whuch are stored in vector databases. These embeddings capture the semantic content of the documents in a form that can be efficiently managed , even with large volumes of data 
+   * Storage \- RAG systems generate embeddings for documents, whuch are stored in vector databases. These embeddings capture the semantic content of the documents in a form that can be efficiently managed , even with large volumes of data 
 
 
-  
-
-
-
-
-
-* Types of Vector Databases : 
+### Types of Vector Databases : 
 
                       
 
@@ -2213,11 +2474,11 @@ vectors .                                                                 |
                           
 
 
-* Use Cases Beyond RAG  
+* Use Cases Beyond RAG :
     
-* Recommendation Systems: Vector embeddings help match user prefernces with similar products , media , or content , enhancing personalization.  
-* Image search : Embeddings of images allow finding visually similar images based on content rather than keywords   
-* Anomaly detection : Detects outlies by identifying vectors that deviate from the norm in financial transcations , manufacturing or cybersecurity systems.                                                                     
+  * Recommendation Systems: Vector embeddings help match user prefernces with similar products , media , or content , enhancing personalization.  
+  * Image search : Embeddings of images allow finding visually similar images based on content rather than keywords   
+  * Anomaly detection : Detects outlies by identifying vectors that deviate from the norm in financial transcations , manufacturing or cybersecurity systems.                                                                     
 
        
 
@@ -2231,42 +2492,40 @@ vectors .                                                                 |
 
 1. Annoy ( Approximate Nearest Neighbours Oh Yeah )  
      
-* Description : A tree based indexing method that uses random projections to build multiple tress, providing a fast and memory \- efficinet way to find approximate nearest neighbour .
+   * Description : A tree based indexing method that uses random projections to build multiple tress, providing a fast and memory \- efficinet way to find approximate nearest neighbour .
 
 
-* Advantage : Optimized for sceanrios where retrieval speed is crucial , even at the cost of some accuracy .
+   * Advantage : Optimized for sceanrios where retrieval speed is crucial , even at the cost of some accuracy .
 
 
 
 
 2. FAISS ( Facebook AI Similarity Search )
 
-* IVF (Inverted File Index) : Partitions vector space into clusters , searching only within relevant ones.                                                                                                                          Advantages  : Balances speed and accuracy , ideal for large datasets .
+   * IVF (Inverted File Index) : Partitions vector space into clusters , searching only within relevant ones.                                                                                                                          Advantages  : Balances speed and accuracy , ideal for large datasets .
+
+   * Logic : 
+
+     * Cluster vectors into groups   
+     * Search only relevant clusters 
+
+   * Analogy :   
+    
+     * Library   
+     * Books grouped by category   
+     * You dont search whole library
+
+3. HNSW ( Hierarchical Navigable Small World ) : Uses a multi layered graph for efficient data search.                                                                                                                              
+   * Advantage : High accuracy and fast searches , especially in high dimensional spaces.
+
+   * Logic : 
+       * Build graph of vectors   
+       * Jump through nearest neighbours
 
 
-  Logic : 
 
-* Cluster vectors into groups   
-* Search only relevant clusters 
-
-                         
-                        Analogy :   
-                                
-                                 Library   
-                                Books grouped by category   
-                                You dont search whole library
-
-* HNSW ( Hierarchical Navigable Small World ) : Uses a multi layered graph for efficient data search.                                                                                                                              Advantage : High accuracy and fast searches , especially in high dimensional spaces.
-
-
-  Logic : 
-
-* Build graph of vectors   
-* Jump through nearest neighbours
-
-
-                        Analogy :   
-                               Social network : you find people via mutual connection  
+    * Analogy :   
+        * Social network : you find people via mutual connection  
  
 
 # Speed vs Accuracy 
