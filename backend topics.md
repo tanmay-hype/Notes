@@ -662,7 +662,7 @@ JWT Storage Options
 - **Need to instantly revoke access (fraud detected → kill session)**
 - **Sessions give full real-time control**
 - **Short session timeouts (15 min inactivity)**
-- **HttpOnly + Secure cookies - no JS access**
+- **HttpOnly + Secure cookies - no JS access
 
 **🏢 Netflix - JWT + Refresh Tokens**
 
