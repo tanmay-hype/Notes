@@ -632,10 +632,10 @@ Server 3 ──┘
 
 * Otherwise: user on Server 1 hits Server 2 and is "logged out"
 
-- Need centralized Redis cluster
-- Redis becomes a single point of failure
-- Added network latency on every request
-- Redis must be highly available
+   - Need centralized Redis cluster
+   - Redis becomes a single point of failure
+   - Added network latency on every request
+   - Redis must be highly available
 
 #### JWT at Scale
 
@@ -649,9 +649,9 @@ Server 3 ──┘
 
 * Horizontally scales infinitely
 
-- Just share the public key or secret across services
-- Each service validates locally - no network call
-- Works perfectly with Kubernetes, Lambda, microservices
+   - Just share the public key or secret across services
+   - Each service validates locally - no network call
+   - Works perfectly with Kubernetes, Lambda, microservices
 
 ### INDUSTRY EXAMPLES
 
