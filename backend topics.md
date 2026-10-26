@@ -1,654 +1,595 @@
-### **1-  O auth**
+# 1-  O auth
 
-### **1\. WHAT IS OAuth?**
+###  What is OAuth?
 
-**OAuth (Open Authorization) is an open standard authorization framework that allows a third-party application to gain limited access to a user's resources on another service - without exposing the user's credentials (password).**
+* OAuth (Open Authorization) is an open standard authorization framework that allows a third-party application to gain limited access to a user's resources on another service - without exposing the user's credentials (password).
 
-### **2\. THE CORE PROBLEM OAuth SOLVES**
+### THE CORE PROBLEM OAuth SOLVES
 
-**Before OAuth, if you wanted App B to access your Google Drive files:**
+* Before OAuth, if you wanted App B to access your Google Drive files:
 
-- **App B would ask for your Google username & password**
-- **App B could now do anything with your Google account**
-- **If App B got hacked, your Google password is compromised**
+  - App B would ask for your Google username & password
+  - App B could now do anything with your Google account
+  - If App B got hacked, your Google password is compromised
 
-**OAuth solves this by introducing a token-based delegation system.**
+* OAuth solves this by introducing a token-based delegation system.
 
-### **3\. KEY ROLES (Actors)**
+###  KEY ROLES (Actors)
 
-| **Role**                 | **Who they are**                          | **Real Example**       |
+| Role                 | Who they are                          | Real Example       |
 | ------------------------ | ----------------------------------------- | ---------------------- |
-| **Resource Owner**       | **The user who owns the data**            | **You**                |
-| **Client**               | **The app requesting access**             | **Notion, Trello**     |
-| **Authorization Server** | **Issues tokens after verifying consent** | **Google Auth Server** |
-| **Resource Server**      | **Holds the protected data/API**          | **Google Drive API**   |
+| Resource Owner       | The user who owns the data            | You                |
+| Client               | The app requesting access             | Notion, Trello     |
+| Authorization Server | Issues tokens after verifying consent | Google Auth Server |
+| Resource Server      | Holds the protected data/API          | Google Drive API   |
 
 
-### **4\. KEY TOKENS**
+###  KEY TOKENS
 
-#### **🔵 Access Token**
+#### 🔵 Access Token
 
-- **Short-lived (minutes to hours)**
-- **Used to access the Resource Server**
-- **Should be treated like cash - if stolen, it works immediately**
+- Short-lived (minutes to hours)
+- Used to access the Resource Server
+- Should be treated like cash - if stolen, it works immediately
 
-#### **🟢 Refresh Token**
+#### 🟢 Refresh Token
 
-- **Long-lived (days to months)**
-- **Used to get a new Access Token without re-login**
-- **Stored securely server-side**
-- **Can be revoked by the Authorization Server**
+- Long-lived (days to months)
+- Used to get a new Access Token without re-login
+- Stored securely server-side
+- Can be revoked by the Authorization Server
 
-#### **🟡 ID Token (OpenID Connect / OIDC)**
+#### 🟡 ID Token (OpenID Connect / OIDC)
 
-- **A JWT that contains user identity info (name, email, etc.)**
-- **This is not OAuth - it's OIDC built on top of OAuth**
-- **OAuth = Authorization. OIDC = Authentication + Authorization.**
+- A JWT that contains user identity info (name, email, etc.)
+- This is not OAuth - it's OIDC built on top of OAuth
+- OAuth = Authorization. OIDC = Authentication + Authorization.
 
-### **5\. OAuth 2.0 GRANT TYPES (Flows)**
+###  OAuth 2.0 GRANT TYPES (Flows)
 
-**🔷 A. Authorization Code Flow**
+🔷 A. Authorization Code Flow
 
-**Best for: Web apps with a backend server**
+* Best for: Web apps with a backend server
 
-**User → Client → Authorization Server → (user logs in & consents)**
+```mermaid
+sequenceDiagram
+  actor User
+  participant Client as Client App
+  participant Auth as Authorization Server
+  participant Backend as Client App / Backend
+  participant Resource as Resource Server
 
-**← Auth Code ←**
-
-**Client → Auth Server (Auth Code + Client Secret)**
-
-**← Access Token + Refresh Token ←**
-
-**Client → Resource Server (Access Token)**
-
-**← Protected Data ←**
-
-- **The Auth Code is short-lived and single-use**
-- **Client Secret never leaves the backend server**
-- **Most secure flow**
-
-**🔷 B. Authorization Code Flow + PKCE**
-
-**Best for: Mobile apps & Single Page Apps (SPAs)**
-
-**PKCE = Proof Key for Code Exchange**
-
-**Why? SPAs and mobile apps can't securely store a Client Secret. PKCE replaces the client secret with a dynamically generated code verifier + code challenge.**
-
-**App generates: code_verifier (random string)**
-
-**code_challenge = SHA256(code_verifier)**
-
-**Sends code_challenge → Auth Server**
-
-**Auth Server stores it...**
-
-**Later, app sends code_verifier → Auth Server verifies it matches**
-
-**→ Access Token issued**
-
-**🔷 C. Client Credentials Flow**
-
-**Best for: Machine-to-Machine (M2M), no user involved**
-
-**Service A → Auth Server (Client ID + Client Secret)**
-
-**← Access Token ←**
-
-**Service A → Resource Server (Access Token)**
-
-**Used in microservices, background jobs, CI/CD pipelines.**
+  User->>Client: Start sign-in
+  Client->>Auth: Redirect for login & consent
+  Auth-->>Client: Redirect with authorization code
+  Client->>Backend: Send authorization code
+  Backend->>Auth: Exchange code + client secret
+  Auth-->>Backend: Access token + refresh token
+  Backend->>Resource: Request protected data with access token
+  Resource-->>Backend: Protected data
+  Backend-->>Client: Return protected data
+  Client-->>User: Display result
+```
 
 
-### **6\. INDUSTRY EXAMPLES**
+- The Auth Code is short-lived and single-use
+- Client Secret never leaves the backend server
+- Most secure flow
 
-**🏢 Slack + Google Calendar Integration**
+🔷 B. Authorization Code Flow + PKCE
 
-**🏢 GitHub Actions (CI/CD)**
+* Best for: Mobile apps & Single Page Apps (SPAs)
 
-**🏢 Netflix on Smart TV**
+* PKCE = Proof Key for Code Exchange
 
-**🏢 Stripe + Shopify (OAuth for Platforms)**
+* Why? SPAs and mobile apps can't securely store a Client Secret. PKCE replaces the client secret with a dynamically generated code verifier + code challenge.
 
-###
+```mermaid
+flowchart TD
+  A["App generates a random code verifier"] --> B["App computes a SHA-256 code challenge"]
+  B --> C["App sends the code challenge to the Auth Server"]
+  C --> D["Auth Server stores the code challenge"]
+  D --> E["App sends the code verifier to the Auth Server"]
+  E --> F{"Does the verifier match the stored challenge?"}
+  F -->|Yes| G["Auth Server issues an access token"]
+  F -->|No| H["Authorization fails"]
+```
 
-### **7\. EDGE CASES & GOTCHAS**
+🔷 C. Client Credentials Flow
 
-#### **⚠️ Edge Case 1: Token Leakage via Referrer Header**
+* Best for: Machine-to-Machine (M2M), no user involved
 
-**If an access token is put in a URL query parameter, it leaks via browser Referrer headers to third-party analytics scripts.**
+```mermaid
+sequenceDiagram
+  participant A as Service A
+  participant AS as Auth Server
+  participant RS as Resource Server
 
-**✅ Fix: Always pass tokens in Authorization: Bearer headers, never in URLs.**
+  A->>AS: Client ID + Client Secret
+  AS-->>A: Access Token
+  A->>RS: Request with Access Token
+  RS-->>A: Protected Resource
+```
+* Used in microservices, background jobs, CI/CD pipelines.
 
-**⚠️ Edge Case 2: Refresh Token Rotation Race Condition**
 
-**When using refresh token rotation (each use issues a new refresh token), if two requests fire simultaneously with the same refresh token - one succeeds, one fails.**
+###  INDUSTRY EXAMPLES
 
-**✅ Fix: Implement locking/queuing on the client side for token refresh calls.**
+🏢 Slack + Google Calendar Integration
 
-**⚠️ Edge Case 3: CSRF (cross site request forgery) on the Redirect URI**
+🏢 GitHub Actions (CI/CD)
 
-**Without a state parameter, an attacker can trick a user into authorizing with the attacker's auth code (login CSRF).**
+🏢 Netflix on Smart TV
 
-**✅ Fix: Always use a random, unguessable state parameter and validate it on return.**
+🏢 Stripe + Shopify (OAuth for Platforms)
 
-**⚠️ Edge Case 4: Open Redirect via redirect_uri**
 
-**If the Auth Server doesn't strictly validate redirect_uri, an attacker can steal auth codes by redirecting to their own server.**
+###  EDGE CASES & GOTCHAS
 
-**✅ Fix: Auth Server must do exact match validation of registered redirect URIs.**
+⚠️ Edge Case 1: Token Leakage via Referrer Header
 
-**⚠️ Edge Case 5: Access Token Still Valid After Logout**
+* If an access token is put in a URL query parameter, it leaks via browser Referrer headers to third-party analytics scripts.
 
-**OAuth doesn't have a native "logout" - revoking a session doesn't automatically revoke the access token.**
+✅ Fix: Always pass tokens in Authorization: Bearer headers, never in URLs.**
 
-**✅ Fix: Use short-lived access tokens + token introspection endpoint, or implement a token denylist.**
+⚠️ Edge Case 2: Refresh Token Rotation Race Condition
 
-**⚠️ Edge Case 6: Scope Creep**
+* When using refresh token rotation (each use issues a new refresh token), if two requests fire simultaneously with the same refresh token - one succeeds, one fails.
 
-**App requests read:everything write:everything instead of minimal scopes.**
+✅ Fix: Implement locking/queuing on the client side for token refresh calls.
 
-**✅ Fix: Always request minimum necessary scopes (Principle of Least Privilege).**
+⚠️ Edge Case 3: CSRF (cross site request forgery) on the Redirect URI
 
-### **8\. OAuth vs OIDC vs SAML**
+* Without a state parameter, an attacker can trick a user into authorizing with the attacker's auth code (login CSRF).
 
-|                  | **OAuth 2.0**             | **OIDC**                           | **SAML**                 |
+✅ Fix: Always use a random, unguessable state parameter and validate it on return.
+
+⚠️ Edge Case 4: Open Redirect via redirect_uri
+
+* If the Auth Server doesn't strictly validate redirect_uri, an attacker can steal auth codes by redirecting to their own server.
+
+✅ Fix: Auth Server must do exact match validation of registered redirect URIs.
+
+⚠️ Edge Case 5: Access Token Still Valid After Logout**
+
+* OAuth doesn't have a native "logout" - revoking a session doesn't automatically revoke the access token.
+
+✅ Fix: Use short-lived access tokens + token introspection endpoint, or implement a token denylist.
+
+⚠️ Edge Case 6: Scope Creep
+
+* App requests read:everything write:everything instead of minimal scopes.
+
+✅ Fix: Always request minimum necessary scopes (Principle of Least Privilege).
+
+###  OAuth vs OIDC vs SAML
+
+|                  | OAuth 2.0             | OIDC                           | SAML                |
 | ---------------- | ------------------------- | ---------------------------------- | ------------------------ |
-| **Purpose**      | **Authorization**         | **Authentication + Authorization** | **Authentication (SSO)** |
-| **Token Format** | **Opaque or JWT**         | **JWT (ID Token)**                 | **XML Assertions**       |
-| **Use Case**     | **API access delegation** | **Login with Google/Apple**        | **Enterprise SSO**       |
-| **Common In**    | **APIs, mobile apps**     | **Consumer apps**                  | **Corporate/enterprise** |
+| Purpose      | Authorization         | Authentication + Authorization | Authentication (SSO) |
+| Token Format | Opaque or JWT       | JWT (ID Token)                | XML Assertions      |
+| Use Case     | API access delegation | Login with Google/Apple        | Enterprise SSO       |
+| Common In    | APIs, mobile apps    | Consumer apps                  | Corporate/enterprise |
 
 
-### **9\. TRICKY INTERVIEW QUESTIONS**
+###  TRICKY INTERVIEW QUESTIONS
 
-**Q1. OAuth is an authentication protocol - True or False?**
+Q1. OAuth is an authentication protocol - True or False?
 
-**❌ False. OAuth is purely an authorization framework. It delegates access. OIDC (built on top of OAuth) adds authentication. Many devs confuse this.**
+* False. OAuth is purely an authorization framework. It delegates access. OIDC (built on top of OAuth) adds authentication. Many devs confuse this.
 
-**Q2. Why was the Implicit Flow deprecated?**
+Q2. Why was the Implicit Flow deprecated?
 
-**The access token was returned in the URL fragment, which could be leaked via browser history, server logs, and Referrer headers. PKCE (proof key for code exchange ) solves the same problem (no client secret in public clients) more securely.**
+* The access token was returned in the URL fragment, which could be leaked via browser history, server logs, and Referrer headers. PKCE (proof key for code exchange ) solves the same problem (no client secret in public clients) more securely.
 
-**Q3. If a user revokes OAuth access in Google settings, can the app still call the API?**
+Q3. If a user revokes OAuth access in Google settings, can the app still call the API?
 
-**If the app has a valid, non-expired access token, it may still work until that token expires (since Resource Servers often don't check revocation in real-time). This is why short-lived tokens + token introspection matter.**
+* If the app has a valid, non-expired access token, it may still work until that token expires (since Resource Servers often don't check revocation in real-time). This is why short-lived tokens + token introspection matter.
 
-**Q4. What's the difference between client_id and client_secret?**
+Q4. What's the difference between client_id and client_secret?
 
-**client_id (username ) is public - identifies the app. client_secret (password ) is confidential - proves the app's identity to the Auth Server. SPAs/mobile apps cannot safely store client_secret, which is why they use PKCE instead.**
+* client_id (username ) is public - identifies the app. client_secret (password ) is confidential - proves the app's identity to the Auth Server. SPAs/mobile apps cannot safely store client_secret, which is why they use PKCE instead.
 
-**Q5. Can two different users get the same access token?**
+Q5. Can two different users get the same access token?
 
-**No. Access tokens are issued per user + client + scope combination and are unique. However, in Client Credentials Flow (no user), all calls from the same service get tokens representing that service, not individual users.**
+* No. Access tokens are issued per user + client + scope combination and are unique. However, in Client Credentials Flow (no user), all calls from the same service get tokens representing that service, not individual users.
 
-**Q6. What happens if an attacker intercepts the authorization code?**
+Q6. What happens if an attacker intercepts the authorization code?
 
-**In plain Authorization Code Flow - they could exchange it for tokens if they also have the client secret. With PKCE, they can't - because they don't have the code_verifier that was never sent over the network.**
+* In plain Authorization Code Flow - they could exchange it for tokens if they also have the client secret. With PKCE, they can't - because they don't have the code_verifier that was never sent over the network.
 
-**Q7. How do microservices authenticate with each other in an OAuth system?**
+Q7. How do microservices authenticate with each other in an OAuth system?
 
-**Using Client Credentials Flow - each microservice has its own client_id and client_secret, requests an access token from the Auth Server, and passes it as a Bearer token to other services.**
+* Using Client Credentials Flow - each microservice has its own client_id and client_secret, requests an access token from the Auth Server, and passes it as a Bearer token to other services.
 
-### **10\. QUICK MENTAL MODEL SUMMARY**
+###  QUICK MENTAL MODEL SUMMARY
 
-**OAuth = "Here's a permission slip, not my house keys"**
+* OAuth = "Here's a permission slip, not my house keys"
 
-**Authorization Code → Secure web apps (has backend)**
+* Authorization Code → Secure web apps (has backend)
 
-**Auth Code + PKCE → Mobile / SPA (no backend secret)**
+* Auth Code + PKCE → Mobile / SPA (no backend secret)
 
-**Client Credentials → Service-to-service (no user)**
+* Client Credentials → Service-to-service (no user)
 
-**Device Flow → TV / CLI / IoT**
+* Device Flow → TV / CLI / IoT
 
-**2 - OIDC**
+#  OIDC
 
-### **1\. WHAT IS OIDC?**
+###  WHAT IS OIDC?
 
-**OpenID Connect (OIDC) is an identity layer built on top of OAuth 2.0 that adds authentication to OAuth's authorization framework.**
+* OpenID Connect (OIDC) is an identity layer built on top of OAuth 2.0 that adds authentication to OAuth's authorization framework.
 
-**If OAuth 2.0 answers "What can this app do on your behalf?" OIDC answers "Who are you?"**
+* If OAuth 2.0 answers "What can this app do on your behalf?" OIDC answers "Who are you?"
 
-###
 
-### **2\. WHY OIDC WAS NEEDED**
 
-**Before OIDC, developers were abusing OAuth for authentication - using the access token to call /userinfo and inferring identity. This was:**
+###  WHY OIDC WAS NEEDED
 
-- **❌ Non-standard - every provider did it differently**
-- **❌ Insecure - access tokens weren't meant to prove identity**
-- **❌ No standard way to know who the token was issued for**
+* Before OIDC, developers were abusing OAuth for authentication - using the access token to call /userinfo and inferring identity. This was:
 
-**OIDC standardized identity on top of OAuth by introducing the ID Token.**
+  - ❌ Non-standard - every provider did it differently
+  - ❌ Insecure - access tokens weren't meant to prove identity
+  - ❌ No standard way to know who the token was issued for
 
-### **3\. WHAT OIDC ADDS ON TOP OF OAuth 2.0**
+* OIDC standardized identity on top of OAuth by introducing the ID Token.
 
-| **Feature**                                  | **OAuth 2.0** | **OIDC** |
+###  WHAT OIDC ADDS ON TOP OF OAuth 2.0
+
+| Feature                                  | OAuth 2.0 | OIDC |
 | -------------------------------------------- | ------------- | -------- |
-| **Access Token**                             | **✅**        | **✅**   |
-| **Refresh Token**                            | **✅**        | **✅**   |
-| **ID Token**                                 | **❌**        | **✅**   |
-| **/userinfo endpoint**                       | **❌**        | **✅**   |
-| **Standard scopes (openid, profile, email)** | **❌**        | **✅**   |
-| **Authentication event info**                | **❌**        | **✅**   |
-| **Discovery endpoint**                       | **❌**        | **✅**   |
+| Access Token                             | ✅        | ✅   |
+| Refresh Token                            | ✅        | ✅   |
+| ID Token                                 | ❌        | ✅   |
+| /userinfo endpoint                       | ❌        | ✅   |
+| Standard scopes (openid, profile, email) | ❌        | ✅   |
+| Authentication event info                | ❌        | ✅   |
+| Discovery endpoint                       | ❌        | ✅   |
 
 
-### **4\. THE ID TOKEN - THE HEART OF OIDC**
 
-**The ID Token is a JWT (JSON Web Token) that contains claims about the authenticated user.**
+###   THE ID TOKEN - THE HEART OF OIDC
 
-#### **Structure of a JWT**
+* The ID Token is a JWT (JSON Web Token) that contains claims about the authenticated user.
 
-**header.payload.signature**
+#### Structure of a JWT
 
-**eyJhbGciOiJSUzI1NiJ9 ← Header (algorithm)**
+* header.payload.signature
 
-**.eyJzdWIiOiIxMjM0NTY ← Payload (claims)**
+* eyJhbGciOiJSUzI1NiJ9 ← Header (algorithm)
 
-**.SflKxwRJSMeKKF2QT4 ← Signature (verification)**
+* .eyJzdWIiOiIxMjM0NTY ← Payload (claims)
 
-#### **Standard ID Token Claims**
+* .SflKxwRJSMeKKF2QT4 ← Signature (verification)
 
-| **Claim**     | **Meaning**                           | **Example**                         |
+#### Standard ID Token Claims
+
+| Claim     | Meaning                           | Example                         |
 | ------------- | ------------------------------------- | ----------------------------------- |
-| **sub**       | **Subject - unique user ID**          | **\`"auth0**                        |
-| **iss**       | **Issuer - who issued the token**     | **"<https://accounts.google.com>"** |
-| **aud**       | **Audience - who it's intended for**  | **"your-client-id"**                |
-| **exp**       | **Expiry timestamp**                  | **1718000000**                      |
-| **iat**       | **Issued at timestamp**               | **1717996400**                      |
-| **nonce**     | **Replay attack prevention**          | **"random-xyz"**                    |
-| **email**     | **User's email (if requested)**       | **"<user@gmail.com>"**              |
-| **name**      | **Full name**                         | **"John Doe"**                      |
-| **picture**   | **Profile picture URL**               | **"https://..."**                   |
-| **auth_time** | **When user actually authenticated**  | **1717996000**                      |
-| **amr**       | **Auth method (password, otp, etc.)** | **\["pwd", "otp"\]**                |
+| sub       | Subject - unique user ID          | \`"auth0                        |
+| iss       | Issuer - who issued the token     | "<https://accounts.google.com>"** |
+| aud       | Audience - who it's intended for  | "your-client-id"               |
+| exp       | Expiry timestamp                  | 1718000000                      |
+| iat       | Issued at timestamp               | 1717996400                      |
+| nonce     | Replay attack prevention          | "random-xyz"                    |
+| email     | User's email (if requested)       | "<user@gmail.com>"              |
+| name      | Full name                         | "John Doe"                      |
+| picture   | Profile picture URL               | "https://..."                   |
+| auth_time | When user actually authenticated  | 1717996000                      |
+| amr       | Auth method (password, otp, etc.) | \["pwd", "otp"\]                |
 
 
-### **5\. OIDC SCOPES**
+###  OIDC SCOPES
 
-**Scopes in OIDC control what claims come back in the ID Token or /userinfo endpoint.**
+* Scopes in OIDC control what claims come back in the ID Token or /userinfo endpoint.
 
-| **Scope**          | **Claims Returned**                                |
+| Scope         | Claims Returned                                |
 | ------------------ | -------------------------------------------------- |
-| **openid**         | **sub, iss, aud, exp, iat - mandatory for OIDC**   |
-| **profile**        | **name, given_name, family_name, picture, locale** |
-| **email**          | **email, email_verified**                          |
-| **address**        | **address (structured postal address)**            |
-| **phone**          | **phone_number, phone_number_verified**            |
-| **offline_access** | **Returns a refresh token**                        |
+| openid         | sub, iss, aud, exp, iat - mandatory for OIDC   |
+| profile        | name, given_name, family_name, picture, locale |
+| email          | email, email_verified                          |
+| address        | address (structured postal address)            |
+| phone          | phone_number, phone_number_verified            |
+| offline_access | Returns a refresh token                        |
 
 
-### **6\. OIDC DISCOVERY ENDPOINT**
 
-**OIDC providers publish a well-known configuration endpoint:**
+###  /userinfo ENDPOINT
 
-**https://{issuer}/.well-known/openid-configuration**
+* An alternative to reading claims from the ID Token directly.
 
-**Example - Google's:**
+* GET /userinfo
 
-**<https://accounts.google.com/.well-known/openid-configuration>**
+* Authorization: Bearer {access_token}
 
-**This returns a JSON document with:**
+* Response:
 
-**json**
+* {
 
-**{**
+  "sub": "1234567890",
 
-**"issuer": "<https://accounts.google.com>",**
+  "name": "Jane Doe",
 
-**"authorization_endpoint": "<https://accounts.google.com/o/oauth2/v2/auth>",**
+  "email": "<jane@example.com>",
 
-**"token_endpoint": "<https://oauth2.googleapis.com/token>",**
+  "email_verified": true,
 
-**"userinfo_endpoint": "<https://openidconnect.googleapis.com/v1/userinfo>",**
+  "picture": "https://..."
 
-**"jwks_uri": "<https://www.googleapis.com/oauth2/v3/certs>",**
+  }
 
-**"scopes_supported": \["openid", "email", "profile"\],**
+#### ID Token Claims vs /userinfo - When to use which?
 
-**"response_types_supported": \["code", "token", "id_token"\],**
-
-**...**
-
-**}**
-
-### **7\. /userinfo ENDPOINT**
-
-**An alternative to reading claims from the ID Token directly.**
-
-**GET /userinfo**
-
-**Authorization: Bearer {access_token}**
-
-**Response:**
-
-**{**
-
-**"sub": "1234567890",**
-
-**"name": "Jane Doe",**
-
-**"email": "<jane@example.com>",**
-
-**"email_verified": true,**
-
-**"picture": "https://..."**
-
-**}**
-
-#### **ID Token Claims vs /userinfo - When to use which?**
-
-|               | **ID Token**                   | **/userinfo**                   |
+|               | ID Token                   | /userinfo                   |
 | ------------- | ------------------------------ | ------------------------------- |
-| **Delivery**  | **Inside JWT, no extra call**  | **Requires API call**           |
-| **Freshness** | **Snapshot at login time**     | **Always fresh/current**        |
-| **Use when**  | **You need claims at login**   | **You need up-to-date profile** |
-| **Risk**      | **Stale data (email changed)** | **Extra network call**          |
+| Delivery  | Inside JWT, no extra call  | Requires API call           |
+| Freshness | Snapshot at login time     | Always fresh/current        |
+| Use when  | You need claims at login   | You need up-to-date profile |
+| Risk      | Stale data (email changed) | Extra network call          |
 
 
-**8\. OIDC RESPONSE TYPES**
+###  OIDC RESPONSE TYPES
 
-| **response_type** | **What you get back**     | **Use case**             |
+| response_type | What you get back     | Use case             |
 | ----------------- | ------------------------- | ------------------------ |
-| **code**          | **Auth code only**        | **Standard secure flow** |
-| **id_token**      | **ID token directly**     | **Deprecated implicit**  |
-| **token**         | **Access token directly** | **Deprecated implicit**  |
-| **code id_token** | **Code + ID token**       | **Hybrid flow**          |
+| code          | Auth code only        | Standard secure flow |
+| id_token      | ID token directly     | Deprecated implicit  |
+| token         | Access token directly | Deprecated implicit  |
+| code id_token | Code + ID token       | Hybrid flow          |
 
 
 
-### **9\. OIDC vs SAML vs OAuth - CLEAR COMPARISON**
+###  OIDC vs SAML vs OAuth - CLEAR COMPARISON
 
-|                     | **OAuth 2.0**      | **OIDC**            | **SAML 2.0**                 |
+|                     | OAuth 2.0      | OIDC            | SAML 2.0                 |
 | ------------------- | ------------------ | ------------------- | ---------------------------- |
-| **Purpose**         | **Authorization**  | **Authentication**  | **Authentication (SSO)**     |
-| **Built on**        | **-**              | **OAuth 2.0**       | **Standalone**               |
-| **Token format**    | **JWT or opaque**  | **JWT (ID Token)**  | **XML**                      |
-| **Transport**       | **HTTPS/REST**     | **HTTPS/REST**      | **HTTP + XML POST**          |
-| **Mobile friendly** | **✅**             | **✅**              | **❌ (XML is heavy)**        |
-| **SSO support**     | **❌**             | **✅**              | **✅**                       |
-| **Discovery**       | **❌**             | **✅ (well-known)** | **❌ (manual metadata XML)** |
-| **Use case**        | **API delegation** | **Consumer login**  | **Enterprise/corporate SSO** |
-| **Complexity**      | **Medium**         | **Medium**          | **High**                     |
+| Purpose         | Authorization  | Authentication  | Authentication (SSO)     |
+| Built on        | -              | OAuth 2.0       | Standalone               |
+| Token format    | JWT or opaque  | JWT (ID Token)  | XML                      |
+| Transport       | HTTPS/REST     | HTTPS/REST      | HTTP + XML POST          |
+| Mobile friendly | ✅             | ✅              | ❌ (XML is heavy)      |
+| SSO support     | ❌             | ✅              | ✅                       |
+| Discovery       | ❌             | ✅ (well-known) | ❌ (manual metadata XML) |
+| Use case        | API delegation | Consumer login  | Enterprise/corporate SSO |
+| Complexity      | Medium         | Medium          | High                     |
 
 
-### **13\. EDGE CASES & GOTCHAS**
+###  EDGE CASES & GOTCHAS
 
-#### **⚠️ Edge Case 1: Using Access Token as Identity Proof**
+⚠️ Edge Case 1: Using Access Token as Identity Proof
 
-**❌ Never use the Access Token to identify the user. The Access Token is for resource access, not identity. The ID Token is for identity. Access tokens can be opaque strings - they don't always contain user info.**
+ ❌ Never use the Access Token to identify the user. The Access Token is for resource access, not identity. The ID Token is for identity. Access tokens can be opaque strings - they don't always contain user info.**
 
-**⚠️ Edge Case 2: Nonce Replay Attack**
+⚠️ Edge Case 2: Nonce Replay Attack
 
-**If you don't include a nonce in the auth request and validate it in the ID Token - an attacker can replay a captured ID Token to log in as that user.**
+* If you don't include a nonce in the auth request and validate it in the ID Token - an attacker can replay a captured ID Token to log in as that user.
 
-**✅ Fix: Always generate a cryptographically random nonce, store it in session, and verify it matches the ID Token's nonce claim.**
+ ✅ Fix: Always generate a cryptographically random nonce, store it in session, and verify it matches the ID Token's nonce claim.
 
-**⚠️ Edge Case 3: aud Claim Not Validated**
+⚠️ Edge Case 3: aud Claim Not Validated
 
-**If your app doesn't validate the aud claim, a token issued for another app on the same provider could be used to log into your app.**
+* If your app doesn't validate the aud claim, a token issued for another app on the same provider could be used to log into your app.
 
-**✅ Fix: Always validate aud === your_client_id.**
+✅ Fix: Always validate aud === your_client_id.
 
-**⚠️ Edge Case 4: Stale Claims in ID Token**
+⚠️ Edge Case 4: Stale Claims in ID Token
 
-**User changes their email in Google. Your app still shows the old email because it read the claim at login time and stored it.**
+* User changes their email in Google. Your app still shows the old email because it read the claim at login time and stored it.
 
-**✅ Fix: For profile data that must be current, call the /userinfo endpoint, not just the ID Token claims.**
+✅ Fix: For profile data that must be current, call the /userinfo endpoint, not just the ID Token claims.
 
-**⚠️ Edge Case 5: JWKS Key Rotation**
+⚠️ Edge Case 5: JWKS Key Rotation
 
-**Providers rotate their signing keys. If your app caches JWKS forever, it will fail to validate tokens signed with new keys.**
+* Providers rotate their signing keys. If your app caches JWKS forever, it will fail to validate tokens signed with new keys.
 
-**✅ Fix: Cache JWKS with a short TTL and refetch on validation failure (kid mismatch in JWT header).**
+✅ Fix: Cache JWKS with a short TTL and refetch on validation failure (kid mismatch in JWT header).
 
-**⚠️ Edge Case 6: ID Token ≠ Session**
+⚠️ Edge Case 6: ID Token ≠ Session
 
-**The ID Token proves the user authenticated - it is not your app's session. Once you validate it, create your own session (cookie/server-side). Don't keep using the ID Token as a session token.**
+* The ID Token proves the user authenticated - it is not your app's session. Once you validate it, create your own session (cookie/server-side). Don't keep using the ID Token as a session token.
 
-**⚠️ Edge Case 7: Sub Claim Changes**
+⚠️ Edge Case 7: Sub Claim Changes
 
-**Some providers (Apple!) can change the sub (subject) claim under certain conditions (e.g., user revokes and re-authorizes). If you use sub as your primary user key in the database, this breaks user accounts.**
+* Some providers (Apple!) can change the sub (subject) claim under certain conditions (e.g., user revokes and re-authorizes). If you use sub as your primary user key in the database, this breaks user accounts.
 
-**✅ Fix: Store the sub + iss combination as your user identifier, and have a re-linking flow for account recovery.**
+✅ Fix: Store the sub + iss combination as your user identifier, and have a re-linking flow for account recovery.
 
-**Q1. What is the difference between an ID Token and an Access Token?**
+### TRICKY INTERVIEW QUESTIONS
 
-**ID Token is a JWT meant for the client - it contains user identity claims (who you are). It should be read and validated by your app. Access Token is for the Resource Server - it grants access to APIs. Your app should treat it as opaque and never parse it for identity info.**
+*Q1. What is the difference between an ID Token and an Access Token?*
 
-**Q2. Why is openid scope mandatory in OIDC?**
+* ID Token is a JWT meant for the client - it contains user identity claims (who you are). It should be read and validated by your app. Access Token is for the Resource Server - it grants access to APIs. Your app should treat it as opaque and never parse it for identity info.
 
-**The openid scope is the signal that tells the Authorization Server to perform OIDC (not plain OAuth). Without it, no ID Token is returned - you just get a plain OAuth flow with an Access Token only.**
+*Q2. Why is openid scope mandatory in OIDC?*
 
-**Q3. Can you use OIDC without OAuth 2.0?**
+* The openid scope is the signal that tells the Authorization Server to perform OIDC (not plain OAuth). Without it, no ID Token is returned - you just get a plain OAuth flow with an Access Token only.
 
-**No. OIDC is strictly built on top of OAuth 2.0. It reuses OAuth's authorization code flow, token endpoint, and scopes. You cannot implement OIDC without implementing OAuth 2.0 first.**
+*Q3. Can you use OIDC without OAuth 2.0?*
 
-**Q4. What is a Relying Party (RP) and an OpenID Provider (OP)?**
+* No. OIDC is strictly built on top of OAuth 2.0. It reuses OAuth's authorization code flow, token endpoint, and scopes. You cannot implement OIDC without implementing OAuth 2.0 first.
 
-**OP (OpenID Provider): The identity provider that authenticates the user and issues tokens. (e.g., Google, Auth0, Okta) RP (Relying Party): Your application that relies on the OP for authentication. (e.g., your web app)**
+*Q4. What is a Relying Party (RP) and an OpenID Provider (OP)?*
 
-**Q5. What happens if you skip validating the nonce?**
+* OP (OpenID Provider): The identity provider that authenticates the user and issues tokens. (e.g., Google, Auth0, Okta) RP (Relying Party): Your application that relies on the OP for authentication. (e.g., your web app)
 
-**Your app becomes vulnerable to replay attacks - an attacker who captures an ID Token (via network sniffing or logs) can replay it to authenticate as that user in a separate session.**
+*Q5. What happens if you skip validating the nonce?*
 
-**Q6. How does OIDC support Single Sign-On (SSO)?**
+* Your app becomes vulnerable to replay attacks - an attacker who captures an ID Token (via network sniffing or logs) can replay it to authenticate as that user in a separate session.
 
-**The OIDC Provider maintains a central session. When a user logs in to App A via Google, a session cookie is set at accounts.google.com. When App B redirects to Google for login, Google sees the existing session and issues tokens without asking the user to log in again - this is SSO.**
+*Q6. How does OIDC support Single Sign-On (SSO)?*
 
-**Q7. What is the kid claim in a JWT header and why does it matter?**
+* The OIDC Provider maintains a central session. When a user logs in to App A via Google, a session cookie is set at accounts.google.com. When App B redirects to Google for login, Google sees the existing session and issues tokens without asking the user to log in again - this is SSO.
 
-**kid (Key ID) tells the recipient which public key to use when verifying the JWT's signature. Providers can have multiple active keys (for rotation). Without kid, you'd have to try all keys. With kid, you look up the exact key from the JWKS endpoint.**
+*Q7. What is the kid claim in a JWT header and why does it matter?*
 
-**15\. MENTAL MODEL SUMMARY**
+* kid (Key ID) tells the recipient which public key to use when verifying the JWT's signature. Providers can have multiple active keys (for rotation). Without kid, you'd have to try all keys. With kid, you look up the exact key from the JWKS endpoint.
 
-**OAuth 2.0 = "Here's what you can ACCESS" → Access Token**
+### MENTAL MODEL SUMMARY
 
-**OIDC = "Here's WHO you are" → ID Token (JWT)**
+* OAuth 2.0 = "Here's what you can ACCESS" → Access Token
 
-**OIDC Flow in one line:**
+* OIDC = "Here's WHO you are" → ID Token (JWT)
 
-**User logs in → Identity verified → ID Token issued**
+* OIDC Flow in one line:
 
-**→ App reads claims → Session created → User is logged in**
+```mermaid
+flowchart LR
+  A[User logs in] --> B[Identity verified]
+  B --> C[ID Token issued]
+  C --> D[App reads claims]
+  D --> E[Session created]
+  E --> F[User is logged in]
+```
 
-**Key rule:**
+* Key rule:
 
-**ID Token → Read by YOUR APP (identity)**
+* ID Token → Read by YOUR APP (identity)
 
-**Access Token → Sent to APIs (authorization)**
+* Access Token → Sent to APIs (authorization)
 
-**3 - JWT vs Session**
 
-### **1\. THE CORE CONCEPT FIRST**
+# JWT vs Session
 
-**Before comparing, understand what problem both solve:**
+### THE CORE CONCEPT FIRST
 
-**After a user logs in - how does the server know who you are on every subsequent request?**
+* Before comparing, understand what problem both solve:
 
-**HTTP is stateless - every request is independent. The server remembers nothing. So we need a mechanism to carry identity across requests.**
+* After a user logs in - how does the server know who you are on every subsequent request?
 
-**Two dominant solutions:**
+* HTTP is stateless - every request is independent. The server remembers nothing. So we need a mechanism to carry identity across requests.
 
-- **Sessions → Server remembers you**
-- **JWT → You carry proof of who you are**
+* Two dominant solutions:
 
-### **2\. SESSION-BASED AUTHENTICATION**
+  - Sessions → Server remembers you
+  - JWT → You carry proof of who you are
 
-#### **How it works**
+###  SESSION-BASED AUTHENTICATION
 
-**1\. User sends login credentials (username + password)**
+### How it works
 
-**2\. Server verifies credentials**
 
-**→ Creates a session object in memory/DB:**
+```mermaid
+flowchart TD
+  A[User submits username and password] --> B[Server verifies credentials]
+  B -->|Valid| C[Create session object in session store]
+  C --> D[Send sessionId cookie to browser]
+  D --> E[Browser sends cookie with every request]
+  E --> F[Server reads sessionId]
+  F --> G[Look up session in memory, Redis, or database]
+  G --> H[Find userId and role]
+  H --> I[Process request as authenticated user]
+  B -->|Invalid| J[Reject login]
+```
 
-**{ sessionId: "abc123", userId: 42, role: "admin", createdAt: ... }**
+#### Where Sessions are Stored (Server Side)
 
-**3\. Server sends back a cookie:**
-
-**Set-Cookie: sessionId=abc123; HttpOnly; Secure; SameSite=Strict**
-
-**4\. Every subsequent request:**
-
-**Browser automatically sends → Cookie: sessionId=abc123**
-
-**5\. Server looks up "abc123" in session store**
-
-**→ Finds userId: 42**
-
-**→ Processes request as that user**
-
-#### **Where Sessions are Stored (Server Side)**
-
-| **Storage**         | **Example**                           | **Pros**           | **Cons**                          |
+| Storage         | Example                           | Pros           | Cons                          |
 | ------------------- | ------------------------------------- | ------------------ | --------------------------------- |
-| **In-memory**       | **Node.js Map**                       | **Fastest**        | **Lost on restart, not scalable** |
-| **Redis**           | **Redis session store**               | **Fast, scalable** | **Extra infrastructure**          |
-| **Database**        | **PostgreSQL sessions table**         | **Persistent**     | **Slower, DB load**               |
-| **Sticky sessions** | **Load balancer pins user to server** | **Simple**         | **Single point of failure**       |
+| In-memory       | Node.js Map                       |Fastest        | Lost on restart, not scalable |
+| Redis           | Redis session store               | Fast, scalable | Extra infrastructure          |
+| Database        | PostgreSQL sessions table         | Persistent     | Slower, DB load               |
+| Sticky sessions | Load balancer pins user to server | Simple         | Single point of failure       |
 
 
-### **3\. JWT-BASED AUTHENTICATION**
+###  JWT-BASED AUTHENTICATION
 
-#### **How it works**
 
-**1\. User sends login credentials**
+```mermaid
+flowchart TD
+  A[User submits username and password] --> B[Server verifies credentials]
+  B -->|Invalid| C[Reject login]
+  B -->|Valid| D[Create and sign JWT]
+  D --> E[Return JWT in response body or cookie]
+  E --> F[Client stores JWT]
+  F --> G[Client sends JWT with each request]
+  G --> H[Server extracts JWT from header or cookie]
+  H --> I{Signature and expiration valid?}
+  I -->|No| J[Reject request]
+  I -->|Yes| K[Read claims from payload]
+  K --> L[Process request as authenticated user]
+```
 
-**2\. Server verifies credentials**
 
-**→ Creates a JWT and signs it:**
+#### JWT Signing Algorithms
 
-**Header.Payload.Signature**
-
-**3\. Server sends back the JWT**
-
-**(in response body or cookie)**
-
-**4\. Every subsequent request:**
-
-**Client sends → Authorization: Bearer eyJhbGci...**
-
-**5\. Server receives JWT**
-
-**→ Validates signature (no DB lookup needed)**
-
-**→ Reads claims from payload**
-
-**→ Processes request**
-
-#### **JWT Structure**
-
-**eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9 ← Header (Base64)**
-
-**.eyJ1c2VySWQiOjQyLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE3MTgwMDAwMDB9 ← Payload (Base64)**
-
-**.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c ← Signature (HMAC/RSA)**
-
-**Decoded Payload:**
-
-**json**
-
-**{**
-
-**"userId": 42,**
-
-**"role": "admin",**
-
-**"email": "<user@example.com>",**
-
-**"iat": 1717996400,**
-
-**"exp": 1718000000**
-
-**}**
-
-**⚠️ JWT payload is Base64 encoded, NOT encrypted. Anyone can decode and read it. Never put passwords or sensitive data in a JWT.**
-
-#### **JWT Signing Algorithms**
-
-| **Algorithm** | **Type**                            | **Use Case**                          |
+| Algorithm | Type                            | Use Case                          |
 | ------------- | ----------------------------------- | ------------------------------------- |
-| **HS256**     | **Symmetric (shared secret)**       | **Single service, simple setup**      |
-| **RS256**     | **Asymmetric (private/public key)** | **Microservices, multiple verifiers** |
-| **ES256**     | **Elliptic curve asymmetric**       | **Performance-sensitive systems**     |
+| HS256     | Symmetric (shared secret)       | Single service, simple setup      |
+| RS256     | Asymmetric (private/public key) | Microservices, multiple verifiers |
+| ES256     | Elliptic curve asymmetric       | Performance-sensitive systems     |
+
+### Which algorithm to use where ?
+
+* HS256 is suitable for simple, single-service applications where you have a shared secret and don't need to distribute the verification key.
+
+* RS256 is ideal for microservices architectures where the authentication server signs tokens and other services need to verify them without having access to the private key.
+
+* ES256 is ideal for performance-sensitive systems where you need a more efficient signing algorithm than RS256.
 
 
-**With RS256 - only the auth server signs (private key), but any service can verify (public key). This is ideal for microservices.**
+###  HEAD-TO-HEAD COMPARISON
 
-### **4\. HEAD-TO-HEAD COMPARISON**
-
-| **Dimension**           | **Session**                                | **JWT**                                            |
+| Dimension           | Session                                | JWT                                            |
 | ----------------------- | ------------------------------------------ | -------------------------------------------------- |
-| **State**               | **Stateful (server stores state)**         | **Stateless (client carries state)**               |
-| **Storage**             | **Server (Redis, DB)**                     | **Client (localStorage, cookie, memory)**          |
-| **Scalability**         | **Harder (shared session store needed)**   | **Easier (no shared state)**                       |
-| **Revocation**          | **Instant (delete session)**               | **Hard (token valid until expiry)**                |
-| **Performance**         | **DB/Redis lookup per request**            | **Cryptographic verify (no DB)**                   |
-| **Payload size**        | **Cookie: tiny (just an ID ~20 bytes)**    | **JWT can be 500-2000+ bytes**                     |
-| **Mobile friendly**     | **Less (cookie management)**               | **More (Authorization header)**                    |
-| **Microservices**       | **Hard (all services need session store)** | **Easy (each service validates independently)**    |
-| **User data freshness** | **Always fresh (DB is source of truth)**   | **Stale until token expiry**                       |
-| **Security control**    | **Full (can kill session anytime)**        | **Limited (can't invalidate issued token easily)** |
+| State               | Stateful (server stores state)         | Stateless (client carries state)               |
+| Storage             | Server (Redis, DB)                     | Client (localStorage, cookie, memory)          |
+| Scalability         | Harder (shared session store needed)   | Easier (no shared state)                       |
+| Revocation          | Instant (delete session)               | Hard (token valid until expiry)                |
+| Performance         | DB/Redis lookup per request            | Cryptographic verify (no DB)                   |
+| Payload size        | Cookie: tiny (just an ID ~20 bytes)    | JWT can be 500-2000+ bytes                     |
+| Mobile friendly     | Less (cookie management)               | More (Authorization header)                    |
+| Microservices       | Hard (all services need session store) | Easy (each service validates independently)    |
+| User data freshness | Always fresh (DB is source of truth)   | Stale until token expiry                       |
+| Security control    | Full (can kill session anytime)        | Limited (can't invalidate issued token easily) |
 
 
-### **WHERE EACH IS STORED ON THE CLIENT**
 
-#### **Sessions**
+### WHERE EACH IS STORED ON THE CLIENT
 
-**Browser Cookie (automatic):**
+#### Sessions
 
-**Set-Cookie: sessionId=abc123; HttpOnly; Secure; SameSite=Strict**
+Browser Cookie (automatic):
 
-- **HttpOnly → JS cannot access it → XSS safe**
-- **Secure → Only sent over HTTPS**
-- **SameSite=Strict → CSRF protection**
+Set-Cookie: sessionId=abc123; HttpOnly; Secure; SameSite=Strict
 
-**JWT Storage Options**
+- HttpOnly → JavaScript cannot read the cookie, reducing the risk of token theft through XSS; it does not prevent XSS itself
+- Secure → The cookie is sent only over HTTPS
+- SameSite=Strict → The cookie is not sent with cross-site requests, providing strong CSRF protection; use an explicit CSRF defense when cross-site requests are required
 
-| **Location**        | **XSS Risk** | **CSRF Risk** | **Notes**                                             |
+
+JWT Storage Options
+
+| Location        | XSS Risk | CSRF Risk | Notes                                             |
 | ------------------- | ------------ | ------------- | ----------------------------------------------------- |
-| **localStorage**    | **❌ HIGH**  | **✅ Safe**   | **JS can read it - XSS steals token**                 |
-| **sessionStorage**  | **❌ HIGH**  | **✅ Safe**   | **Same as localStorage, cleared on tab close**        |
-| **HttpOnly Cookie** | **✅ Safe**  | **❌ Risk**   | **Best security, needs CSRF token**                   |
-| **Memory (JS var)** | **✅ Safe**  | **✅ Safe**   | **Lost on refresh, use with refresh token in cookie** |
+| localStorage    | ❌ HIGH  | ✅ Safe   | JS can read it - XSS steals token                |
+| sessionStorage  | ❌ HIGH  | ✅ Safe   | Same as localStorage, cleared on tab close        |
+| HttpOnly Cookie | ✅ Safe  | ❌ Risk   | Best security, needs CSRF token                   |
+| Memory (JS var) | ✅ Safe  | ✅ Safe   | Lost on refresh, use with refresh token in cookie |
 
 
-**✅ Best practice: Store JWT in HttpOnly cookie (XSS safe) + use CSRF tokens, or store in memory with a refresh token in HttpOnly cookie.**
+* ✅ Best practice: Store JWT in HttpOnly cookie (XSS safe) + use CSRF tokens, or store in memory with a refresh token in HttpOnly cookie.
 
-### **THE REVOCATION PROBLEM WITH JWT**
+#### THE REVOCATION PROBLEM WITH JWT
 
-**This is the biggest weakness of JWT.**
+* Scenario:
 
-**Scenario:**
+   -  Admin user gets a JWT valid for 1 hour
+   -  At 10 minutes in - admin is fired / account compromised
+   -  You want to immediately revoke their access
 
-**\- Admin user gets a JWT valid for 1 hour**
+* Problem:
+    - JWT is cryptographically valid for 50 more minutes
+    - Server has NO way to stop it - it doesn't store anything
+    - Every service that validates the signature will accept it
 
-**\- At 10 minutes in - admin is fired / account compromised**
+#### Solutions to JWT Revocation
 
-**\- You want to immediately revoke their access**
+* Option 1: Short expiry times
+   - Access Token: 5-15 minutes
+   - Refresh Token: days/weeks (stored server-side, revocable)
+   - Limits damage window but doesn't eliminate it.
 
-**Problem:**
-
-**\- JWT is cryptographically valid for 50 more minutes**
-
-**\- Server has NO way to stop it - it doesn't store anything**
-
-**\- Every service that validates the signature will accept it**
-
-#### **Solutions to JWT Revocation**
-
-**Option 1: Short expiry times**
-
-**Access Token: 5-15 minutes**
-
-**Refresh Token: days/weeks (stored server-side, revocable)**
-
-**Limits damage window but doesn't eliminate it.**
-
-**Option 2: Token Denylist / Blocklist**
+* Option 2: Token Denylist / Blocklist
 
 **On logout or revocation:**
 
