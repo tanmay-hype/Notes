@@ -590,124 +590,130 @@ JWT Storage Options
    - Limits damage window but doesn't eliminate it.
 
 * Option 2: Token Denylist / Blocklist
+    * On logout or revocation:
+        
+        → Store token's jti (JWT ID) in Redis with TTL = token's remaining lifetime
+        
+        → On each request, check Redis: is this jti blocked?
 
-**On logout or revocation:**
+    * Works but reintroduces statefulness - you're partially back to sessions.
 
-**→ Store token's jti (JWT ID) in Redis with TTL = token's remaining lifetime**
+* Option 3: Token Introspection (OAuth)
 
-**→ On each request, check Redis: is this jti blocked?**
+   * Service calls Auth Server: "Is this token still valid?"
 
-**Works but reintroduces statefulness - you're partially back to sessions.**
+   * Auth Server checks its records and responds.
 
-**Option 3: Token Introspection (OAuth)**
+   * Extra network call per request - defeats the stateless performance benefit.
 
-**Service calls Auth Server: "Is this token still valid?"**
+* Option 4: Short-lived tokens + Refresh Token Rotation
 
-**Auth Server checks its records and responds.**
+   * Access Token: 5 min (JWT, stateless)
 
-**Extra network call per request - defeats the stateless performance benefit.**
+   * Refresh Token: 30 days (opaque, stored in DB, revocable)
 
-**Option 4: Short-lived tokens + Refresh Token Rotation**
+   * Revocation: delete refresh token from DB
 
-**Access Token: 5 min (JWT, stateless)**
-
-**Refresh Token: 30 days (opaque, stored in DB, revocable)**
-
-**Revocation: delete refresh token from DB**
-
-**→ User can't get new access tokens**
-
-**→ Old access token expires in max 5 min**
-
-**✅ This is the industry standard approach.**
-
-### **SCALABILITY DEEP DIVE**
-
-#### **Sessions at Scale**
-
-**Server 1 ──┐**
-
-**Server 2 ──┼──► Need SHARED session store (Redis)**
-
-**Server 3 ──┘ Otherwise: user on Server 1**
-
-**hits Server 2 and is "logged out"**
-
-- **Need centralized Redis cluster**
-- **Redis becomes a single point of failure**
-- **Added network latency on every request**
-- **Redis must be highly available**
-
-#### **JWT at Scale**
-
-**Server 1 ──┐**
-
-**Server 2 ──┼──► Each validates JWT independently**
-
-**Server 3 ──┘ using the same public key / secret**
-
-**NO shared state needed**
-
-**Horizontally scales infinitely**
-
-- **Just share the public key or secret across services**
-- **Each service validates locally - no network call**
-- **Works perfectly with Kubernetes, Lambda, microservices**
-
-### **INDUSTRY EXAMPLES**
-
-#### **🏢 Banking Apps - Sessions**
-
-- **Banks use server-side sessions**
-- **Need to instantly revoke access (fraud detected → kill session)**
-- **Sessions give full real-time control**
-- **Short session timeouts (15 min inactivity)**
-- **HttpOnly + Secure cookies - no JS access**
-
-**🏢 Netflix - JWT + Refresh Tokens**
-
-- **Millions of concurrent users globally**
-- **JWT for API access (stateless, scales globally)**
-- **Short-lived access tokens (~1 hour)**
-- **Refresh token stored server-side for revocation**
-- **Device management: revoke specific device's refresh token**
-
-**🏢 GitHub API**
-
-- **Personal Access Tokens (similar to JWT concept - opaque tokens)**
-- **Fine-grained permissions per token**
-- **Tokens are revocable from the dashboard**
-- **Used in CI/CD pipelines (Authorization: Bearer ghp_xxx)**
+       → User can't get new access tokens
+    
+       → Old access token expires in max 5 min
 
 
 
-### **HYBRID ARCHITECTURE (Industry Best Practice)**
+### SCALABILITY DEEP DIVE
 
-**Most modern production systems use both:**
+#### Sessions at Scale
 
-**┌─────────────────────────────────────────────┐**
+Server 1 ──┐
 
-**│ Browser / Mobile App │**
+Server 2 ──┼──► Need SHARED session store (Redis)
 
-**│ │**
+Server 3 ──┘ 
 
-**│ HttpOnly Cookie ──► Refresh Token (opaque) │ ← Server-side (revocable)**
+* Otherwise: user on Server 1 hits Server 2 and is "logged out"
 
-**│ Memory / Header ──► Access Token (JWT) │ ← Stateless (short-lived)**
+- Need centralized Redis cluster
+- Redis becomes a single point of failure
+- Added network latency on every request
+- Redis must be highly available
 
-**└─────────────────────────────────────────────┘**
+#### JWT at Scale
 
-**Flow:**
+Server 1 ──┐
 
-**1\. Login → get short-lived JWT (15 min) + refresh token in HttpOnly cookie**
+Server 2 ──┼──► Each validates JWT independently
 
-**2\. Use JWT for all API calls (stateless, fast)**
+Server 3 ──┘ 
 
-**3\. JWT expires → silently use refresh token → get new JWT**
+* Using the same public key / secret no shared state needed
 
-**4\. Logout → delete refresh token from DB → user fully logged out**
+* Horizontally scales infinitely
 
-**5\. Revoke access → delete refresh token → max 15 min until full effect**
+- Just share the public key or secret across services
+- Each service validates locally - no network call
+- Works perfectly with Kubernetes, Lambda, microservices
+
+### INDUSTRY EXAMPLES
+
+#### 🏢 Banking Apps - Sessions
+
+- Banks use server-side sessions
+- Need to instantly revoke access (fraud detected → kill session)
+- Sessions give full real-time control
+- Short session timeouts (15 min inactivity)
+- HttpOnly + Secure cookies - no JS access
+
+🏢 Netflix - JWT + Refresh Tokens
+
+- Millions of concurrent users globally
+- JWT for API access (stateless, scales globally)
+- Short-lived access tokens (~1 hour)
+- Refresh token stored server-side for revocation
+- Device management: revoke specific device's refresh token
+
+🏢 GitHub API
+
+- Personal Access Tokens (similar to JWT concept - opaque tokens)
+- Fine-grained permissions per token
+- Tokens are revocable from the dashboard
+- Used in CI/CD pipelines (Authorization: Bearer ghp_xxx)
+
+
+
+### HYBRID ARCHITECTURE (Industry Best Practice)
+
+* Most modern production systems use both:
+
+```mermaid
+flowchart LR
+  C[Browser / Mobile App]
+  API[API Server]
+  DB[(Refresh-token store)]
+
+  C -->|Login credentials| API
+  API -->|Short-lived access token: JWT| C
+  API -->|Set HttpOnly, Secure refresh-token cookie| C
+
+  C -->|Authorization: Bearer JWT| API
+  API -->|Validate JWT signature and claims| API
+  API -->|Protected response| C
+
+  C -->|JWT expired: refresh request with cookie| API
+  API -->|Validate, rotate, and revoke old refresh token| DB
+  API -->|New JWT and rotated refresh cookie| C
+
+  C -->|Logout| API
+  API -->|Revoke refresh token| DB
+  API -->|Clear refresh-token cookie| C
+```
+
+* Flow:
+
+1. Login: the server issues a short-lived JWT and stores a refresh-token record; the refresh token is sent in an HttpOnly, Secure cookie.
+2. The client sends the JWT in the `Authorization` header for API calls. The server validates its signature and claims without a database lookup.
+3. When the JWT expires, the client sends the refresh cookie to the refresh endpoint. The server validates and rotates the refresh token, then returns a new JWT.
+4. Logout revokes the refresh-token record and clears the cookie. Existing JWTs remain valid until they expire.
+5. To revoke access immediately, maintain a server-side denylist/introspection check for access tokens, or use very short JWT lifetimes; revoking only the refresh token does not invalidate an already-issued JWT.
 
 ### **10\. EDGE CASES & GOTCHAS**
 
