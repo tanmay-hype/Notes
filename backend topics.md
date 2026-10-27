@@ -715,151 +715,155 @@ flowchart LR
 4. Logout revokes the refresh-token record and clears the cookie. Existing JWTs remain valid until they expire.
 5. To revoke access immediately, maintain a server-side denylist/introspection check for access tokens, or use very short JWT lifetimes; revoking only the refresh token does not invalidate an already-issued JWT.
 
-### **10\. EDGE CASES & GOTCHAS**
+###  EDGE CASES & GOTCHAS
 
-#### **⚠️ Edge Case 1: JWT alg: none Attack**
+ ⚠️ Edge Case 1: JWT alg: none Attack
 
-**Some early JWT libraries accepted "alg": "none" in the header - meaning no signature validation.**
+* Some early JWT libraries accepted "alg": "none" in the header - meaning no signature validation.
 
-**json**
+json
 
-**{ "alg": "none", "typ": "JWT" }**
+{ "alg": "none", "typ": "JWT" }
 
-**Attacker creates a JWT with any claims, sets alg to none, server accepts it. ✅ Fix: Always explicitly specify and enforce the expected algorithm. Never accept alg: none.**
+* Attacker creates a JWT with any claims, sets alg to none, server accepts it.
+ 
+ ✅ Fix: Always explicitly specify and enforce the expected algorithm. Never accept alg: none.
 
-**⚠️ Edge Case 2: RS256 → HS256 Confusion Attack**
+⚠️ Edge Case 2: RS256 → HS256 Confusion Attack
 
-**If a server uses RS256, an attacker takes the public key and signs a JWT with it using HS256. If the server accepts both algorithms, it uses the public key as the HMAC secret and the token verifies successfully.**
+* If a server uses RS256, an attacker takes the public key and signs a JWT with it using HS256. If the server accepts both algorithms, it uses the public key as the HMAC secret and the token verifies successfully.
 
-**✅ Fix: Explicitly whitelist only the expected algorithm. Never accept multiple algorithms.**
+✅ Fix: Explicitly whitelist only the expected algorithm. Never accept multiple algorithms.
 
-**⚠️ Edge Case 3: Session Fixation**
+⚠️ Edge Case 3: Session Fixation
 
-**Attacker sets a known session ID in the victim's browser before login. Victim logs in - server associates that session ID with the victim's account. Attacker now uses the same session ID.**
+* Attacker sets a known session ID in the victim's browser before login. Victim logs in - server associates that session ID with the victim's account. Attacker now uses the same session ID.
 
-**✅ Fix: Always regenerate session ID upon successful login.**
+✅ Fix: Always regenerate session ID upon successful login.
 
-**⚠️ Edge Case 4: JWT Clock Skew**
+⚠️ Edge Case 4: JWT Clock Skew
 
-**Distributed systems have slightly different clocks. A JWT issued by Server A might appear expired to Server B if clocks are off.**
+* Distributed systems have slightly different clocks. A JWT issued by Server A might appear expired to Server B if clocks are off.
 
-**✅ Fix: Allow a small clock skew tolerance (~5 minutes) when validating exp and iat.**
+✅ Fix: Allow a small clock skew tolerance (~5 minutes) when validating exp and iat.
 
-**⚠️ Edge Case 5: Bloated JWT**
+⚠️ Edge Case 5: Bloated JWT
 
-**Developers put too much data in JWT claims (full user profile, permissions list, etc.). JWT goes from ~200 bytes to 5KB - sent on every request, hurting performance.**
+* Developers put too much data in JWT claims (full user profile, permissions list, etc.). JWT goes from ~200 bytes to 5KB - sent on every request, hurting performance.
 
-**✅ Fix: Keep JWT claims minimal. Only include what's needed for authorization (userId, role, scope).**
+✅ Fix: Keep JWT claims minimal. Only include what's needed for authorization (userId, role, scope).
 
-**⚠️ Edge Case 6: Concurrent Refresh Token Use**
+⚠️ Edge Case 6: Concurrent Refresh Token Use
 
-**User has two tabs open. Both detect an expired access token simultaneously and both try to use the refresh token. With rotation, the first succeeds, the second fails (token already rotated).**
+* User has two tabs open. Both detect an expired access token simultaneously and both try to use the refresh token. With rotation, the first succeeds, the second fails (token already rotated).
 
-**✅ Fix: Implement a short reuse window (if the same refresh token is used within 30 seconds, allow it) or use mutex/locking in the client.**
+✅ Fix: Implement a short reuse window (if the same refresh token is used within 30 seconds, allow it) or use mutex/locking in the client.
 
-**⚠️ Edge Case 7: Session Store Unavailability**
+⚠️ Edge Case 7: Session Store Unavailability
 
-**Redis goes down → all users are effectively logged out (sessions unreadable). This is a critical availability issue for session-based systems.**
+* Redis goes down → all users are effectively logged out (sessions unreadable). This is a critical availability issue for session-based systems.
 
-**✅ Fix: Redis clustering + replication, circuit breaker patterns, fallback strategies.**
+✅ Fix: Redis clustering + replication, circuit breaker patterns, fallback strategies.
 
-**Q1. JWT is stateless - so how do you implement logout?**
+### Interview Questions
 
-**True stateless JWT can't be "logged out" since you can't invalidate a valid token. Solutions: short expiry + refresh token rotation (delete refresh token from DB), or a token denylist in Redis keyed by jti claim with TTL matching token lifetime.**
+ Q1. JWT is stateless - so how do you implement logout?
 
-**Q2. Is JWT more secure than sessions?**
+* True stateless JWT can't be "logged out" since you can't invalidate a valid token. Solutions: short expiry + refresh token rotation (delete refresh token from DB), or a token denylist in Redis keyed by jti claim with TTL matching token lifetime.
 
-**Neither is inherently more secure - they have different threat models. Sessions are vulnerable to session hijacking and require a secure, available session store. JWTs are vulnerable to token theft (larger attack surface since they carry full claims) and can't be instantly revoked. Security depends on correct implementation, not the mechanism.**
+Q2. Is JWT more secure than sessions?
 
-**Q3. Why shouldn't you store JWT in localStorage?**
+* Neither is inherently more secure - they have different threat models. Sessions are vulnerable to session hijacking and require a secure, available session store. JWTs are vulnerable to token theft (larger attack surface since they carry full claims) and can't be instantly revoked. Security depends on correct implementation, not the mechanism.
 
-**Any JavaScript on the page (including injected XSS scripts) can read localStorage. A successful XSS attack can steal the JWT and use it from the attacker's machine. HttpOnly cookies prevent JS access entirely, making XSS unable to steal the token.**
+Q3. Why shouldn't you store JWT in localStorage?
 
-**Q4. Can you store sensitive data in a JWT?**
+* Any JavaScript on the page (including injected XSS scripts) can read localStorage. A successful XSS attack can steal the JWT and use it from the attacker's machine. HttpOnly cookies prevent JS access entirely, making XSS unable to steal the token.
 
-**❌ No. The payload is Base64-encoded, not encrypted - anyone with the token can decode and read it. For encrypted payloads, use JWE (JSON Web Encryption) instead of plain JWT. But even then, avoid putting sensitive data in tokens.**
+Q4. Can you store sensitive data in a JWT?
 
-**Q5. If JWT is stateless, how does the server validate it without a DB call?**
+* ❌ No. The payload is Base64-encoded, not encrypted - anyone with the token can decode and read it. For encrypted payloads, use JWE (JSON Web Encryption) instead of plain JWT. But even then, avoid putting sensitive data in tokens.
 
-**The server uses cryptographic signature verification. For HS256, it recomputes the HMAC using the shared secret and compares. For RS256, it uses the issuer's public key to verify the signature. If the signature is valid and claims (exp, iss, aud) pass, the token is trusted - no DB needed.**
+Q5. If JWT is stateless, how does the server validate it without a DB call?**
 
-**Q6. What is the jti claim and why is it useful?**
+* The server uses cryptographic signature verification. For HS256, it recomputes the HMAC using the shared secret and compares. For RS256, it uses the issuer's public key to verify the signature. If the signature is valid and claims (exp, iss, aud) pass, the token is trusted - no DB needed.
 
-**jti (JWT ID) is a unique identifier for a specific token. It's used to prevent replay attacks and to implement a token denylist for revocation. By storing used/revoked jti values in Redis (with TTL = token expiry), you can invalidate specific tokens.**
+Q6. What is the jti claim and why is it useful?
 
-**Q7. Sessions scale poorly - how does Redis solve it, and what problem does Redis introduce?**
+* jti (JWT ID) is a unique identifier for a specific token. It's used to prevent replay attacks and to implement a token denylist for revocation. By storing used/revoked jti values in Redis (with TTL = token expiry), you can invalidate specific tokens.
 
-**Redis provides a fast, shared session store accessible by all server instances, solving the multi-server session problem. However, Redis introduces a new SPOF (single point of failure) - if Redis is unavailable, all sessions are inaccessible. This requires Redis clustering, replication, and failover strategies, adding operational complexity.**
+Q7. Sessions scale poorly - how does Redis solve it, and what problem does Redis introduce?
 
-**12\. DECISION FRAMEWORK**
+* Redis provides a fast, shared session store accessible by all server instances, solving the multi-server session problem. However, Redis introduces a new SPOF (single point of failure) - if Redis is unavailable, all sessions are inaccessible. This requires Redis clustering, replication, and failover strategies, adding operational complexity.**
 
-**Use SESSIONS when:**
+### DECISION FRAMEWORK
 
-**✅ You need instant revocation (banking, security-critical)**
+* Use SESSIONS when:
 
-**✅ Simple monolithic web app**
+   * You need instant revocation (banking, security-critical)
 
-**✅ You don't mind server-side state**
+   * Simple monolithic web app
 
-**✅ Traditional SSR (server-side rendered) web app**
+   * You don't mind server-side state
 
-**Use JWT when:**
+   * Traditional SSR (server-side rendered) web app
 
-**✅ Microservices / distributed systems**
+* Use JWT when:
 
-**✅ Mobile apps / APIs**
+   * Microservices / distributed systems
 
-**✅ Stateless horizontal scaling needed**
+   * Mobile apps / APIs
 
-**✅ Multiple services need to verify identity independently**
+   *  Stateless horizontal scaling needed
 
-**✅ Third-party API consumers**
+   * Multiple services need to verify identity independently
 
-**Use BOTH (Hybrid) when:**
+   * Third-party API consumers
 
-**✅ Production SaaS, modern web apps**
+* Use BOTH (Hybrid) when:
 
-**✅ Need scalability AND revocation capability**
+  * Production SaaS, modern web apps
 
-**✅ Short-lived JWT + revocable refresh token in HttpOnly cookie**
+  * Need scalability AND revocation capability
 
-**13\. MENTAL MODEL SUMMARY**
+  * Short-lived JWT + revocable refresh token in HttpOnly cookie
 
-**SESSION = Coat check 🎫**
+### MENTAL MODEL SUMMARY
 
-**You give your coat (identity) to the server**
+* SESSION = Coat check 🎫
 
-**Server gives you a ticket (session ID)**
+   * You give your coat (identity) to the server
 
-**You show the ticket → server fetches your coat**
+   * Server gives you a ticket (session ID)
 
-**JWT = Passport 🛂**
+   * You show the ticket → server fetches your coat
 
-**You carry all your identity info with you**
+* JWT = Passport 🛂
 
-**Border agent (server) verifies the stamp (signature)**
+   * You carry all your identity info with you
 
-**No need to call home - trust the document**
+   * Border agent (server) verifies the stamp (signature)
 
-**Hybrid = Best of both worlds**
+   * No need to call home - trust the document
 
-**JWT for speed (stateless, scalable)**
+   * Hybrid = Best of both worlds 
 
-**Refresh token for control (revocable, server-side)**
+   * JWT for speed (stateless, scalable)
 
-**4 - Hashing**
+   * Refresh token for control (revocable, server-side)
 
-### **1\. WHAT IS HASHING?**
+#  Hashing
 
-**Hashing is the process of taking an input of any size and producing a fixed-size output (called a hash, digest, or checksum) using a hash function.**
+### WHAT IS HASHING?
+
+* Hashing is the process of taking an input of any size and producing a fixed-size output (called a hash, digest, or checksum) using a hash function.
 
 **Input (any size) → Hash Function → Hash (fixed size)**
 
-**"hello" → SHA-256 → 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824**
+* "hello" → SHA-256 → 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
 
-**"hello!" → SHA-256 → ce06092fb948d9af6e27d359f4084773f3e3e9b41c97e6c9994e9ed6f3d9f9f4**
+   "hello!" → SHA-256 → ce06092fb948d9af6e27d359f4084773f3e3e9b41c97e6c9994e9ed6f3d9f9f4
 
-**One character difference → completely different hash. This is called the Avalanche Effect.**
+* One character difference → completely different hash. This is called the Avalanche Effect.
 
 ### **2\. PROPERTIES OF A GOOD HASH FUNCTION**
 
