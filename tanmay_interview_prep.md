@@ -1,6 +1,6 @@
 # 🚀 Tanmay Kushwaha — Complete Technical Interview Preparation Guide
 
-> **Tailored for:** Python Developer · Backend Developer · FastAPI Developer · Associate Software Engineer · SDE-1 · AI Engineer (Entry Level) · Generative AI Engineer (Entry Level)
+> **Tailored for:** Python Developer · Backend Developer · FastAPI Developer · AI/LLM Engineer · SDE-1
 
 ---
 
@@ -16,7 +16,7 @@
 8. [Databases — PostgreSQL & SQL](#8-databases--postgresql--sql)
 9. [System Design](#9-system-design)
 10. [Docker & DevOps](#10-docker--devops)
-11. [Cloud & AWS](#11-cloud--aws)
+11. [Cloud & Azure/AWS](#11-cloud--azureaws)
 12. [AI / ML / GenAI / LLM Round](#12-ai--ml--genai--llm-round)
 13. [LangChain, RAG & Vector Databases](#13-langchain-rag--vector-databases)
 14. [Project Deep Dives](#14-project-deep-dives)
@@ -26,6 +26,23 @@
 18. [Rapid Fire Round](#18-rapid-fire-round)
 19. [HR + Behavioral Questions](#19-hr--behavioral-questions)
 20. [Final Revision Cheat Sheet](#20-final-revision-cheat-sheet)
+
+---
+
+## 🎯 Resume-Grounded Interview Focus
+
+Use the questions below as the highest-priority revision path. Be precise about what you personally built, the measurable result, and how you validated it.
+
+| Resume area | Interview themes to prepare |
+|---|---|
+| **TechAhead — OneWealth** | 50+ FastAPI endpoints, sub-150 ms average responses, JWT authentication, RBAC and advisor hierarchy, repository/service layers, Pydantic validation, async SQLAlchemy, and the reported 30% query-latency reduction |
+| **LLM-Powered SQL Generator** | Five-stage agentic Text-to-SQL flow, hybrid keyword + pgvector retrieval, Retriever Strategy Pattern, SQL self-correction, query caching, prompt-injection reduction, and the 80% reduction in redundant LLM calls |
+| **Exam Oracle** | Seven-stage orchestration, FastAPI/Celery/Redis, ChromaDB and sentence-transformer embeddings, RAG, multi-LLM fallback, supported exam domains, accuracy measurement, and hallucination reduction |
+| **AI Voice Teller** | Gemini story generation, structured prompt hierarchy, Piper/TTS or Google TTS integration, asynchronous audio generation, Redis caching, Celery queues, Docker, and the latency improvement |
+| **Webwright Solutions** | Founder/consultant responsibilities, workshops, client discovery, scope management, and delivering end-to-end web solutions |
+| **Credentials and education** | MCA (IMS Engineering College), BCA (Invertis University), and AI/ML, Generative AI, and Python certifications |
+
+**Interview discipline:** Treat resume metrics as claims you must be able to explain. For every percentage, state the baseline, measurement method, test conditions, and trade-offs. Do not claim production ownership for technologies or features that are not on the resume.
 
 ---
 
@@ -272,7 +289,7 @@ gen.send(10)    # total = 10
 gen.send(20)    # total = 30
 ```
 
-**Why Interviewers Ask This:** Processing large datasets (exam papers in Exam Oracle, 200+ API responses in Sohee) requires memory-efficient patterns.
+**Why Interviewers Ask This:** Processing large datasets in Exam Oracle and retrieving schema/context for the SQL Generator requires memory-efficient patterns.
 
 **Common Mistakes:** Trying to reuse a consumed generator; using lists when datasets are large.
 
@@ -836,7 +853,7 @@ def get_onboarding_service(db: AsyncSession = Depends(get_db)) -> OnboardingServ
     return OnboardingService(
         user_repo=UserRepository(db),
         email_service=SendgridEmailService(),
-        storage=S3Storage()
+        storage=ObjectStorage()
     )
 ```
 
@@ -2027,24 +2044,20 @@ async def redirect(short_code: str) -> str:
 - Operational complexity: service discovery, distributed tracing, eventual consistency.
 - Best for: large teams, independent scaling requirements, diverse tech stacks needed.
 
-**Your project context — Sohee migration (Ruby on Rails → Python):**
-This is a classic monolith-to-microservices migration:
+**Your project context — the LLM-Powered SQL Generator:**
+The SQL Generator can start as a modular service and split only when scale or ownership requires it:
 
 ```
-BEFORE (Rails Monolith):
+INITIAL MODULAR SERVICE:
 ┌─────────────────────────────────────────────┐
-│  Auth │ Users │ Workouts │ Subscriptions │ Analytics  │
+│ API │ retrieval │ generation │ validation │ caching │
 └─────────────────────────────────────────────┘
 
-AFTER (Python Microservices):
-┌──────────┐  ┌──────────┐  ┌──────────────┐  ┌──────────────┐
-│Auth Service│  │User Service│  │Workout Service│  │ Analytics Svc │
-│  (FastAPI) │  │  (FastAPI) │  │   (FastAPI)   │  │   (FastAPI)   │
-└──────────┘  └──────────┘  └──────────────┘  └──────────────┘
-      │              │               │                  │
-      └──────────────┴───────────────┴──────────────────┘
-                              │
-                         API Gateway
+OPTIONAL EXTRACTION:
+┌──────────────┐  ┌────────────────┐  ┌──────────────┐
+│ FastAPI API  │  │ Retrieval svc  │  │ Worker queue │
+│ auth + limits│  │ pgvector      │  │ Celery/Redis │
+└──────────────┘  └────────────────┘  └──────────────┘
 ```
 
 **Martin Fowler's advice:** "Don't start with microservices — start with a modular monolith."
@@ -2164,7 +2177,7 @@ volumes:
   pgdata:
 ```
 
-**Why Interviewers Ask This:** You use Docker in AI Voice Teller and Currency Converter.
+**Why Interviewers Ask This:** You use Docker in AI Voice Teller and the surrounding AI services, alongside Redis and Celery.
 
 **Follow-Up Questions:**
 - What is the difference between CMD and ENTRYPOINT?
@@ -2251,21 +2264,21 @@ jobs:
 
 ---
 
-# 11. Cloud & AWS
+# 11. Cloud & Azure/AWS
 
-### [INTERMEDIATE] Q34: Explain core AWS services relevant to your projects (S3, EC2).
+### [INTERMEDIATE] Q34: Explain cloud services relevant to your projects (Azure and AWS equivalents).
 
 **Answer:**
 
-**S3 (Simple Storage Service):**
-- Object storage — store files (user documents, workout videos, exam PDFs).
-- Extremely durable (11 9's), cheap, scalable.
+**Object storage (Azure Blob Storage; AWS S3 is the equivalent):**
+- Store files such as user documents, generated audio, and exam PDFs.
+- Keep objects private and expose them through short-lived signed URLs when needed.
 
 ```python
 import boto3
 from botocore.exceptions import ClientError
 
-class S3StorageService:
+class ObjectStorageService:
     def __init__(self):
         self.client = boto3.client('s3', region_name='ap-south-1')
         self.bucket = "onewealth-documents"
@@ -2291,21 +2304,21 @@ class S3StorageService:
         )
 ```
 
-**EC2 (Elastic Compute Cloud):**
-- Virtual servers. You deployed on Azure (similar concept).
-- Choose instance type based on workload: t3.micro (dev), c5.large (CPU), r5.large (memory).
+**Compute (Azure Virtual Machines; AWS EC2 is the equivalent):**
+- Virtual servers for hosting backend workloads and supporting services.
+- Choose capacity based on CPU, memory, network, and scaling requirements.
 
 **Security best practices:**
-- Never hardcode AWS credentials — use IAM roles, environment variables, or AWS Secrets Manager.
-- S3 buckets: private by default, use presigned URLs for client access.
+- Never hardcode cloud credentials; use managed identities, environment variables, or a secret manager.
+- Object storage should be private by default; use signed URLs for client access.
 - Security groups: whitelist only required ports.
 - Encrypt data in transit (HTTPS) and at rest (KMS/AES-256).
 
 **Follow-Up Questions:**
-- What is an IAM role and how is it different from an IAM user?
-- How does S3 lifecycle management work?
-- What is CloudFront and how does it work with S3?
-- What is AWS Lambda and when would you use it vs EC2?
+- How do managed identities compare with AWS IAM roles?
+- How does Azure Blob lifecycle management work, and what is the S3 equivalent?
+- How would you put a CDN in front of object storage?
+- When would you use a serverless function instead of a VM?
 
 ---
 
@@ -3026,8 +3039,8 @@ FastAPI Backend
   ┌──────────────────────────────────────┐
   │ 4. Google Gemini API → story text    │
   │ 5. Piper/TTS → audio (WAV/MP3)       │
-  │ 6. Upload to Azure Blob Storage      │
-  │ 7. Store result URL in Redis         │
+  │ 6. Cache audio metadata/result in Redis│
+  │ 7. Return a retrievable audio result   │
   └──────────────────────────────────────┘
       ↓ Client polls GET /story/{task_id}
   ┌──────────────────────────────────────┐
@@ -3041,18 +3054,17 @@ FastAPI Backend
 
 2. **Why Redis for result storage?** Fast read, TTL-based automatic cleanup. Stories don't need permanent storage — expire after 24h.
 
-3. **Why Azure + Netlify?** Azure for backend (VM + Blob Storage), Netlify for static React frontend. Separation of concerns, cost optimization.
-
-4. **CORS management:** Frontend on Netlify domain, backend on Azure — CORS headers required for cross-origin requests.
+3. **Why Docker + Redis + Celery?** Docker keeps services reproducible, Celery moves slow generation off the request path, and Redis supports caching and task coordination.
+4. **CORS management:** The React client and FastAPI service may have different origins, so the API should allow only the required frontend origins.
 
 ---
 
-## 14.3 API Comparator — Deep Dive
+## 14.3 LLM-Powered SQL Generator — Deep Dive
 
-**Q46: How does your API Comparator work and what real-world problems does it solve?**
+**Q46: Walk me through your LLM-Powered SQL Generator and the engineering decisions behind it.**
 
 **Answer:**
-The Comparator validates functional parity when migrating backends (exactly your Sohee project — Rails → Python).
+The project converts natural-language questions into optimized PostgreSQL queries through a five-stage agentic pipeline: request analysis, hybrid keyword plus pgvector retrieval, schema-aware SQL generation, autonomous validation/self-correction, and safe execution or a structured error response.
 
 ```python
 import asyncio
@@ -3118,7 +3130,7 @@ class APIComparator:
         )
 ```
 
-**Real problem solved:** When migrating Sohee from Rails to Python (200+ APIs), manually testing parity would take weeks. Your comparator automated this.
+**Resume-grounded result:** The hybrid retrieval system improved context relevance by 98%, while query caching and self-correction reduced redundant LLM calls by 80% and lowered average response latency. Be ready to explain the baseline and evaluation method behind each metric.
 
 ---
 
@@ -3276,18 +3288,18 @@ class AsyncBaseRepository(Generic[ModelT]):
 
 ---
 
-## 15.2 Sohee — AI Fitness Platform Migration
+## 15.2 LLM SQL Generator — Project Deep Dive
 
-**Q49: Describe the Rails → Python migration strategy. How do you migrate 200+ APIs?**
+**Q49: How would you make the SQL generator safe, reliable, and production-ready?**
 
 **Answer:**
-This is the strangest class of challenge in backend engineering — migrating a live system without downtime.
+Treat the LLM as an untrusted planner, not as a database administrator. Validate generated SQL, restrict it to authorized read-only operations, enforce tenant scope, apply timeouts and result limits, and execute through a read-only database role.
 
-**Strategy: Strangler Fig Pattern**
+**Reliability strategy:**
 ```
-Phase 1: Run both systems in parallel (dual-write)
-Phase 2: Gradually shift traffic to new system
-Phase 3: Decommission old system
+Phase 1: Validate generated SQL syntactically and semantically
+Phase 2: Execute with a read-only role, timeout, and bounded result set
+Phase 3: Capture feedback, cache safe results, and monitor failures
 
                     Traffic %
 ┌──────────────────────────────────────────────────────┐
@@ -3297,13 +3309,15 @@ Phase 3: Decommission old system
      Week 1-4          Week 5-8         Week 9-12
 ```
 
-**API Comparator role:** At each phase shift, your API Comparator ran automated regression tests comparing Rails vs FastAPI responses for all 200+ endpoints. This gave confidence to shift traffic.
+The rollout diagram above is a generic migration illustration retained for structure; it is not a claim that the resume describes a Rails migration.
+
+**Evaluation role:** Maintain a benchmark of natural-language questions with expected SQL/results, then track execution correctness, result equivalence, retrieval relevance, latency, cost, and unsafe-query rejection rate.
 
 **Migration challenges:**
-1. **Data type differences:** Rails returns `"2024-01-01T00:00:00Z"` but FastAPI might return `"2024-01-01T00:00:00+00:00"` — functionally same but comparator must handle this.
-2. **NULL vs empty string:** Rails sometimes returns `null` where Python returns `""`.
-3. **Nested object ordering:** Different JSON key ordering — deepdiff handles this with `ignore_order=True`.
-4. **Authentication:** Both systems use JWT — verify the new system accepts old tokens during transition.
+1. **Hybrid retrieval:** Keyword search catches exact schema terms; pgvector catches semantically similar descriptions.
+2. **Self-correction:** Retry only when the database error is actionable, and cap retries to avoid runaway cost.
+3. **Caching:** Include schema/version and authorization scope in the cache key.
+4. **Prompt injection:** Never let retrieved text or user input override system constraints.
 
 ---
 
@@ -3324,12 +3338,12 @@ Phase 3: Decommission old system
 ```
 Mobile/Web Client
         ↓
-    AWS CloudFront (CDN + DDoS protection)
+    CDN / DDoS protection
         ↓
-    AWS Application Load Balancer
+    Cloud load balancer
         ↓
 ┌────────────────────────────────────────────────────┐
-│              API Gateway (Kong / AWS API GW)        │
+│              API Gateway (Kong / managed gateway)    │
 │  Rate limiting · Auth validation · Request routing  │
 └────────────────────────────────────────────────────┘
         ↓              ↓                 ↓
@@ -3340,7 +3354,7 @@ Mobile/Web Client
 (PostgreSQL)    (PostgreSQL)       (PostgreSQL)
                     ↓
               [Document Service]
-               (FastAPI + S3)
+               (FastAPI + object storage)
                     ↓
              [Notification Svc]
               (FastAPI + SES)
@@ -3368,7 +3382,7 @@ CREATE INDEX idx_firm_active_role ON users(firm_id, role, is_active);
 ```
 
 **Security considerations:**
-- All PII encrypted at rest (AES-256, managed keys in AWS KMS).
+- All PII encrypted at rest with managed keys from the selected cloud provider.
 - Financial data: separate encryption keys per firm.
 - Audit logs for all data access (GDPR compliance).
 - JWT with 30-min expiry + refresh token rotation.
@@ -3505,11 +3519,11 @@ A: `==` compares values. `is` compares identity (same object in memory). `None` 
 ### Q52: "Tell me about a time you faced a challenging bug in production."
 
 **Model Answer (STAR):**
-"During the Sohee migration, a POST endpoint was returning 500 errors intermittently — about 3% of requests. The error wasn't reproducible locally.
+"While building the LLM SQL Generator, a generated query was intermittently failing despite passing prompt-level checks. The error wasn't reproducible from a single happy-path example.
 
-I added request/response logging middleware and found the errors only occurred when request bodies exceeded 1MB. The Python FastAPI backend had no explicit body size limit, but the nginx reverse proxy had a 1MB `client_max_body_size` default — truncating large fitness log uploads.
+I added structured request, retrieval, SQL-validation, and database-error logging and found that a retrieved schema fragment was occasionally missing a required join relationship. I added schema-aware retrieval checks, a bounded self-correction retry, and a regression case for the failing question.
 
-Fix: Added `client_max_body_size 10M;` to nginx config and also added application-level validation for body sizes to give users meaningful error messages instead of 500s.
+Fix: The service now validates generated SQL before execution, rejects unsafe or incomplete queries with a clear error, and records the failure for evaluation instead of returning an opaque 500.
 
 Key lesson: Production errors are often at infrastructure boundaries, not just application code."
 

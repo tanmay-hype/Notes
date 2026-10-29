@@ -857,7 +857,7 @@ Q7. Sessions scale poorly - how does Redis solve it, and what problem does Redis
 
 * Hashing is the process of taking an input of any size and producing a fixed-size output (called a hash, digest, or checksum) using a hash function.
 
-**Input (any size) → Hash Function → Hash (fixed size)**
+* Input (any size) → Hash Function → Hash (fixed size)
 
 * "hello" → SHA-256 → 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
 
@@ -865,520 +865,438 @@ Q7. Sessions scale poorly - how does Redis solve it, and what problem does Redis
 
 * One character difference → completely different hash. This is called the Avalanche Effect.
 
-### **2\. PROPERTIES OF A GOOD HASH FUNCTION**
+###  PROPERTIES OF A GOOD HASH FUNCTION
 
-**1\. DETERMINISTIC**
+* DETERMINISTIC
 
-**Same input → always same output**
+   * Same input → always same output
 
-**"hello" → always → 2cf24dba...**
+   * "hello" → always → 2cf24dba...
 
-**2\. FIXED OUTPUT SIZE**
+* FIXED OUTPUT SIZE
 
-**Input can be 1 byte or 10GB**
+   * Input can be 1 byte or 10GB
 
-**Output is always the same size (e.g., 256 bits for SHA-256)**
+   * Output is always the same size (e.g., 256 bits for SHA-256)
 
-**3\. FAST TO COMPUTE**
+* FAST TO COMPUTE
 
-**Given input → hash computed quickly**
+   * Given input → hash computed quickly
 
-**4\. AVALANCHE EFFECT**
 
-**Tiny change in input → completely different hash**
+* PRE-IMAGE RESISTANCE (One-way)
 
-**"hello" vs "Hello" → totally different hashes**
+    * Given hash → cannot reverse-engineer the input
 
-**5\. PRE-IMAGE RESISTANCE (One-way)**
+    * 2cf24dba... → ??? (you can't get "hello" back)
 
-**Given hash → cannot reverse-engineer the input**
+* SECOND PRE-IMAGE RESISTANCE
 
-**2cf24dba... → ??? (you can't get "hello" back)**
+   * Given input A → cannot find input B with same hash
 
-**6\. SECOND PRE-IMAGE RESISTANCE**
 
-**Given input A → cannot find input B with same hash**
+### HASHING vs ENCRYPTION vs ENCODING
 
-**7\. COLLISION RESISTANCE**
-
-**Cannot find ANY two inputs that produce the same hash**
-
-###
-
-###
-
-###
-
-###
-
-###
-
-### **3\. HASHING vs ENCRYPTION vs ENCODING**
-
-**This is the most commonly confused trio in security.**
-
-|                 | **Hashing**                  | **Encryption**        | **Encoding**                   |
+|                 | Hashing                  | Encryption        | Encoding                   |
 | --------------- | ---------------------------- | --------------------- | ------------------------------ |
-| **Reversible?** | **❌ No (one-way)**          | **✅ Yes (with key)** | **✅ Yes (always)**            |
-| **Key needed?** | **No**                       | **Yes**               | **No**                         |
-| **Purpose**     | **Integrity / verification** | **Confidentiality**   | **Data format transformation** |
-| **Examples**    | **SHA-256, bcrypt**          | **AES, RSA**          | **Base64, URL encoding**       |
-| **Use case**    | **Passwords, checksums**     | **Storing secrets**   | **Transmitting binary data**   |
+| Reversible? | ❌ No (one-way)          | ✅ Yes (with key) | ✅ Yes (always)            |
+| Key needed? | No                       | Yes               | No                         |
+|Purpose     | Integrity / verification | Confidentiality   | Data format transformation |
+| Examples    |SHA-256, bcrypt          | AES, RSA         | Base64, URL encoding       |
+| Use case    | Passwords, checksums     | Storing secrets   | Transmitting binary data   |
 
-**⚠️ Base64 is NOT encryption or hashing - it's encoding. Anyone can decode it instantly. ⚠️ MD5 is NOT safe for passwords - it's a checksum algorithm, not a password hashing algorithm.**
+⚠️ Base64 is NOT encryption or hashing - it's encoding. Anyone can decode it instantly. ⚠️ MD5 is NOT safe for passwords - it's a checksum algorithm, not a password hashing algorithm.
 
-### **4\. TYPES OF HASHING (By Purpose)**
+###  TYPES OF HASHING (By Purpose)
 
-###
 
-### **🔷 A. Cryptographic Hash Functions**
 
-**Purpose: Security - integrity verification, digital signatures, password storage**
+###  A. Cryptographic Hash Functions
 
-| **Algorithm** | **Output Size** | **Status**    | **Use Case**                            |
+* Purpose: Security - integrity verification, digital signatures, password storage
+
+| Algorithm | Output Size | Status    | Use Case                            |
 | ------------- | --------------- | ------------- | --------------------------------------- |
-| **MD5**       | **128 bit**     | **❌ Broken** | **Legacy checksums only**               |
-| **SHA-1**     | **160 bit**     | **❌ Broken** | **Deprecated**                          |
-| **SHA-256**   | **256 bit**     | **✅ Secure** | **TLS, digital signatures, blockchain** |
-| **SHA-512**   | **512 bit**     | **✅ Secure** | **High-security signatures**            |
-| **SHA-3**     | **Variable**    | **✅ Secure** | **Next-gen standard**                   |
-| **bcrypt**    | **184 bit**     | **✅ Secure** | **Password hashing**                    |
-| **Argon2**    | **Variable**    | **✅ Best**   | **Password hashing (modern standard)**  |
-| **scrypt**    | **Variable**    | **✅ Secure** | **Password hashing, key derivation**    |
+| MD5       | 128 bit     | ❌ Broken | Legacy checksums only               |
+| SHA-1     | 160 bit     | ❌ Broken | Deprecated                          |
+| SHA-256   | 256 bit    | ✅ Secure | TLS, digital signatures, blockchain |
+| SHA-512   | 512 bit     | ✅ Secure | High-security signatures            |
+| SHA-3     | Variable    | ✅ Secure| Next-gen standard                   |
+| bcrypt    | 184 bit     | ✅ Secure | Password hashing                    |
+| Argon2    | Variable    | ✅ Best   | Password hashing (modern standard)  |
+| scrypt    | Variable    | ✅ Secure | Password hashing, key derivation    |
 
 
-**🔷 B. Non-Cryptographic Hash Functions**
+### B. Non-Cryptographic Hash Functions
 
-**Purpose: Performance - hash tables, data structures, caching**
+* Purpose: Performance - hash tables, data structures, caching
 
-| **Algorithm**  | **Use Case**                           |
+| Algorithm  | Use Case                          |
 | -------------- | -------------------------------------- |
-| **MurmurHash** | **Hash maps, databases**               |
-| **xxHash**     | **Fast checksums, data deduplication** |
-| **FNV**        | **Simple hash tables**                 |
-| **CRC32**      | **Error detection in networks/files**  |
+| MurmurHash | Hash maps, databases               |
+| xxHash     | Fast checksums, data deduplication |
+| FNV        | Simple hash tables                 |
+| CRC32      | Error detection in networks/files  |
 
-**These are fast but NOT secure - never use for passwords or security purposes.**
+* These are fast but NOT secure - never use for passwords or security purposes.
 
-**🔷 C. Password Hashing Functions (Slow by Design)**
+### C. Password Hashing Functions (Slow by Design)
 
-**Purpose: Making brute-force attacks computationally expensive**
+* Purpose: Making brute-force attacks computationally expensive
 
-| **Algorithm** | **Key Feature**               | **Industry Use**                   |
+| Algorithm     | Key Feature                    | Industry Use                       |
 | ------------- | ----------------------------- | ---------------------------------- |
-| **bcrypt**    | **Cost factor (work factor)** | **Most widely used today**         |
-| **Argon2**    | **Memory-hard, time-hard**    | **Modern gold standard**           |
-| **scrypt**    | **Memory-hard**               | **Cryptocurrencies, some apps**    |
-| **PBKDF2**    | **Iteration count**           | **FIPS compliant, legacy systems** |
+| bcrypt        | Cost factor (work factor)     | Most widely used today             |
+| Argon2        | Memory-hard, time-hard        | Modern gold standard               |
+| scrypt        | Memory-hard                   | Cryptocurrencies, some apps        |
+| PBKDF2        | Iteration count               | FIPS compliant, legacy systems     |
 
 
-### **5\. WHY PASSWORDS NEED SPECIAL HASHING**
+###  WHY PASSWORDS NEED SPECIAL HASHING**
 
-#### **❌ What happens if you use SHA-256 for passwords**
+* What happens if you use SHA-256 for passwords
 
-**User password: "password123"**
+#### Why SHA-256 Is Not Suitable for Passwords
 
-**SHA-256: ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f**
+**Example password:** `password123`
 
-**Problem 1: RAINBOW TABLE ATTACK**
+```text
+SHA-256: ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f
+```
 
-**Attacker precomputes:**
+##### Problem 1: Rainbow Table Attacks
 
-**"password123" → ef92b778...**
+An attacker can precompute common password hashes:
 
-**"123456" → 8d969eef...**
+| Password       | SHA-256 hash |
+| -------------- | ------------ |
+| `password123`  | `ef92b778...` |
+| `123456`       | `8d969eef...` |
+| `qwerty`       | `65e84be3...` |
 
-**"qwerty" → 65e84be3...**
+The attacker then looks up the stolen hash and may discover the password instantly.
 
-**Looks up hash in table → instantly finds password**
+##### Problem 2: SHA-256 Is Too Fast
 
-**Problem 2: SPEED**
+SHA-256 is designed for speed. Attackers can use GPUs to compute billions of hashes per second, making dictionary and brute-force attacks much faster.
 
-**SHA-256 is designed to be FAST**
+#### Solution: Salted, Slow Password Hashing
 
-**GPU can compute 10 BILLION SHA-256 hashes/second**
+**Salt:** A random, unique value added to each password before hashing.
 
-**Brute force entire dictionary in seconds**
+```text
+User 1: "password123" + "x7k9p2" → bcrypt → $2b$12$x7k9p2...
+User 2: "password123" + "m3n8q1" → bcrypt → $2b$12$m3n8q1...
+```
 
-**✅ Solution: Salted + Slow Password Hashing**
+- The same password produces different hashes for different users.
+- Rainbow tables become ineffective because an attacker would need a separate table for each salt.
+- Use a password-specific hashing algorithm such as **bcrypt**, **Argon2**, or **scrypt**.
 
-**SALT: A random unique string added to each password before hashing**
+### bcrypt DEEP DIVE
 
-**User 1: "password123" + "x7k9p2" (salt) → bcrypt → \$2b\$12\$x7k9p2...**
+* bcrypt output format:
 
-**User 2: "password123" + "m3n8q1" (salt) → bcrypt → \$2b\$12\$m3n8q1...**
+   \$2b\$12\$LKJHlkjhLKJHlkjhLKJHluWERTYUIOPASDFGHJKLZXCVBNMQWERTY
 
-**Same password → completely different hashes**
+   \$2b\$ → bcrypt version
 
-**Rainbow tables useless - would need one per salt value**
+* 12 → cost factor (2^12 = 4096 iterations)
 
-### **6\. bcrypt DEEP DIVE**
+  next 22 chars → salt (embedded in hash)
 
-**bcrypt output format:**
+  remaining → hashed password
 
-**\$2b\$12\$LKJHlkjhLKJHlkjhLKJHluWERTYUIOPASDFGHJKLZXCVBNMQWERTY**
+#### Cost Factor Impact
 
-**\$2b\$ → bcrypt version**
-
-**12 → cost factor (2^12 = 4096 iterations)**
-
-**next 22 chars → salt (embedded in hash)**
-
-**remaining → hashed password**
-
-#### **Cost Factor Impact**
-
-| **Cost Factor** | **Hashes/second (modern CPU)** | **Time to hash 1 password** |
+| Cost Factor | Hashes/second (modern CPU) | Time to hash 1 password |
 | --------------- | ------------------------------ | --------------------------- |
-| **10**          | **~100/sec**                   | **~100ms**                  |
-| **12**          | **~25/sec**                    | **~400ms**                  |
-| **14**          | **~6/sec**                     | **~1.5 sec**                |
-| **16**          | **~1.5/sec**                   | **~6 sec**                  |
+| 10          | ~100/sec                   | ~100ms                  |
+| 12          | ~25/sec                    | ~400ms                  |
+| 14          | ~6/sec                     | ~1.5 sec                |
+| 16          | ~1.5/sec                   | ~6 sec                  |
 
 
-**✅ Recommended: cost factor 12 for most apps As hardware gets faster, increase the cost factor - this is bcrypt's key advantage**
+✅ Recommended: cost factor 12 for most apps As hardware gets faster, increase the cost factor - this is bcrypt's key advantage
 
-### **7\. HASHING USE CASES IN INDUSTRY**
+###  HASHING USE CASES IN INDUSTRY
 
-**🔷 Use Case 1: Password Storage**
+### 🔷 Use Case 1: Password Storage
 
-**Registration:**
+#### Registration
 
-**password → bcrypt(password + salt) → store hash in DB**
+```text
+password → bcrypt(password + salt) → store hash in DB
+```
 
-**Login:**
+#### Login
 
-**entered_password → bcrypt(entered_password + stored_salt)**
+```text
+entered_password → bcrypt(entered_password + stored_salt)
+            ↓
+         compare with stored hash
+            ↓
+         match? ✅ Login success
+```
 
-**→ compare with stored hash**
+> **Security rules**
+>
+> - **Never** store plaintext passwords.
+> - **Never** store encrypted passwords; encryption is reversible.
+> - **Always** store securely hashed passwords.
 
-**→ match? ✅ Login success**
 
-**NEVER store plaintext passwords**
 
-**NEVER store encrypted passwords (encryption is reversible)**
+### 🔷 Use Case 2: Hash Tables and Databases
 
-**ALWAYS store hashed passwords**
+- **Indexing:** `hash(user_id) → bucket → O(1) lookup`
+- **Sharding:** `hash(user_id) % num_shards → database shard`
+- **Consistent hashing in distributed systems:**
+  - Used by DynamoDB, Cassandra, and Redis Cluster.
+  - Minimizes data movement when nodes are added or removed.
 
-**🔷 Use Case 2: Data Integrity Verification**
+###  ATTACKS ON HASHING
 
-**🔷 Use Case 3: Git Commit Hashing**
+🔴 Brute Force Attack
 
-**Every Git commit is identified by a SHA-1 hash:**
+   * Try every possible input until hash matches
 
-**🔷 Use Case 4: Digital Signatures**
+   * Defense: slow hash functions (bcrypt, Argon2)
 
-**🔷 Use Case 5: Hash Tables / Databases**
+🔴 Dictionary Attack
 
-**Indexing: hash(user_id) → bucket → O(1) lookup**
+   * Hash common words/passwords from a wordlist
 
-**Sharding: hash(user_id) % num_shards → which DB shard to query**
+   * Compare against stolen hashes
 
-**Consistent hashing in distributed systems:**
+   * Defense: salting (each user's hash is unique)
 
-**→ Used by DynamoDB, Cassandra, Redis Cluster**
+🔴 Rainbow Table Attack
 
-**→ Minimizes data movement when nodes are added/removed**
+   * Precomputed table of hash → plaintext mappings
 
-### **8\. ATTACKS ON HASHING**
+   * Millions of entries, instant lookup
 
-#### **🔴 Brute Force Attack**
+   * Defense: unique salt per password (renders precomputation useless)
 
-**Try every possible input until hash matches**
+🔴 Collision Attack
 
-**Defense: slow hash functions (bcrypt, Argon2)**
+   * Find two different inputs with same hash
 
-#### **🔴 Dictionary Attack**
+   * SHA-1 and MD5 are vulnerable
 
-**Hash common words/passwords from a wordlist**
+   * Google's SHAttered attack (2017): produced two different PDFs with same SHA-1 hash
 
-**Compare against stolen hashes**
+   * Defense: use SHA-256 or higher
 
-**Defense: salting (each user's hash is unique)**
+🔴 Length Extension Attack
 
-#### **🔴 Rainbow Table Attack**
+   * Affects: MD5, SHA-1, SHA-256 (Merkle-Damgård construction)
 
-**Precomputed table of hash → plaintext mappings**
+   * Attacker can append data to a message and compute valid hash
 
-**Millions of entries, instant lookup**
+   * without knowing the secret
 
-**Defense: unique salt per password (renders precomputation useless)**
+   * Defense: use HMAC instead of plain hash(secret + message)
 
-#### **🔴 Collision Attack**
+🔴 Timing Attack
 
-**Find two different inputs with same hash**
+   * Comparing hashes character by character leaks timing info
 
-**SHA-1 and MD5 are vulnerable**
+   * Attacker measures response time to guess hash byte by byte
 
-**Google's SHAttered attack (2017): produced two different PDFs with same SHA-1 hash**
+   * Defense: always use constant-time comparison functions
 
-**Defense: use SHA-256 or higher**
+### EDGE CASES & GOTCHAS
 
-#### **🔴 Length Extension Attack**
+⚠️ Edge Case 1: Hashing Passwords with SHA-256 + Salt is Still Wrong
 
-**Affects: MD5, SHA-1, SHA-256 (Merkle-Damgård construction)**
+* SHA-256 is too fast. Even with a salt, GPUs can compute billions of SHA-256 hashes/sec. A salted SHA-256 password hash can be brute-forced in hours. 
 
-**Attacker can append data to a message and compute valid hash**
+✅ Fix: Always use bcrypt, Argon2, or scrypt for passwords - they are designed to be slow.
 
-**without knowing the secret**
+⚠️ Edge Case 2: Reusing Salts
 
-**Defense: use HMAC instead of plain hash(secret + message)**
+* If two users have the same salt, rainbow tables can target both simultaneously. 
 
-#### **🔴 Timing Attack**
+✅ Fix: Generate a cryptographically random unique salt per user per password.
 
-**Comparing hashes character by character leaks timing info**
+⚠️ Edge Case 3: Comparing Hashes with ==
 
-**Attacker measures response time to guess hash byte by byte**
+* String comparison in most languages short-circuits - returns false as soon as it finds a mismatch. Timing differences reveal how many characters matched. 
 
-**Defense: always use constant-time comparison functions**
+✅ Fix: Use constant-time comparison (hmac.compare_digest() in Python, crypto.timingSafeEqual() in Node.js).
 
-**9\. EDGE CASES & GOTCHAS**
+⚠️ Edge Case 4: Hash Length Doesn't Indicate Security
 
-#### **⚠️ Edge Case 1: Hashing Passwords with SHA-256 + Salt is Still Wrong**
+* MD5 (128-bit) is broken. SHA-256 (256-bit) is secure. Longer ≠ always safer - the algorithm matters more than the length.
 
-**SHA-256 is too fast. Even with a salt, GPUs can compute billions of SHA-256 hashes/sec. A salted SHA-256 password hash can be brute-forced in hours. ✅ Fix: Always use bcrypt, Argon2, or scrypt for passwords - they are designed to be slow.**
+⚠️ Edge Case 5: Upgrading Hash Algorithms in Production
 
-**⚠️ Edge Case 2: Reusing Salts**
+* You have 10M users with bcrypt cost 10. You want to upgrade to Argon2. You can't re-hash without their passwords (which you don't have). 
 
-**If two users have the same salt, rainbow tables can target both simultaneously. ✅ Fix: Generate a cryptographically random unique salt per user per password.**
+✅ Fix: Lazy migration - when user logs in, verify old hash, then re-hash with new algorithm and store. Over time, all active users migrate.
 
-**⚠️ Edge Case 3: Comparing Hashes with ==**
 
-**String comparison in most languages short-circuits - returns false as soon as it finds a mismatch. Timing differences reveal how many characters matched. ✅ Fix: Use constant-time comparison (hmac.compare_digest() in Python, crypto.timingSafeEqual() in Node.js).**
+### TRICKY INTERVIEW QUESTIONS
 
-**⚠️ Edge Case 4: Hash Length Doesn't Indicate Security**
+Q1. Can two different inputs produce the same hash? What is it called?
 
-**MD5 (128-bit) is broken. SHA-256 (256-bit) is secure. Longer ≠ always safer - the algorithm matters more than the length.**
+* Yes - it's called a collision. For a 256-bit hash, there are 2²⁵⁶ possible outputs and infinite possible inputs, so collisions mathematically must exist. A secure hash function makes finding collisions computationally infeasible (would take longer than the age of the universe with current hardware).
 
-**⚠️ Edge Case 5: Upgrading Hash Algorithms in Production**
+Q2. Why is MD5 not suitable for password hashing even with a salt?
 
-**You have 10M users with bcrypt cost 10. You want to upgrade to Argon2. You can't re-hash without their passwords (which you don't have). ✅ Fix: Lazy migration - when user logs in, verify old hash, then re-hash with new algorithm and store. Over time, all active users migrate.**
+* MD5 is designed to be extremely fast - modern GPUs compute billions of MD5 hashes per second. Even with a salt (which prevents rainbow tables), an attacker with a stolen hash database can brute-force all common passwords within hours. Password hashing requires intentionally slow algorithms like bcrypt or Argon2.
 
-**⚠️ Edge Case 6: Pepper vs Salt**
+Q3. What is the difference between hashing and HMAC?
 
-**Salt: random, unique per user, stored alongside hash in DB**
+* A plain hash has no secret - anyone can compute hash(message). HMAC incorporates a secret key: HMAC(key, message). HMAC provides both integrity (message wasn't changed) and authenticity (only someone with the key could have generated it). Plain hashing only provides integrity.
 
-**Pepper: secret value, same for all users, stored in application config (NOT DB)**
+Q4. Why can't you just encrypt passwords instead of hashing them?
 
-**Hash = bcrypt(password + pepper, salt)**
+* Encryption is reversible - if the encryption key is compromised (and keys can be stolen, rotated incorrectly, or leaked), all passwords are exposed. Hashing is one-way - even if the entire database and server are compromised, attackers still can't reverse the hashes without brute-forcing. Defense-in-depth principle: you should never be able to recover a user's password, even as the system owner.
 
-**If DB is stolen → attacker has salts but not pepper**
+Q5. How does bcrypt handle the 72-character password limit?
 
-**→ Can't even start brute forcing without the pepper**
+* bcrypt has a 72-byte input limit - any characters beyond 72 are silently ignored. This means "password" + 72 random characters hashes identically to just those 72 characters. For passwords longer than 72 bytes: ✅ Fix: Pre-hash with SHA-256 first, then bcrypt the result - but be careful to avoid the length extension issue. Or use Argon2 which has no such limit.
 
-**✅ Pepper adds an extra layer but must be rotatable - if pepper is compromised, you need a migration strategy.**
+Q6. Is it safe to hash the same data twice? e.g., SHA256(SHA256(data))
 
-**10\. TRICKY INTERVIEW QUESTIONS**
+* It's not inherently unsafe, but it doesn't improve security and can actually reduce the effective hash space in some constructions. It's also not a substitute for a proper password hashing algorithm. Double hashing is generally pointless - just use a stronger algorithm.
 
-**Q1. Can two different inputs produce the same hash? What is it called?**
+## 11. Mental Model Summary
 
-**Yes - it's called a collision. For a 256-bit hash, there are 2²⁵⁶ possible outputs and infinite possible inputs, so collisions mathematically must exist. A secure hash function makes finding collisions computationally infeasible (would take longer than the age of the universe with current hardware).**
+> **Hashing is a one-way fingerprint.**
 
-**Q2. Why is MD5 not suitable for password hashing even with a salt?**
+- The same input always produces the same fingerprint.
+- Different inputs produce completely different fingerprints.
+- A fingerprint cannot be used to reconstruct the original input.
 
-**MD5 is designed to be extremely fast - modern GPUs compute billions of MD5 hashes per second. Even with a salt (which prevents rainbow tables), an attacker with a stolen hash database can brute-force all common passwords within hours. Password hashing requires intentionally slow algorithms like bcrypt or Argon2.**
+### Use the Right Tool
 
-**Q3. What is the difference between hashing and HMAC?**
+| Use case | Recommended tool | Why |
+|---|---|---|
+| Passwords | **bcrypt** or **Argon2id** | Slow and salted |
+| Data integrity | **SHA-256** | Fast and cryptographic |
+| Message authentication | **HMAC-SHA256** | Integrity and authenticity |
+| Hash tables | **MurmurHash** or **xxHash** | Fast and non-cryptographic |
+| Blockchain / Git | **SHA-256** | Tamper-evident chains |
 
-**A plain hash has no secret - anyone can compute hash(message). HMAC incorporates a secret key: HMAC(key, message). HMAC provides both integrity (message wasn't changed) and authenticity (only someone with the key could have generated it). Plain hashing only provides integrity.**
+### Golden Rules
 
-**Q4. Why can't you just encrypt passwords instead of hashing them?**
+- ❌ Never store plaintext passwords.
+- ❌ Never use MD5 or SHA-1 for security.
+- ❌ Never use fast hashes for passwords.
+- ✅ Always use a unique salt for each password.
+- ✅ Always use constant-time comparison.
+- ✅ Use Argon2id for new systems.
 
-**Encryption is reversible - if the encryption key is compromised (and keys can be stolen, rotated incorrectly, or leaked), all passwords are exposed. Hashing is one-way - even if the entire database and server are compromised, attackers still can't reverse the hashes without brute-forcing. Defense-in-depth principle: you should never be able to recover a user's password, even as the system owner.**
+# Salting
 
-**Q5. How does bcrypt handle the 72-character password limit?**
+###  WHAT IS A SALT?
 
-**bcrypt has a 72-byte input limit - any characters beyond 72 are silently ignored. This means "password" + 72 random characters hashes identically to just those 72 characters. For passwords longer than 72 bytes: ✅ Fix: Pre-hash with SHA-256 first, then bcrypt the result - but be careful to avoid the length extension issue. Or use Argon2 which has no such limit.**
+* A salt is a random, unique value added to a password (or any input) before hashing to ensure that identical inputs produce completely different hash outputs.
 
-**Q6. Is it safe to hash the same data twice? e.g., SHA256(SHA256(data))**
+* Without Salt:
 
-**It's not inherently unsafe, but it doesn't improve security and can actually reduce the effective hash space in some constructions. It's also not a substitute for a proper password hashing algorithm. Double hashing is generally pointless - just use a stronger algorithm.**
+   "password123" → SHA-256 → ef92b778... ← same for EVERY user
 
-**11\. MENTAL MODEL SUMMARY**
+   "password123" → SHA-256 → ef92b778... ← attacker sees duplicate = same password
 
-**HASHING = One-way fingerprint**
+* With Salt:
 
-**Same input → always same fingerprint**
+   "password123" + "x7k9mP2q" → bcrypt → \$2b\$12\$x7k9mP... ← unique
 
-**Different input → completely different fingerprint**
+   "password123" + "tR3nQ8vL" → bcrypt → \$2b\$12\$tR3nQ8... ← completely different
 
-**Fingerprint → cannot reconstruct the original**
+* Think of salt like a unique fingerprint overlay 🖐️ Two people can have the same password - but their hashes will never look the same.
 
-**USE THE RIGHT TOOL:**
+### THE EXACT PROBLEM SALT SOLVES
 
-**Passwords → bcrypt / Argon2id (slow + salted)**
+## Why Salting Matters
 
-**Data integrity → SHA-256 (fast, cryptographic)**
+* Salting protects password hashes from precomputed attacks, reveals less about
+password reuse, and prevents hashes from being compared across systems.
 
-**Message auth → HMAC-SHA256 (integrity + authenticity)**
+### 1. Rainbow-table attacks
 
-**Hash tables → MurmurHash / xxHash (fast, non-cryptographic)**
+* A **rainbow table** is a precomputed lookup table that maps hashes to likely
+passwords:
 
-**Blockchain / Git → SHA-256 (tamper-evident chains)**
+| Hash | Password |
+| --- | --- |
+| `ef92b778bafe771e89245b89ecbc08a4` | `password123` |
+| `8d969eef6ecad3c29a3a629280e686cf` | `123456` |
+| `e10adc3949ba59abbe56e057f20f883e` | `123456` |
+| `5f4dcc3b5aa765d61d8327deb882cf99` | `password` |
 
-**GOLDEN RULES:**
+* Without a salt, an attacker who steals the database may be able to identify a
+password with a simple lookup—without brute force or additional computation.
 
-**❌ Never store plaintext passwords**
+* With a unique salt, the same password produces a different hash each time:
 
-**❌ Never use MD5 / SHA-1 for security**
+```text
+bcrypt("password123" + "x7k9mP2q") → unique hash
+```
 
-**❌ Never use fast hashes for passwords**
+* The attacker would need a separate precomputed table for every possible salt,
+which is computationally and practically infeasible.
 
-**✅ Always salt passwords uniquely**
+### 2. Identical-password detection
 
-**✅ Always use constant-time comparison**
+* Without salts, identical passwords produce identical hashes:
 
-**✅ Use Argon2id for new systems**
+| User ID | Hash | Implication |
+| --- | --- | --- |
+| 1 | `ef92b778...` | `password123` |
+| 2 | `ef92b778...` | Same password |
+| 3 | `ef92b778...` | Same password |
 
-**5 - Salting**
+* Cracking one hash cracks all three and reveals that the users share a
+password.
 
-### **1\. WHAT IS A SALT?**
+* With unique salts, the stored values are different:
 
-**A salt is a random, unique value added to a password (or any input) before hashing to ensure that identical inputs produce completely different hash outputs.**
+| User ID | Salt | Hash |
+| --- | --- | --- |
+| 1 | `x7k9mP2q` | `$2b$12$x7k9mP...` |
+| 2 | `tR3nQ8vL` | `$2b$12$tR3nQ8...` |
+| 3 | `mK5pW1nZ` | `$2b$12$mK5pW1...` |
 
-**Without Salt:**
+* Cracking one hash does not reveal the hashes of the other users.
 
-**"password123" → SHA-256 → ef92b778... ← same for EVERY user**
+### 3. Cross-system attacks
 
-**"password123" → SHA-256 → ef92b778... ← attacker sees duplicate = same password**
+* Without salts, the same password can produce the same hash on different
+websites, allowing a breach on one site to help attack another.
 
-**With Salt:**
+* With unique salts, the results differ:
 
-**"password123" + "x7k9mP2q" → bcrypt → \$2b\$12\$x7k9mP... ← unique**
+```text
+Site A: bcrypt("password123" + saltA) → hashA
+Site B: bcrypt("password123" + saltB) → hashB
 
-**"password123" + "tR3nQ8vL" → bcrypt → \$2b\$12\$tR3nQ8... ← completely different**
+hashA ≠ hashB
+```
 
-**Think of salt like a unique fingerprint overlay 🖐️ Two people can have the same password - but their hashes will never look the same.**
+* Therefore, a breach of Site A does not directly reveal the password hash used
+by Site B.
 
-### **2\. THE EXACT PROBLEM SALT SOLVES**
+#### Login / Verification Flow
 
-**To understand salt deeply, understand what happens without it.**
+```mermaid
+flowchart TD
+   A[User submits password<br/>entered = "mySecretPass"] --> B[Fetch stored hash from DB<br/>stored = "$2b$12$a3fK9pL2mN8xQ7rThashed..."]
+   B --> C[bcrypt extracts the embedded salt<br/>salt = "a3fK9pL2mN8xQ7rT"]
+   C --> D[Hash entered password with extracted salt<br/>testHash = bcrypt(entered, salt, costFactor=12)]
+   D --> E{Constant-time comparison<br/>testHash == stored?}
+   E -->|Yes| F[✅ Login success]
+   E -->|No| G[❌ Wrong password]
 
-**🔴 Problem 1: Rainbow Table Attacks**
+   H[Key insight:<br/>The salt is embedded in the bcrypt hash.<br/>bcrypt.verify() extracts it automatically.]:::note
 
-**A Rainbow Table is a precomputed database:**
-
-**Hash → Password**
-
-**ef92b778bafe771e89245b89ecbc08a4 → password123**
-
-**8d969eef6ecad3c29a3a629280e686cf → 123456**
-
-**e10adc3949ba59abbe56e057f20f883e → 123456**
-
-**5f4dcc3b5aa765d61d8327deb882cf99 → password**
-
-**Attacker steals your DB:**
-
-**Sees hash: ef92b778...**
-
-**Looks it up → "password123" - instant.**
-
-**No brute force needed.**
-
-**No computation needed.**
-
-**Just a lookup table.**
-
-**With salt:**
-
-**Rainbow table for "password123" → ef92b778... is useless**
-
-**Because actual hash = bcrypt("password123" + "x7k9mP2q")**
-
-**Attacker would need a rainbow table for every possible salt value**
-
-**→ Computationally and storage-wise impossible**
-
-**🔴 Problem 2: Identical Password Detection**
-
-**Without salt - DB looks like this:**
-
-**UserID | Hash**
-
-**\-------|------------------**
-
-**1 | ef92b778... ← "password123"**
-
-**2 | ef92b778... ← "password123" (same!)**
-
-**3 | ef92b778... ← "password123" (same!)**
-
-**Attacker sees 3 identical hashes**
-
-**→ Cracks one → cracks all three simultaneously**
-
-**→ Also knows users 1, 2, 3 share a password**
-
-**With salt:**
-
-**UserID | Salt | Hash**
-
-**\-------|-----------|------------------**
-
-**1 | x7k9mP2q | \$2b\$12\$x7k9mP... ← unique**
-
-**2 | tR3nQ8vL | \$2b\$12\$tR3nQ8... ← unique**
-
-**3 | mK5pW1nZ | \$2b\$12\$mK5pW1... ← unique**
-
-**All different. Cracking one tells you nothing about the others.**
-
-**🔴 Problem 3: Cross-System Attacks**
-
-**Without salt:**
-
-**User uses same password on Site A and Site B**
-
-**Site A gets breached → hash ef92b778... found**
-
-**Attacker cracks it → also works on Site B**
-
-**With salt:**
-
-**Site A: bcrypt("password123" + saltA) → hashA**
-
-**Site B: bcrypt("password123" + saltB) → hashB**
-
-**hashA ≠ hashB**
-
-**Breach of Site A reveals nothing about Site B**
-
-#### **Login / Verification Flow**
-
-**Step 1: User submits password**
-
-**entered = "mySecretPass"**
-
-**Step 2: Fetch stored hash from DB**
-
-**stored = "\$2b\$12\$a3fK9pL2mN8xQ7rThashed..."**
-
-**Step 3: Extract salt from stored hash**
-
-**bcrypt automatically extracts: salt = "a3fK9pL2mN8xQ7rT"**
-
-**Step 4: Hash entered password WITH extracted salt**
-
-**testHash = bcrypt("mySecretPass" + "a3fK9pL2mN8xQ7rT", costFactor=12)**
-
-**Step 5: Compare (constant-time)**
-
-**testHash == stored? → ✅ Login success**
-
-**testHash != stored? → ❌ Wrong password**
-
-**🔑 Key insight: You never store the salt separately with bcrypt. The salt is embedded in the hash output itself. bcrypt.verify() extracts it automatically.**
-
-### **4\. SALT PROPERTIES - WHAT MAKES A GOOD SALT**
-
-**✅ RANDOM**
-
-**✅ UNIQUE PER PASSWORD**
-
-**✅ LONG ENOUGH**
-
-**✅ STORED ALONGSIDE THE HASH**
+   classDef note fill:#fff3cd,stroke:#856404,color:#000
+```
 
 
 ### **5\. SALT vs PEPPER - THE DIFFERENCE**
