@@ -96,3 +96,7 @@ def say_hello(name):
 say_hello("Alice")
 ```
 In this example, `my_decorator` is a decorator that wraps the `say_hello` function. When `say_hello` is called, the decorator adds behavior before and after the function execution, printing messages to the console. The `@my_decorator` syntax is a shorthand for applying the decorator to the function. Decorators can also be applied to classes and methods, allowing for more advanced use cases such as class-based decorators and method decorators.
+
+* Q8. What is a react agent and how does it work ?
+A React agent is a software component or module that interacts with a React application to perform specific tasks or provide additional functionality. React agents can be used for various purposes, such as managing state, handling side effects, or facilitating communication between different parts of the application. They work by leveraging React's component-based architecture and lifecycle methods to integrate seamlessly with the application.
+React agents can be implemented as higher-order components (HOCs), custom hooks, or context providers, depending on the specific use case. For example, a React agent could be a custom hook that manages API calls and state updates, allowing components to easily fetch data and update their state without duplicating code. Another example could be a context provider that shares global state or configuration settings across multiple components in the application.
