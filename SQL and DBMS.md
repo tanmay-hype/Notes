@@ -41,3 +41,18 @@ Eg: Examples of non-relational databases include MongoDB (document store), Redis
 3. **Query Language**: Relational databases use SQL for querying, while non-relational databases may use different query languages or APIs specific to their data model (e.g., MongoDB uses a query language based on JSON).
 4. **Scalability**: Non-relational databases are generally designed for horizontal scalability, making them suitable for distributed systems and large-scale applications, while relational databases typically scale vertically, which can be more challenging for very large datasets.
 5. **Use Cases**: Relational databases are often used for applications requiring complex queries and transactions, such as financial systems, while non-relational databases are preferred for applications with large volumes of unstructured data, real-time analytics, and content management systems.
+
+# DBMS Architecture
+
+- **Three-Tier Architecture**: The three-tier architecture of a DBMS consists of three layers: the presentation layer (user interface), the application layer (business logic), and the data layer (database management). This architecture separates concerns, allowing for better scalability, maintainability, and security.
+
+   1. **Presentation Layer**: This layer is responsible for interacting with the user. It includes the user interface components that allow users to input data and view results. It can be a web interface, desktop application, or mobile app.
+     
+    -  User interface components that allow users to input data and view results. It can be a web interface, desktop application, or mobile app.
+   
+   2. **Application Layer**: This layer contains the business logic and application processing. It handles the processing of user requests, applies business rules, and communicates with the data layer to retrieve or update data. It acts as an intermediary between the presentation layer and the data layer.
+   -  User requests are processed in this layer, and it ensures that the appropriate actions are taken based on the application's requirements. It may include application servers, APIs, and other components that facilitate communication between the user interface and the database.
+
+   3. **Data Layer**: This layer is responsible for managing the database and handling data storage, retrieval, and manipulation. It includes the DBMS itself, which provides the necessary tools and services for managing the database, ensuring data integrity, and enforcing security measures. The data layer interacts directly with the underlying database and executes SQL queries or other data operations as requested by the application layer.
+
+   - The data layer is crucial for maintaining the overall performance and reliability of the database system. It ensures that data is stored efficiently, retrieved quickly, and remains consistent and secure throughout its lifecycle.
