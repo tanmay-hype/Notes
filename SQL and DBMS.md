@@ -56,3 +56,61 @@ Eg: Examples of non-relational databases include MongoDB (document store), Redis
    3. **Data Layer**: This layer is responsible for managing the database and handling data storage, retrieval, and manipulation. It includes the DBMS itself, which provides the necessary tools and services for managing the database, ensuring data integrity, and enforcing security measures. The data layer interacts directly with the underlying database and executes SQL queries or other data operations as requested by the application layer.
 
    - The data layer is crucial for maintaining the overall performance and reliability of the database system. It ensures that data is stored efficiently, retrieved quickly, and remains consistent and secure throughout its lifecycle.
+
+# 3 Schema Architecture of DBMS
+
+- **External Schema (View Level)**: This level defines how users interact with the database. It consists of multiple user views, each tailored to the specific needs of different users or applications. The external schema provides a way to present data in a format that is meaningful and relevant to the end-users, while abstracting away the complexities of the underlying database structure. 
+  - Use cases: it allows different users to have customized views of the data, ensuring that they only see the information that is relevant to their roles and responsibilities. 
+  - Eg: A sales manager may have a view that shows sales data by region, while a finance analyst may have a view that focuses on revenue and expenses.
+
+- **Conceptual Schema (Logical Level)**: This level represents the overall logical structure of the entire database. It defines the entities, relationships, and constraints that govern the data. The conceptual schema provides a unified view of the data, independent of how it is physically stored, allowing for better data management and integrity.
+  - Use cases: it serves as a blueprint for the database design, ensuring that all data is organized in a consistent and coherent manner. It also facilitates communication between database designers, developers, and users by providing a common understanding of the data model.
+  - Eg: A conceptual schema might define the relationship between customers, orders, and products in a retail database.
+
+- **Internal Schema (Physical Level)**: This level describes how the data is physically stored in the database. It includes details about data storage structures, indexing methods, and access paths. The internal schema is concerned with optimizing performance and ensuring efficient data retrieval and storage, while remaining transparent to users and applications interacting with the database.
+    - Use cases: it allows database administrators to fine-tune the performance of the database by selecting appropriate storage structures and indexing strategies. It also ensures that data is stored in a way that maximizes efficiency and minimizes resource usage.
+    - Eg: An internal schema might specify that customer data is stored in a B-tree index for fast retrieval, while order data is stored in a hash table for quick access based on order IDs.
+
+# Data Independence
+- **Data Independence**: refers to the ability to change the schema at one level of a database system without affecting the schema at the next higher level. It allows for flexibility in database design and maintenance, enabling changes to be made without disrupting the overall functionality of the system.
+### Types of Data Independence:
+1. **Logical Data Independence**: This type of data independence allows changes to the conceptual schema (logical level) without affecting the external schema (view level). It enables modifications to the logical structure of the database, such as adding new fields or changing relationships between entities, without requiring changes to the user views or applications that rely on the data. Logical data independence is crucial for adapting to evolving business requirements and ensuring that the database can accommodate new data needs without disrupting existing applications.
+   - Use cases: it allows organizations to evolve their data models over time, adding new features or modifying existing ones without impacting the applications that depend on the data. For example, if a company wants to add a new attribute to a customer entity, such as "loyalty program membership," it can do so without affecting the existing views or applications that access customer data.
+
+2. **Physical Data Independence**: This type of data independence allows changes to the internal schema (physical level) without affecting the conceptual schema (logical level). It enables modifications to the physical storage structures, indexing methods, or access paths used to store and retrieve data, without requiring changes to the logical representation of the data. Physical data independence is essential for optimizing performance and adapting to changes in hardware or storage technologies without impacting the logical structure of the database.
+   - Use cases: it allows database administrators to optimize the performance of the database by changing storage structures or indexing strategies without affecting the logical representation of the data. For example, if a database administrator decides to switch from a B-tree index to a hash index for faster data retrieval, they can do so without requiring changes to the logical schema or the applications that access the data.
+
+- **Benefits of Data Independence**: 
+   - It enhances the flexibility and adaptability of the database system, allowing for easier maintenance and evolution of the database over time.
+   - It reduces the impact of changes on applications and user views, minimizing disruptions and ensuring continuity of operations.
+   - It enables better performance optimization by allowing changes to physical storage structures without affecting the logical representation of the data.
+
+# SQL categories
+SQL (Structured Query Language) is a standard language used for managing and manipulating relational databases. It provides a set of commands and statements that allow users to perform various operations on the data stored in the database. SQL can be categorized into several types based on the functionality they provide:
+
+1. **Data Definition Language (DDL)**: DDL statements are used to define and manage the structure of database objects, such as tables, indexes, and views. Common DDL commands include:
+   - `CREATE`: Used to create new database objects (e.g., tables, indexes).
+   - `ALTER`: Used to modify the structure of existing database objects.
+   - `DROP`: Used to delete database objects from the database.
+
+2. **Data Manipulation Language (DML)**: DML statements are used to manipulate the data stored in the database. Common DML commands include:
+   - `SELECT`: Used to retrieve data from one or more tables.
+   - `INSERT`: Used to add new records to a table.
+   - `UPDATE`: Used to modify existing records in a table.
+   - `DELETE`: Used to remove records from a table.
+
+3. **Data Control Language (DCL)**: DCL statements are used to control access to the data in the database. Common DCL commands include:
+   - `GRANT`: Used to give users specific privileges on database objects.
+   - `REVOKE`: Used to remove previously granted privileges from users.
+
+4. **Transaction Control Language (TCL)**: TCL statements are used to manage transactions in the database. Common TCL commands include:
+   - `COMMIT`: Used to save all changes made during the current transaction.
+   - `ROLLBACK`: Used to undo changes made during the current transaction.
+
+# SQL Constraints
+SQL constraints are rules that are applied to the columns of a table to enforce data integrity and ensure that the data stored in the database adheres to specific requirements. Constraints help maintain the accuracy and reliability of the data by restricting the types of values that can be inserted or updated in a table. Common SQL constraints include:
+1. **NOT NULL**: Ensures that a column cannot have a NULL value. It is used to enforce that a value must be provided for the column when inserting or updating records.
+2. **UNIQUE**: Ensures that all values in a column are unique across the table. It prevents duplicate values from being inserted into the column, maintaining data integrity.
+3. **PRIMARY KEY**: A combination of NOT NULL and UNIQUE constraints. It uniquely identifies each record in a table. A table can have only one primary key, which can consist of one or more columns (composite key).
+4. **FOREIGN KEY**: Establishes a relationship between two tables by linking a column in one table to the primary key of another table. It ensures referential integrity, meaning that the value in the foreign key column must exist in the referenced primary key column.
+5. **CHECK**: Ensures that the values in a column meet specific conditions or criteria. It allows for the enforcement of custom rules on the data being inserted or updated in the table.
