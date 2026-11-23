@@ -107,6 +107,17 @@ SQL (Structured Query Language) is a standard language used for managing and man
    - `COMMIT`: Used to save all changes made during the current transaction.
    - `ROLLBACK`: Used to undo changes made during the current transaction.
 
+5. **Data Query Language (DQL)**: DQL statements are used to query the database and retrieve data based on specific criteria. The primary DQL command is:
+   - `SELECT`: Used to retrieve data from one or more tables, allowing users to specify conditions, sorting, and grouping of the results.
+   - `WHERE`: Used to filter the results of a SELECT statement based on specific conditions.
+   - `ORDER BY`: Used to sort the results of a SELECT statement in ascending or descending order.
+   - `GROUP BY`: Used to group the results of a SELECT statement by one or more columns.
+   - `HAVING`: Used to filter the results of a GROUP BY clause based on specific conditions.
+   - `JOIN`: Used to combine rows from two or more tables based on a related column between them.
+   - `UNION`: Used to combine the results of two or more SELECT statements into a single result set, eliminating duplicate rows.
+   - `INTERSECT`: Used to return only the rows that are common between two or more SELECT statements.
+   - `EXCEPT`: Used to return only the rows that are in the first SELECT statement but not in the second.
+
 # SQL Constraints
 SQL constraints are rules that are applied to the columns of a table to enforce data integrity and ensure that the data stored in the database adheres to specific requirements. Constraints help maintain the accuracy and reliability of the data by restricting the types of values that can be inserted or updated in a table. Common SQL constraints include:
 1. **NOT NULL**: Ensures that a column cannot have a NULL value. It is used to enforce that a value must be provided for the column when inserting or updating records.
@@ -114,3 +125,81 @@ SQL constraints are rules that are applied to the columns of a table to enforce 
 3. **PRIMARY KEY**: A combination of NOT NULL and UNIQUE constraints. It uniquely identifies each record in a table. A table can have only one primary key, which can consist of one or more columns (composite key).
 4. **FOREIGN KEY**: Establishes a relationship between two tables by linking a column in one table to the primary key of another table. It ensures referential integrity, meaning that the value in the foreign key column must exist in the referenced primary key column.
 5. **CHECK**: Ensures that the values in a column meet specific conditions or criteria. It allows for the enforcement of custom rules on the data being inserted or updated in the table.
+
+# ER Models
+ER (Entity-Relationship) models are used to represent the structure of a database in a visual way. They show the entities in the database, their attributes, and the relationships between them. ER models are useful for designing and understanding the logical structure of a database before implementing it in a specific DBMS.
+
+1. **Entities**: Entities are objects or concepts that can have data stored about them. They can be physical objects (like a person or a product) or abstract concepts (like a course or an event). Each entity is represented as a rectangle in an ER diagram.
+2. **Attributes**: Attributes are the properties or characteristics of an entity. They describe the data that can be stored about the entity. Attributes are represented as ovals connected to their respective entities in an ER diagram. For example, a "Student" entity may have attributes like "StudentID," "Name," and "DateOfBirth."
+3. **Relationships**: Relationships represent the associations between entities. They show how entities are related to one another in the database. Relationships are represented as diamonds in an ER diagram, with lines connecting them to the related entities. For example, a ""Enrolls" relationship may connect the "Student" entity to the "Course" entity, indicating that students can enroll in courses.
+4. **Cardinality**: Cardinality defines the number of instances of one entity that can be associated with instances of another entity in a relationship. It specifies the minimum and maximum number of occurrences of an entity in relation to another entity. Common cardinalities include one-to-one (1:1), one-to-many (1:N), and many-to-many (M:N). Cardinality is often represented using symbols or annotations on the lines connecting entities in an ER diagram.
+5. **Primary Key**: A primary key is a unique identifier for each instance of an entity. It ensures that each record in the entity can be uniquely identified and accessed. In an ER diagram, the primary key is often underlined in the attribute list of the entity. For example, "StudentID" may serve as the primary key for the "Student" entity.
+6. **Foreign Key**: A foreign key is an attribute in one entity that refers to the primary key of another entity. It establishes a link between the two entities and enforces referential integrity in the database. In an ER diagram, foreign keys are often represented with dashed lines connecting the related entities. For example, a "CourseID" attribute in the "Enrolls" relationship may serve as a foreign key linking to the "Course" entity's primary key.
+7. **Weak Entity**: A weak entity is an entity that cannot be uniquely identified by its own attributes alone and relies on a strong entity for its identification. It has a partial key and is typically represented with a double rectangle in an ER diagram. The relationship between a weak entity and its strong entity is represented with a double diamond. For example, an "OrderItem" entity may be a weak entity that depends on the "Order" entity for its identification, as it cannot exist without being associated with a specific order.
+8. **Composite Attribute**: A composite attribute is an attribute that can be divided into smaller sub-attributes, each of which holds a specific piece of information. In an ER diagram, composite attributes are represented as ovals connected to their sub-attributes with lines. For example, a "FullName" attribute may be a composite attribute consisting of "FirstName" and "LastName" sub-attributes.
+9. **Derived Attribute**: A derived attribute is an attribute whose value can be calculated or derived from other attributes in the database. It is not stored directly in the database but can be computed when needed. In an ER diagram, derived attributes are often represented with dashed ovals. For example, an "Age" attribute may be a derived attribute calculated from the "DateOfBirth" attribute of a "Person" entity.
+
+# Keys 
+The concept of keys is fundamental in database design and management. Keys are attributes or sets of attributes that uniquely identify records within a table or establish relationships between tables. They play a crucial role in ensuring data integrity, enforcing uniqueness, and facilitating efficient data retrieval.
+
+1. **Primary Key**: A primary key is a unique identifier for each record in a table. It ensures that no two records can have the same value for the primary key attribute(s). A primary key can consist of a single attribute or a combination of attributes (composite key). It is essential for maintaining data integrity and enabling efficient data retrieval. In an ER diagram, the primary key is often underlined in the attribute list of the entity.
+2. **Foreign Key**: A foreign key is an attribute in one table that refers to the primary key of another table. It establishes a relationship between the two tables and enforces referential integrity, ensuring that the value in the foreign key column must exist in the referenced primary key column.
+3. **Candidate Key**: A candidate key is an attribute or a set of attributes that can uniquely identify records in a table. A table can have multiple candidate keys, but only one of them can be chosen as the primary key. Candidate keys are essential for identifying potential primary keys and ensuring data uniqueness.
+4. **Alternate Key**: An alternate key is a candidate key that was not selected as the primary key. It serves as an alternative unique identifier for records in a table. Alternate keys can be used to enforce uniqueness and provide additional ways to access records in the database.
+5. **Composite Key**: A composite key is a primary key that consists of two or more attributes. It is used when a single attribute is not sufficient to uniquely identify records in a table. Composite keys are often used in many-to-many relationships or when the combination of attributes provides a unique identifier for records. In an ER diagram, composite keys are represented by underlining all the attributes that make up the key. 
+6. **Super Key**: A super key is an attribute or a set of attributes that can uniquely identify records in a table. It may contain additional attributes beyond what is necessary for uniqueness. All candidate keys are super keys, but not all super keys are candidate keys. Super keys are important for understanding the relationships between attributes and ensuring data integrity.
+7. **Unique Key**: A unique key is an attribute or a set of attributes that enforces uniqueness in a table, similar to a primary key. However, unlike a primary key, a unique key can allow NULL values (depending on the database system). Unique keys are used to ensure that no two records have the same value for the specified attribute(s), maintaining data integrity and preventing duplicate entries.
+8. **Surrogate Key**: A surrogate key is an artificial or synthetic key that is created to serve as a unique identifier for records in a table. It is typically an auto-incremented integer or a unique identifier (UUID) that has no inherent meaning or relationship to the actual data. Surrogate keys are often used when natural keys are not suitable or when a simple, consistent identifier is needed for database operations.
+
+# Refrential Integrity
+- **Referential Integrity**: is a property of relational databases that ensures that relationships between tables remain consistent. It means that if one table (the child table) has a foreign key that references another table (the parent table), the value of the foreign key must either match a primary key value in the parent table or be NULL. This ensures that there are no orphaned records in the child table, maintaining the integrity of the relationships between tables.
+### Key Concepts of Referential Integrity:
+1. **Foreign Key Constraint**: A foreign key constraint is a rule that enforces referential integrity by ensuring that the value of a foreign key in the child table corresponds to a valid primary key value in the parent table. If a foreign key value does not match any primary key value in the parent table, the database will reject the operation (insert or update) that violates the constraint.
+2. **Cascading Actions**: Cascading actions are options that can be defined for foreign key constraints to specify how changes in the parent table should affect the child table. Common cascading actions include:
+   - **CASCADE**: If a record in the parent table is deleted or updated, the corresponding records in the child table will also be deleted or updated automatically. This ensures that the relationships remain consistent without leaving orphaned records.
+   - **SET NULL**: If a record in the parent table is deleted or updated, the corresponding foreign key values in the child table will be set to NULL. This allows for the removal of the relationship while preserving the child records.
+   - **SET DEFAULT**: If a record in the parent table is deleted or updated, the corresponding foreign key values in the child table will be set to a default value specified for the foreign key column. This allows for maintaining a valid relationship while changing the foreign key value.
+3. **ON DELETE and ON UPDATE**: These clauses are used to define the behavior of foreign key constraints when a record in the parent table is deleted or updated. They specify the cascading actions that should be taken to maintain referential integrity in the child table. For example, an ON DELETE CASCADE clause would automatically delete related records in the child table when a record in the parent table is deleted, while an ON UPDATE CASCADE clause would automatically update the foreign key values in the child table when the corresponding primary key value in the parent table is updated. 
+
+# SELECT Fundamentals
+The SELECT statement is a fundamental SQL command used to retrieve data from one or more tables in a relational database. It allows users to specify the columns they want to retrieve, apply filtering conditions, sort the results, and perform various operations on the data. The SELECT statement is versatile and can be used in combination with other SQL clauses to create complex queries that meet specific data retrieval requirements.
+### Basic Syntax of the SELECT Statement:
+```sql
+SELECT column1, column2, ...
+FROM table_name
+WHERE condition
+GROUP BY column
+HAVING condition
+ORDER BY column ASC|DESC;
+```
+### Key Components of the SELECT Statement:
+1. **SELECT Clause**: The SELECT clause specifies the columns that you want to retrieve from the table(s). You can list individual column names, use the asterisk (*) to select all columns, or apply aggregate functions (e.g., COUNT, SUM, AVG) to perform calculations on the data. For example, `SELECT name, age FROM students;` retrieves the "name" and "age" columns from the "students" table.
+2. **FROM Clause**: The FROM clause specifies the table(s) from which to retrieve the data. You can specify a single table or use JOIN operations to combine data from multiple tables based on relationships between them. For example, `FROM students` indicates that the data should be retrieved from the "students" table.
+3. **WHERE Clause**: The WHERE clause is used to filter the results based on specific conditions. It allows you to specify criteria that the data must meet in order to be included in the result set. You can use comparison operators (e.g., =, <>, >, <), logical operators (e.g., AND, OR, NOT), and pattern matching (e.g., LIKE) to define the conditions. For example, `WHERE age > 18` filters the results   to include only students older than 18.
+4. **GROUP BY Clause**: The GROUP BY clause is used to group rows that have the same values in specified columns into summary rows. It is often used with aggregate functions to perform calculations on each group. For example, `GROUP BY department` groups the rows by the "department" column.
+5. **HAVING Clause**: The HAVING clause is used to filter groups after the GROUP BY clause has been applied. It is similar to the WHERE clause but is applied to the grouped data. For example, `HAVING COUNT(*) > 5` filters the groups to include only those with more than 5 rows.
+6. **ORDER BY Clause**: The ORDER BY clause is used to sort the results in ascending or descending order based on one or more columns. For example, `ORDER BY name ASC` sorts the results by the "name" column in ascending order.
+
+# Null Handling in SQL
+In SQL, NULL represents the absence of a value or an unknown value in a database column. It is important to understand how NULL values are handled in SQL, as they can affect query results and data integrity. NULL is not the same as an empty string or a zero value; it indicates that the value is missing or undefined.
+### Key Concepts of NULL Handling in SQL:
+1. **NULL Comparison**: When comparing NULL values, the result is always unknown (NULL). Therefore, using standard comparison operators (e.g., =, <>, >, <) with NULL will not yield true or false results. Instead, you should use the `IS NULL` or `IS NOT NULL` operators to check for NULL values. For example, `WHERE column_name IS NULL` filters the results to include only rows where the specified column has a NULL value.
+2. **NULL in Aggregate Functions**: When using aggregate functions (e.g., COUNT, SUM, AVG), NULL values are typically ignored in the calculations. For example, `COUNT(column_name)` counts only the non-NULL values in the specified column, while `SUM(column_name)` and `AVG(column_name)` also ignore NULL values when performing their calculations.
+3. **NULL in Joins**: When performing JOIN operations, NULL values can affect the results of the join. For example, in an INNER JOIN, rows with NULL values in the join columns will not be included in the result set, while in an OUTER JOIN, rows with NULL values may still be included, depending on the type of outer join (LEFT, RIGHT, or FULL).
+4. **NULL in Conditional Expressions**: When using conditional expressions (e.g., CASE statements), NULL values can lead to unexpected results if not handled properly. It is important to account for NULL values in your logic to ensure that the desired outcomes are achieved. For example, you can use the   `COALESCE` function to provide a default value for NULL values in conditional expressions. For example, `COALESCE(column_name, 'default_value')` returns the value of `column_name` if it is not NULL; otherwise, it returns 'default_value'.
+5. **NULL in Sorting**: When sorting results using the ORDER BY clause, NULL values are typically treated as the lowest possible values and will appear first in ascending order and last in descending order. However, some database systems allow you to specify how NULL values should be sorted using the `NULLS FIRST` or `NULLS LAST` options. For example, `ORDER BY column_name ASC NULLS LAST` sorts the results in ascending order while placing NULL values at the end of the result set.
+
+# Built-in Functions in SQL
+SQL provides a variety of built-in functions that can be used to perform calculations, manipulate data, and retrieve specific information from the database. These functions can be categorized into several types based on their functionality:
+1. **Aggregate Functions**: Aggregate functions perform calculations on a set of values and return a single value. Common aggregate functions include:
+   - `COUNT()`: Returns the number of rows in a specified column or table.
+   - `SUM()`: Returns the total sum of a numeric column.
+   - `AVG()`: Returns the average value of a numeric column.
+   - `MIN()`: Returns the minimum value in a specified column.
+   - `MAX()`: Returns the maximum value in a specified column.
+2. **String Functions**: String functions are used to manipulate and process string data. Common string functions include:
+   - `CONCAT()`: Concatenates two or more strings into a single string.
+   - `LENGTH()`: Returns the length of a string.
+   - `SUBSTRING()`: Extracts a substring from a string based on specified starting position and length.
+   - `UPPER()`: Converts a string to uppercase.
+   - `LOWER()`: Converts a string to lowercase.
